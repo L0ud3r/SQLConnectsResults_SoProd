@@ -1,0 +1,51 @@
+﻿@model List<SoProd.Web.Models.TestResultViewModel>
+
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<br/>
+
+<div class="portlet box red">
+    <div class="portlet-title">
+        <div class="caption">
+            <i class="fa fa-cogs"></i>Database Results
+        </div>
+        <div class="tools">
+            <a href="javascript:;" class="reload">
+            </a>
+        </div>
+    </div>
+    <div class="portlet-body" style="display: block;">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th data-field="id">ID</th>
+                        <th data-field="identifier">Identifier</th>
+                        <th data-filed="timeEllapsed">Time Ellapsed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>@item.Identifier</td>
+                            <td>@item.TimeEllapsed</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />

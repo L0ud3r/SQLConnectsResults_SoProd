@@ -1,0 +1,16 @@
+C:\Programming\SoProd\SoProd_Testing.Data\bin\Debug\SoProd_Testing.Data.dll
+C:\Programming\SoProd\SoProd_Testing.Data\bin\Debug\SoProd_Testing.Data.pdb
+C:\Programming\SoProd\SoProd_Testing.Data\bin\Debug\EntityFramework.dll
+C:\Programming\SoProd\SoProd_Testing.Data\bin\Debug\EntityFramework.SqlServer.dll
+C:\Programming\SoProd\SoProd_Testing.Data\bin\Debug\EntityFramework.xml
+C:\Programming\SoProd\SoProd_Testing.Data\bin\Debug\EntityFramework.SqlServer.xml
+C:\Programming\SoProd\SoProd_Testing.Data\obj\Debug\SoProd_Testing.Data.csproj.AssemblyReference.cache
+C:\Programming\SoProd\SoProd_Testing.Data\obj\Debug\SoProd_Testing.Data.Migrations.Init.resources
+C:\Programming\SoProd\SoProd_Testing.Data\obj\Debug\SoProd_Testing.Data.Migrations.removeUnusedPropertiesFromTestDefinition.resources
+C:\Programming\SoProd\SoProd_Testing.Data\obj\Debug\SoProd_Testing.Data.Migrations.fixTestResultv3.resources
+C:\Programming\SoProd\SoProd_Testing.Data\obj\Debug\SoProd_Testing.Data.csproj.GenerateResource.cache
+C:\Programming\SoProd\SoProd_Testing.Data\obj\Debug\SoProd_Testing.Data.csproj.CoreCompileInputs.cache
+C:\Programming\SoProd\SoProd_Testing.Data\obj\Debug\SoProd_Testing.Data.csproj.CopyComplete
+C:\Programming\SoProd\SoProd_Testing.Data\obj\Debug\SoProd_Testing.Data.dll
+C:\Programming\SoProd\SoProd_Testing.Data\obj\Debug\SoProd_Testing.Data.pdb
+C:\Programming\SoProd\SoProd_Testing.Data\bin\Debug\SoProd_Testing.Data.dll.config
