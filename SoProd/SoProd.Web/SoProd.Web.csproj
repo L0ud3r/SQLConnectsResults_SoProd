@@ -1026,6 +1026,8 @@
     <Content Include="Scripts\jquery-validation\lib\jquery.mockjax.js" />
     <Content Include="Scripts\jquery.blockui.min.js" />
     <Content Include="Scripts\jquery.cokie.min.js" />
+    <Content Include="Scripts\jquery.dataTables.columnFilter.js" />
+    <Content Include="Scripts\jquery.dataTables.min.js" />
     <Content Include="Scripts\jquery.sparkline.min.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />

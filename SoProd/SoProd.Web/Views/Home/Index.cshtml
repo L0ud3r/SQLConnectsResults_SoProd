@@ -1,10 +1,10 @@
-﻿@model List<SoProd.Web.Models.TestResultViewModel>
+﻿@model List<SoProd.Web.Models.TestDefinitionViewModel>
 
 @{
     ViewBag.Title = "Home Page";
 }
 
-<br/>
+<br />
 
 <div class="portlet box red">
     <div class="portlet-title">
@@ -17,13 +17,31 @@
         </div>
     </div>
     <div class="portlet-body" style="display: block;">
+        <form id="search-form" asp-controller="Home" asp-action="Index" method="get">
+            <div class="mb-3">
+                <select asp-for="Home" class="select2-request" multiples="multiples" id="request-filter" style="width: 100%;" required>
+                    <option value="">All Requests</option>
+                </select>
+            </div>
+            <div class="col-0">
+                <input type="text" id="text-search" />
+                <input type="submit" id="search-button" value="Filter" onclick="alert('boas')" class="btn btn-danger" />
+            </div>
+        </form>
         <div class="table-responsive">
             <table class="table">
                 <thead>
                     <tr>
                         <th data-field="id">ID</th>
-                        <th data-field="identifier">Identifier</th>
-                        <th data-filed="timeEllapsed">Time Ellapsed</th>
+                        <th data-field="Name">Name</th>
+                        <th data-filed="UserCount">User Count</th>
+                        <th data-filed="Version">Version</th>
+                        <th data-filed="BaseAddress">Base Address</th>
+                        @*<th data-filed="StartDate">Start Date</th>
+                        <th data-filed="RequestsNumber">Requests Number</th>
+                        <th data-filed="RequestsOK">Requests OK</th>
+                        <th data-filed="RequestsError">Requests Error</th>
+                        <th data-filed="Scenarios">Scenarios</th>*@
                     </tr>
                 </thead>
                 <tbody>
@@ -31,8 +49,10 @@
                     {
                         <tr>
                             <td>@item.Id</td>
-                            <td>@item.Identifier</td>
-                            <td>@item.TimeEllapsed</td>
+                            <td>@item.Name</td>
+                            <td>@item.UserCount</td>
+                            <td>@item.Version</td>
+                            <td>@item.BaseAddress</td>
                         </tr>
                     }
                 </tbody>
@@ -41,11 +61,16 @@
     </div>
 </div>
 
-<br />
-<br />
-<br />
-<br />
-<br />
-<br />
-<br />
-<br />
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $('.select2-request').select2();
+        });
+
+        $(function () {
+            var select = $('#request-filter');
+
+            //SelectPopulate(select, "Home/GetVersions/", { flowId: selectedFlow });
+        });
+    </script>
+}
