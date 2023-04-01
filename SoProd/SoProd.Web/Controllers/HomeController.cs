@@ -39,22 +39,22 @@ namespace SoProd.Web.Controllers
                     list.Add(resultViewModel);
                 }
 
-                for (int i = 0; i < resultList.Count; i++)
+                foreach (var result in resultList)
                 {
                     TestResultViewModel resultViewModel = new TestResultViewModel();
 
-                    resultViewModel.Id = resultList[i].TestDefinitionId;
-                    resultViewModel.Identifier = resultList[i].Identifier;
-                    resultViewModel.TimeEllapsed = Math.Round(resultList[i].TimeEllapsed, 2);
-                    resultViewModel.StartDate = resultList[i].StartDate;
-                    resultViewModel.Version = resultList[i].Version;
-                    resultViewModel.RequestsNumber = resultList[i].RequestsNumber;
-                    resultViewModel.RequestsOK = resultList[i].RequestsOK;
-                    resultViewModel.RequestsError = resultList[i].RequestsError;
+                    resultViewModel.Id = result.TestDefinitionId;
+                    resultViewModel.Identifier = result.Identifier;
+                    resultViewModel.TimeEllapsed = Math.Round(result.TimeEllapsed, 2);
+                    resultViewModel.StartDate = result.StartDate;
+                    resultViewModel.Version = result.Version;
+                    resultViewModel.RequestsNumber = result.RequestsNumber;
+                    resultViewModel.RequestsOK = result.RequestsOK;
+                    resultViewModel.RequestsError = result.RequestsError;
 
-                    foreach(var definition in list)
+                    foreach (var definition in list)
                     {
-                        if(definition.Id == resultList[i].TestDefinitionId)
+                        if (definition.Id == result.TestDefinitionId)
                             definition.testResults.Add(resultViewModel);
                     }
                 }
