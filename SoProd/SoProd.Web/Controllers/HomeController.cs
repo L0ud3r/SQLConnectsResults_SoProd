@@ -39,13 +39,13 @@ namespace SoProd.Web.Controllers
                     list.Add(resultViewModel);
                 }
 
-                for (int i = 0; i < 15; i++)
+                for (int i = 0; i < resultList.Count; i++)
                 {
                     TestResultViewModel resultViewModel = new TestResultViewModel();
 
                     resultViewModel.Id = resultList[i].TestDefinitionId;
                     resultViewModel.Identifier = resultList[i].Identifier;
-                    resultViewModel.TimeEllapsed = resultList[i].TimeEllapsed;
+                    resultViewModel.TimeEllapsed = Math.Round(resultList[i].TimeEllapsed, 2);
                     resultViewModel.StartDate = resultList[i].StartDate;
                     resultViewModel.Version = resultList[i].Version;
                     resultViewModel.RequestsNumber = resultList[i].RequestsNumber;

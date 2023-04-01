@@ -37,11 +37,6 @@
                         <th data-filed="UserCount">User Count</th>
                         <th data-filed="Version">Version</th>
                         <th data-filed="BaseAddress">Base Address</th>
-                        @*<th data-filed="StartDate">Start Date</th>
-                        <th data-filed="RequestsNumber">Requests Number</th>
-                        <th data-filed="RequestsOK">Requests OK</th>
-                        <th data-filed="RequestsError">Requests Error</th>
-                        <th data-filed="Scenarios">Scenarios</th>*@
                     </tr>
                 </thead>
                 <tbody>
@@ -53,6 +48,34 @@
                             <td>@item.UserCount</td>
                             <td>@item.Version</td>
                             <td>@item.BaseAddress</td>
+                            <td><a href="#" class="show-results" data-item-id="@item.Id">Show Results</a></td>
+                        </tr>
+                        <tr id="results-@item.Id" style="display: none;">
+                            <td colspan="5">
+                                <table id="example" class="cell-border" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th data-filed="Identifier">Identifier</th>
+                                            <th data-filed="StartDate">Start Date</th>
+                                            <th data-filed="TimeEllapsed">Time Ellapsed</th>
+                                            <th data-filed="RequestsOK">Requests OK</th>
+                                            <th data-filed="RequestsError">Requests Error</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var result in item.testResults)
+                                        {
+                                            <tr>
+                                                <td>@result.Identifier</td>
+                                                <td>@result.StartDate</td>
+                                                <td>@result.TimeEllapsed</td>
+                                                <td>@result.RequestsOK</td>
+                                                <td>@result.RequestsError</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -65,12 +88,19 @@
     <script>
         $(document).ready(function () {
             $('.select2-request').select2();
+            $('#example').DataTable();
         });
 
         $(function () {
             var select = $('#request-filter');
 
             //SelectPopulate(select, "Home/GetVersions/", { flowId: selectedFlow });
+        });
+
+        $(".show-results").click(function () {
+            var itemId = $(this).data("item-id");
+
+            $("#results-" + itemId).toggle();
         });
     </script>
 }

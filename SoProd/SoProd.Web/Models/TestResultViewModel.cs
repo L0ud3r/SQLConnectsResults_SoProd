@@ -26,6 +26,5 @@ namespace SoProd.Web.Models
         public int RequestsNumber { get; set; }
         public int RequestsOK { get; set; }
         public int RequestsError { get; set; }
-
     }
 }
