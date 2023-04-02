@@ -34,7 +34,7 @@ namespace SoProd.Web.Controllers
                         resultViewModel.Version = "N/A";
 
                     resultViewModel.BaseAddress = result.BaseAddress;
-                    resultViewModel.testResults = new List<TestResultViewModel>();
+                    resultViewModel.TestResults = new List<TestResultViewModel>();
 
                     list.Add(resultViewModel);
                 }
@@ -55,7 +55,7 @@ namespace SoProd.Web.Controllers
                     foreach (var definition in list)
                     {
                         if (definition.Id == result.TestDefinitionId)
-                            definition.testResults.Add(resultViewModel);
+                            definition.TestResults.Add(resultViewModel);
                     }
                 }
 
