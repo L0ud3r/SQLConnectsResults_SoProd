@@ -20,6 +20,8 @@ namespace SoProd.Web.Controllers
 
                 var definitionsList = await context.TestDefinitions.ToListAsync();
                 var resultList = await context.TestResults.ToListAsync();
+                //FAZER UM REQUEST DE EXECUTIONS PARA CADA RESULT AO CLICAR NELE
+                //var executions = await context.TestResultExecutions.Where(x => x.TestResultId == 1).ToListAsync();
 
                 foreach(var result in definitionsList)
                 {
