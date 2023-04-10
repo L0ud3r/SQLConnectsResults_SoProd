@@ -1,12 +1,18 @@
-﻿@model List<SoProd.Web.Models.TestDefinitionViewModel>
+﻿@model List<SoProd.Web.Models.TestResultViewModel>
 
 @{
     ViewBag.Title = "Home Page";
 }
 
-<br />
+<style>
+    .tablerow:hover{
+        cursor: pointer;
+        background-color: lightgray;
+    }
 
-<div class="portlet box red">
+</style>
+
+<div class="portlet box red mt-1">
     <div class="portlet-title">
         <div class="caption">
             <i class="fa fa-cogs"></i>Database Results
@@ -17,89 +23,41 @@
         </div>
     </div>
     <div class="portlet-body" style="display: block;">
-        <form id="search-form" asp-controller="Home" asp-action="Index" method="get">
-            <div class="mb-3">
-                <select asp-for="Home" class="select2-request" multiples="multiples" id="request-filter" style="width: 100%;" required>
-                    <option value="">All Requests</option>
-                </select>
-            </div>
-            @*<div class="col-0">
-                <input type="text" id="text-search" />
-                <input type="submit" id="search-button" value="Filter" onclick="alert('boas')" class="btn btn-danger" />
-            </div>*@
-        </form>
+        <div class="mb-3">
+            <select id="select2-request" class="select2-request" style="width: 35%">
+                <option value="">All Versions</option>
+            </select>
+        </div>
         <div class="table-responsive">
-            <table class="table table-striped table-bordered">
+            <table id="results" class="table">
                 <thead>
                     <tr>
-                        <th data-field="id">ID</th>
-                        <th data-field="Name">Name</th>
-                        <th data-filed="UserCount">User Count</th>
+                        <th data-field="Id">ID</th>
+                        <th data-filed="Identifier">Identifier</th>
+                        <th data-filed="StartDate">Start Date</th>
+                        <th data-filed="TimeEllapsed">Time Ellapsed (ms)</th>
                         <th data-filed="Version">Version</th>
-                        <th data-filed="BaseAddress">Base Address</th>
+                        <th data-filed="RequestsNumber">Total Requests</th>
+                        <th data-filed="AvgRequestTime">Average Request Time (ms)</th>
+                        <th data-filed="RequestPercentage">Ok Percentage</th>
+                        <th data-filed="MaxRequestTime">Max Request (ms)</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var definition in Model)
+                    @foreach (var result in Model)
                     {
-                        <tr>
-                            <td>@definition.Id</td>
-                            <td>@definition.Name</td>
-                            <td>@definition.UserCount</td>
-                            <td>@definition.Version</td>
-                            <td>@definition.BaseAddress</td>
-                            <td><a href="#" class="show-results" data-item-id="@definition.Id">Show Results</a></td>
+                        <tr class="tablerow" data-item-id="@result.Id">
+                            <td id="tablerow">@result.Id</td>
+                            <td id="tablerow">@result.Identifier</td>
+                            <td id="tablerow">@result.StartDate</td>
+                            <td id="tablerow">@result.TimeEllapsed</td>
+                            <td id="tablerow">@result.Version</td>
+                            <td id="tablerow">@result.RequestsNumber</td>
+                            <td id="tablerow">@result.AvgRequestTime</td>
+                            <td id="tablerow">@result.RequestPercentage %</td>
+                            <td id="tablerow">@result.MaxRequestTime</td>
                         </tr>
-                        <tr id="results-@definition.Id" style="display: none;">
-                            <td colspan="5">
-                                <div class="table-responsive">
-                                    <table id="definition-results-@definition.Id" class="table" style="width:100%">
-                                        <thead>
-                                            <tr>
-                                                <th data-filed="Identifier">Identifier</th>
-                                                <th data-filed="StartDate">Start Date</th>
-                                                <th data-filed="TimeEllapsed">Time Ellapsed</th>
-                                                <th data-filed="RequestsOK">Requests OK</th>
-                                                <th data-filed="RequestsError">Requests Error</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach (var result in definition.TestResults)
-                                            {
-                                                <tr>
-                                                    <td>@result.Identifier</td>
-                                                    <td>@result.StartDate</td>
-                                                    <td>@result.TimeEllapsed</td>
-                                                    <td>@result.RequestsOK</td>
-                                                    <td>@result.RequestsError</td>
-                                                    @*<td><a href="#" class="show-results" data-item-id="@result.Id">Show Requests</a></td>*@
-                                                </tr>
-                                                @*<tr id="results-@result.Id" style="display: none;">
-                                                    <td colspan="5">
-                                                        <div class="table-responsive">
-                                                            <table id="example-@result.Id" class="table" style="width:100%">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th data-filed="URL">URL</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    @foreach (var execution in result.TestResultExecutions)
-                                                                    {
-                                                                        <tr>
-                                                                            <td>@execution.URL</td>
-                                                                        </tr>
-                                                                    }
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                    </td>
-                                                </tr>*@
-                                            }
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </td>
+                        <tr id="executions-@result.Id" style="display: none;">
                         </tr>
                     }
                 </tbody>
@@ -108,23 +66,192 @@
     </div>
 </div>
 
-@section scripts {
+<div class="portlet box blue">
+    <div class="portlet-title">
+        <div class="caption">
+            <i class="fa fa-cogs"></i>Results Comparation
+        </div>
+        <div class="tools">
+            <a href="javascript:;" class="reload">
+            </a>
+        </div>
+    </div>
+    <div class="portlet-body" style="display: flex;justify-content:space-around">
+        <div>
+            <div class="mb-3" style="display: flex; gap: 5px">
+                <select id="select2-version-1" class="select2-version-1" style="width: 100%">
+                    <option value="">Choose a version</option>
+                </select>
+                <input id="date-1" type="date" class="form-control" required />
+            </div>
+            <div>
+                Results 1...
+            </div>
+        </div>
+        <div>
+            <button type="button" id="btn-compare" class="btn btn-info compare">Compare</button>
+        </div>
+        <div>
+            <div class="mb-3" style="display: flex; gap: 5px">
+                <select id="select2-version-2" class="select2-version-2" style="width: 100%">
+                    <option value="">Choose a version</option>
+                </select>
+                <input id="date-2" type="date" class="form-control" required />
+            </div>
+            <div>
+                Results 2...
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
     <script>
+        var select = $('#select2-request');
+        var select1 = $('#select2-version-1');
+        var select2 = $('#select2-version-2');
+
+        select.select2();
+        select1.select2();
+        select2.select2();
+
+        $.ajax({
+            url: '/Home/GetVersions',
+            type: 'GET',
+            success: function (response) {
+                $.each(response.themes, function (index, item) {
+                    select.append('<option>' + item + '</option>');
+                });
+                $.each(response.themes, function (index, item) {
+                    select1.append('<option>' + item + '</option>');
+                });
+                $.each(response.themes, function (index, item) {
+                    select2.append('<option>' + item + '</option>');
+                });
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("Error on loading data...")
+            }
+        });
+
         $(document).ready(function () {
-            $('.select2-request').select2();
-            $('[id^="definition-results"]').DataTable();
+            TableInit('#results');
+
         });
 
-        $(function () {
-            var select = $('#request-filter');
-
-            //SelectPopulate(select, "Home/GetVersions/", { flowId: selectedFlow });
-        });
-
-        $(".show-results").click(function () {
+        $(".tablerow").click(function () {
+            // Get the <tr> element
             var itemId = $(this).data("item-id");
 
-            $("#results-" + itemId).toggle();
+            var trElement = document.getElementById(`executions-${itemId}`); // Replace "123" with the actual ID
+
+            // Check if the display property is set to "none"
+            if (trElement.style.display === "none") {
+                $.ajax({
+                    url: "/Home/GetResultExecutions/" + itemId,
+                    type: "GET",
+                    success: function (data) {
+                        var executionsTable = $('<table>').addClass('table').css('width', '100%').attr('id', `result-executions-${itemId}`);
+                        var executionsHeader = $('<thead>').appendTo(executionsTable);
+                        var executionsBody = $('<tbody>').appendTo(executionsTable);
+                        
+                        // Add header row
+                        var headerRow = $('<tr>').appendTo(executionsHeader);
+                        $('<th>').text('ID').appendTo(headerRow);
+                        $('<th>').text('URL').appendTo(headerRow);
+                        $('<th>').text('Status Code').appendTo(headerRow);
+                        $('<th>').text('Time Ellapsed').appendTo(headerRow);
+                        $('<th>').text('Start Date').appendTo(headerRow);
+
+                        // Add data rows
+                        data.results.forEach(function (execution) {
+                            var dataRow = $('<tr>').appendTo(executionsBody);
+                            $('<td>').text(execution.Id).appendTo(dataRow);
+                            $('<td>').text(execution.URL).appendTo(dataRow);
+                            $('<td>').text(execution.StatusCode).appendTo(dataRow);
+                            $('<td>').text(execution.TimeEllapsed.toFixed(4)).appendTo(dataRow);
+
+                            var startDateStr = execution.StartDate.toString(); // Convert StartDate to a string
+
+                            if (startDateStr.length > 0) { // Check if startDateStr is not empty
+                                var startDate = new Date(parseInt(startDateStr.substr(6))); // Parse the date
+                                var formattedStartDate = startDate.toLocaleString(); // Format the date
+                                $('<td>').text(formattedStartDate).appendTo(dataRow);
+                            }
+                        });
+
+                        $("#executions-" + itemId).html($('<td>').attr('colspan', 8).append(executionsTable)).toggle();
+
+                        TableInit(`#result-executions-${itemId}`);
+                    },
+                    error: function () {
+                        alert("Error retrieving test results.");
+                    }
+                });
+            }
+            else {
+                $("#executions-" + itemId).hide();
+            }
         });
+
+        $('#select2-request').on('change', function () {
+            // Get the selected value
+            var selectedValue = $(this).val();
+
+            // Make an Ajax request to fetch the search results
+            $.ajax({
+                url: '/Home/SearchResults?version=' + selectedValue,
+                type: 'GET',
+                data: { searchTerm: selectedValue },
+                success: function (response) {
+                    console.log(response)
+
+                    console.log(response.results)
+
+                    // Update the table with the new search results
+                    var tbody = $('#results tbody');
+                    tbody.empty(); // Clear the current rows in the table body
+
+                    $.each(response.results, function (index, item) {
+                        var tr = $('<tr>').addClass('tablerow').attr('data-item-id', item.Id);
+                        tr.append($('<td>').text(item.Id));
+                        tr.append($('<td>').text(item.Identifier));
+
+                        var startDateStr = item.StartDate.toString(); 
+
+                        if (startDateStr.length > 0) { 
+                            var startDate = new Date(parseInt(startDateStr.substr(6)));
+                            var formattedStartDate = startDate.toLocaleString().replace(',', '');
+                            tr.append($('<td>').text(formattedStartDate));
+                        }
+
+                        tr.append($('<td>').text(Math.round(item.TimeEllapsed, 4)));
+                        tr.append($('<td>').text(item.Version));
+                        tr.append($('<td>').text(item.RequestsNumber));
+                        tr.append($('<td>').text(item.AvgRequestTime));
+                        tr.append($('<td>').text(item.RequestPercentage));
+                        tr.append($('<td>').text(item.MaxRequestTime));
+                        tbody.append(tr);
+                    });
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert('Error on loading data...');
+                }
+            });
+        });
+
+        $("#btn-compare").click(function () {
+            var version1 = $('#select2-version-1 option:selected').val()
+            var date1 = $("#date-1").val();
+            var version2 = $('#select2-version-2 option:selected').val()           
+            var date2 = $("#date-2").val();
+
+            console.log(version1)
+            console.log(date1)
+
+            console.log(version2)
+            console.log(date2)
+        })
+
     </script>
 }

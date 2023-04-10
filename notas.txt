@@ -1,0 +1,55 @@
+                        <tr id="results-@definition.Id" style="display: none;">
+                            <td colspan="5">
+                                <div class="table-responsive">
+                                    <table id="definition-results-@definition.Id" class="table" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th data-filed="Identifier">Identifier</th>
+                                                <th data-filed="StartDate">Start Date</th>
+                                                <th data-filed="TimeEllapsed">Time Ellapsed</th>
+                                                <th data-filed="RequestsOK">Requests OK</th>
+                                                <th data-filed="RequestsError">Requests Error</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var result in definition.TestResults)
+                                            {
+                                                <tr>
+                                                    <td>@result.Identifier</td>
+                                                    <td>@result.StartDate</td>
+                                                    <td>@result.TimeEllapsed</td>
+                                                    <td>@result.RequestsOK</td>
+                                                    <td>@result.RequestsError</td>
+                                                    @*<td><a href="#" class="show-results" data-item-id="@result.Id">Show Requests</a></td>*@
+                                                </tr>
+                                                @*<tr id="results-@result.Id" style="display: none;">
+                                                    <td colspan="5">
+                                                        <div class="table-responsive">
+                                                            <table id="example-@result.Id" class="table" style="width:100%">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th data-filed="URL">URL</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach (var execution in result.TestResultExecutions)
+                                                                    {
+                                                                        <tr>
+                                                                            <td>@execution.URL</td>
+                                                                        </tr>
+                                                                    }
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </td>
+                                                </tr>*@
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+
+
+
+            $('[id^="result-executions"]').DataTable();

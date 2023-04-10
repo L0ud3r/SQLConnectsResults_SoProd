@@ -1,4 +1,5 @@
-﻿using SoProd.Web.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using SoProd.Web.Models;
 using SoProd_Testing.Data;
 using SoProd_Testing.Data.Entities;
 using System;
@@ -16,52 +17,132 @@ namespace SoProd.Web.Controllers
         public async Task<ActionResult> Index()
         {
             using (var context = new SoProdTestingContext()) {
-                List<TestDefinitionViewModel> list = new List<TestDefinitionViewModel>();
+                List<TestResultViewModel> list = new List<TestResultViewModel>();
 
-                var definitionsList = await context.TestDefinitions.ToListAsync();
-                var resultList = await context.TestResults.ToListAsync();
-                //FAZER UM REQUEST DE EXECUTIONS PARA CADA RESULT AO CLICAR NELE
-                //var executions = await context.TestResultExecutions.Where(x => x.TestResultId == 1).ToListAsync();
-
-                foreach(var result in definitionsList)
-                {
-                    TestDefinitionViewModel resultViewModel = new TestDefinitionViewModel();
-
-                    resultViewModel.Id = result.Id;
-                    resultViewModel.Name = result.Name;
-                    resultViewModel.UserCount = result.UserCount;
-                    resultViewModel.Version = result.Version;
-
-                    if (resultViewModel.Version == null)
-                        resultViewModel.Version = "N/A";
-
-                    resultViewModel.BaseAddress = result.BaseAddress;
-                    resultViewModel.TestResults = new List<TestResultViewModel>();
-
-                    list.Add(resultViewModel);
-                }
+                var resultList = await context.TestResults.Take(10).ToListAsync();
+                //var resultList = await context.TestResults.ToListAsync();
 
                 foreach (var result in resultList)
                 {
                     TestResultViewModel resultViewModel = new TestResultViewModel();
 
-                    resultViewModel.Id = result.TestDefinitionId;
+                    resultViewModel.Id = result.Id;
                     resultViewModel.Identifier = result.Identifier;
-                    resultViewModel.TimeEllapsed = Math.Round(result.TimeEllapsed, 2);
+                    resultViewModel.TimeEllapsed = result.TimeEllapsed;
                     resultViewModel.StartDate = result.StartDate;
                     resultViewModel.Version = result.Version;
-                    resultViewModel.RequestsNumber = result.RequestsNumber;
                     resultViewModel.RequestsOK = result.RequestsOK;
                     resultViewModel.RequestsError = result.RequestsError;
+                    resultViewModel.RequestsNumber = result.RequestsNumber;
 
-                    foreach (var definition in list)
+                    var executions = await context.TestResultExecutions.Where((x => x.TestResultId == result.Id)).ToListAsync();
+                    var okExecutions =  executions.Where(x => x.StatusCode == 200).ToList();
+
+                    if (executions != null && executions.Any()) resultViewModel.TotalRequests = executions.Count;
+                    else resultViewModel.TotalRequests = 0;
+
+                    if (okExecutions.Any())
                     {
-                        if (definition.Id == result.TestDefinitionId)
-                            definition.TestResults.Add(resultViewModel);
+                        resultViewModel.AvgRequestTime = okExecutions.Select(x => x.TimeEllapsed).Average();
+
+                        double totalOKs = okExecutions.Count();
+                        resultViewModel.RequestPercentage = resultViewModel.TotalRequests > 0 ? (totalOKs / resultViewModel.TotalRequests) * 100 : 0;
+
+                        resultViewModel.MaxRequestTime = okExecutions.Select(x => x.TimeEllapsed).Max();
                     }
+                    else
+                    {
+                        resultViewModel.AvgRequestTime = -1;
+                        resultViewModel.RequestPercentage = -1;
+                        resultViewModel.MaxRequestTime = -1;
+                    }
+
+                    //VERSION do REquests para comparar + data por lista
+
+                    list.Add(resultViewModel);
                 }
 
                 return View(list);
+            }
+        }
+
+        public async Task<JsonResult> SearchResults(string version)
+        {
+            using (var context = new SoProdTestingContext())
+            {
+                List<TestResultViewModel> list = new List<TestResultViewModel>();
+                var results = await context.TestResults.Take(10).ToListAsync(); ;
+
+                context.Configuration.LazyLoadingEnabled = false;
+                if(version != null && version != "")
+                {
+                    results = await context.TestResults.AsNoTracking().Where(x => x.Version == version).ToListAsync();
+                }
+
+                foreach (var result in results)
+                {
+                    TestResultViewModel resultViewModel = new TestResultViewModel();
+
+                    resultViewModel.Id = result.Id;
+                    resultViewModel.Identifier = result.Identifier;
+                    resultViewModel.TimeEllapsed = result.TimeEllapsed;
+                    resultViewModel.StartDate = result.StartDate;
+                    resultViewModel.Version = result.Version;
+                    resultViewModel.RequestsOK = result.RequestsOK;
+                    resultViewModel.RequestsError = result.RequestsError;
+                    resultViewModel.RequestsNumber = result.RequestsNumber;
+
+                    var executions = await context.TestResultExecutions.Where((x => x.TestResultId == result.Id)).ToListAsync();
+                    var okExecutions = executions.Where(x => x.StatusCode == 200).ToList();
+
+                    if (executions != null && executions.Any()) resultViewModel.TotalRequests = executions.Count;
+                    else resultViewModel.TotalRequests = 0;
+
+                    if (okExecutions.Any())
+                    {
+                        resultViewModel.AvgRequestTime = okExecutions.Select(x => x.TimeEllapsed).Average();
+
+                        double totalOKs = okExecutions.Count();
+                        resultViewModel.RequestPercentage = resultViewModel.TotalRequests > 0 ? (totalOKs / resultViewModel.TotalRequests) * 100 : 0;
+
+                        resultViewModel.MaxRequestTime = okExecutions.Select(x => x.TimeEllapsed).Max();
+                    }
+                    else
+                    {
+                        resultViewModel.AvgRequestTime = -1;
+                        resultViewModel.RequestPercentage = -1;
+                        resultViewModel.MaxRequestTime = -1;
+                    }
+
+                    //VERSION do REquests para comparar + data por lista
+
+                    list.Add(resultViewModel);
+                }
+
+                return Json(new { result = "OK", results = list }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public async Task<JsonResult> GetResultExecutions(int id)
+        {
+            using (var context = new SoProdTestingContext())
+            {
+                context.Configuration.LazyLoadingEnabled = false;
+                var results = await context.TestResultExecutions.AsNoTracking().Where(x => x.TestResultId == id).ToListAsync();
+
+
+                return Json(new { result = "OK", results = results }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public async Task<JsonResult> GetVersions()
+        {
+            using (var context = new SoProdTestingContext())
+            {
+                context.Configuration.LazyLoadingEnabled = false;
+                var themes = await context.TestResults.AsNoTracking().Where(x => x.Version != null).Select(x => x.Version).Distinct().ToListAsync();
+
+                return Json(new { result = "OK", themes = themes }, JsonRequestBehavior.AllowGet);
             }
         }
 

@@ -13,7 +13,6 @@ namespace SoProd.Web.Models
         public string Version { get; set; }
         public string BaseAddress { get; set; }
         //public int MaxErrorCodes { get; set; }
-        public List<TestResultViewModel> TestResults { get; set; }
     }
 
     public class TestResultViewModel
@@ -26,8 +25,10 @@ namespace SoProd.Web.Models
         public int RequestsNumber { get; set; }
         public int RequestsOK { get; set; }
         public int RequestsError { get; set; }
-        public List<TestResultExecutionViewModel> TestResultExecutions { get; set; }
-
+        public int TotalRequests { get; set; }
+        public double AvgRequestTime { get; set; }
+        public double RequestPercentage { get; set; }
+        public double MaxRequestTime { get; set; }
     }
 
     public class TestResultExecutionViewModel
