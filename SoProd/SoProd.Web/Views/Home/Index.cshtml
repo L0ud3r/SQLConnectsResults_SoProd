@@ -5,12 +5,69 @@
 }
 
 <style>
-    .tablerow:hover{
+    .tablerow:hover {
         cursor: pointer;
         background-color: lightgray;
     }
 
+    .result-box {
+        display: flex;
+        flex-direction: column;
+        border: 3px solid lightblue;
+        padding: 5px;
+        text-align:center
+    }
+
+    .result-box-line {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
 </style>
+
+<div class="portlet box blue">
+    <div class="portlet-title">
+        <div class="caption">
+            <i class="fa fa-cogs"></i>Results Comparation
+        </div>
+        <div class="tools">
+            <a href="javascript:;" class="reload">
+            </a>
+        </div>
+    </div>
+    <div class="portlet-body" style="display: flex;justify-content:space-around">
+        <div>
+            <div class="mb-3" style="display: flex; gap: 5px">
+                <select id="select2-version-1" class="select2-version-1" style="width: 300px">
+                    <option value="">Choose a version</option>
+                </select>
+                <input id="date-1" type="date" class="form-control" required />
+            </div>
+            <div id="result1" class="result-box">
+                No data
+            </div>
+        </div>
+        <div style="display: flex; flex-direction: column; justify-content: space-between; width: 15%">
+            <button type="button" id="btn-compare" class="btn btn-info compare">Compare</button>
+            <div id="comparison-result" >jklsdgoijwdsgoisdsdlkçhfgisdfbgousbgo</div>
+            <div></div>
+        </div>
+        <div>
+            <div class="mb-3" style="display: flex; gap: 5px">
+                <select id="select2-version-2" class="select2-version-2" style="width: 300px">
+                    <option value="">Choose a version</option>
+                </select>
+                <input id="date-2" type="date" class="form-control" required />
+            </div>
+            <div id="result2" class="result-box">
+                No data
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 
 <div class="portlet box red mt-1">
     <div class="portlet-title">
@@ -66,44 +123,6 @@
     </div>
 </div>
 
-<div class="portlet box blue">
-    <div class="portlet-title">
-        <div class="caption">
-            <i class="fa fa-cogs"></i>Results Comparation
-        </div>
-        <div class="tools">
-            <a href="javascript:;" class="reload">
-            </a>
-        </div>
-    </div>
-    <div class="portlet-body" style="display: flex;justify-content:space-around">
-        <div>
-            <div class="mb-3" style="display: flex; gap: 5px">
-                <select id="select2-version-1" class="select2-version-1" style="width: 100%">
-                    <option value="">Choose a version</option>
-                </select>
-                <input id="date-1" type="date" class="form-control" required />
-            </div>
-            <div>
-                Results 1...
-            </div>
-        </div>
-        <div>
-            <button type="button" id="btn-compare" class="btn btn-info compare">Compare</button>
-        </div>
-        <div>
-            <div class="mb-3" style="display: flex; gap: 5px">
-                <select id="select2-version-2" class="select2-version-2" style="width: 100%">
-                    <option value="">Choose a version</option>
-                </select>
-                <input id="date-2" type="date" class="form-control" required />
-            </div>
-            <div>
-                Results 2...
-            </div>
-        </div>
-    </div>
-</div>
 
 @section Scripts {
     <script>
@@ -154,7 +173,7 @@
                         var executionsTable = $('<table>').addClass('table').css('width', '100%').attr('id', `result-executions-${itemId}`);
                         var executionsHeader = $('<thead>').appendTo(executionsTable);
                         var executionsBody = $('<tbody>').appendTo(executionsTable);
-                        
+
                         // Add header row
                         var headerRow = $('<tr>').appendTo(executionsHeader);
                         $('<th>').text('ID').appendTo(headerRow);
@@ -204,10 +223,6 @@
                 type: 'GET',
                 data: { searchTerm: selectedValue },
                 success: function (response) {
-                    console.log(response)
-
-                    console.log(response.results)
-
                     // Update the table with the new search results
                     var tbody = $('#results tbody');
                     tbody.empty(); // Clear the current rows in the table body
@@ -217,9 +232,9 @@
                         tr.append($('<td>').text(item.Id));
                         tr.append($('<td>').text(item.Identifier));
 
-                        var startDateStr = item.StartDate.toString(); 
+                        var startDateStr = item.StartDate.toString();
 
-                        if (startDateStr.length > 0) { 
+                        if (startDateStr.length > 0) {
                             var startDate = new Date(parseInt(startDateStr.substr(6)));
                             var formattedStartDate = startDate.toLocaleString().replace(',', '');
                             tr.append($('<td>').text(formattedStartDate));
@@ -241,16 +256,151 @@
         });
 
         $("#btn-compare").click(function () {
-            var version1 = $('#select2-version-1 option:selected').val()
-            var date1 = $("#date-1").val();
-            var version2 = $('#select2-version-2 option:selected').val()           
-            var date2 = $("#date-2").val();
 
-            console.log(version1)
-            console.log(date1)
+            let comparison = {
+                Version1: $('#select2-version-1 option:selected').val(),
+                Date1: $("#date-1").val(),
+                Version2: $('#select2-version-2 option:selected').val(),
+                Date2: $("#date-2").val()
+            };
 
-            console.log(version2)
-            console.log(date2)
+            $.ajax({
+                url: '/Home/Compare',
+                type: 'POST',
+                data: comparison,
+                success: function (response) {
+                    const comparison1 = response.resultComparison.comparison1;
+
+                    // Select the HTML element to update
+                    const result1 = document.querySelector('#result1');
+
+                    // Create the new HTML structure with the updated values
+                    const newHtml1 = `
+                        <div class="result-box-line">
+                            <label>Request Average</label>
+                            <label id="c1-avg">${comparison1.AvgRequest.toFixed(2)}</label>
+                        </div>
+                        <div class="result-box-line">
+                            <label>Total Requests</label>
+                            <label id="c1-total">${comparison1.TotalRequest}</label>
+                        </div>
+                        <div class="result-box-line">
+                            <label>Users Number</label>
+                            <label id="c1-users">${comparison1.UsersNumber}</label>
+                        </div>
+                        <div class="result-box-line">
+                            <label>Requests OK (%)</label>
+                            <label id="c1-ok">${comparison1.PercentRequest.toFixed(2)}</label>
+                        </div>
+                        <div class="result-box-line">
+                            <label>Max Request Time (ms)</label>
+                            <label id="c1-max">${comparison1.MaxRequest.toFixed(2)}</label>
+                        </div>
+                        <div class="result-box-line">
+                            <label>Tests Number</label>
+                            <label id="c1-tests">${comparison1.TestsCount}</label>
+                        </div>
+                    `;
+
+                    const comparison2 = response.resultComparison.comparison2;
+
+                    // Select the HTML element to update
+                    const result2 = document.querySelector('#result2');
+
+                    // Create the new HTML structure with the updated values
+                    const newHtml2 = `
+                        <div class="result-box-line">
+                            <label>Request Average Time (ms)</label>
+                            <label id="c2-avg">${comparison2.AvgRequest.toFixed(2)}</label>
+                        </div>
+                        <div class="result-box-line">
+                            <label>Total Requests</label>
+                            <label id="c2-total">${comparison2.TotalRequest}</label>
+                        </div>
+                        <div class="result-box-line">
+                            <label>Users Number</label>
+                            <label id="c2-users">${comparison2.UsersNumber}</label>
+                        </div>
+                        <div class="result-box-line">
+                            <label>Requests OK (%)</label>
+                            <label id="c2-ok">${comparison2.PercentRequest.toFixed(2)}</label>
+                        </div>
+                        <div class="result-box-line">
+                            <label>Max Request Time (ms)</label>
+                            <label id="c2-max">${comparison2.MaxRequest.toFixed(2)}</label>
+                        </div>
+                        <div class="result-box-line">
+                            <label>Tests Number</label>
+                            <label id="c2-tests">${comparison2.TestsCount}</label>
+                        </div>
+                    `;
+
+                    result1.innerHTML = newHtml1;
+                    result2.innerHTML = newHtml2;
+
+                    let points1 = 0
+                    let points2 = 0
+
+                    if (comparison1.AvgRequest < comparison2.AvgRequest) {
+                        document.querySelector('#c1-avg').style.color = 'green';
+                        points1 = points1 + 1;
+                    }
+                    else {
+                        document.querySelector('#c2-avg').style.color = 'green';
+                        points2 = points2 + 1;
+                    }
+
+                    if (comparison1.TotalRequest > comparison2.TotalRequest) {
+                        document.querySelector('#c1-total').style.color = 'green';
+                        points1 = points1 + 1;
+                    }
+                    else {
+                        document.querySelector('#c2-total').style.color = 'green';
+                        points2 = points2 + 1;
+                    }
+
+                    if (comparison1.UsersNumber > comparison2.UsersNumber) {
+                        document.querySelector('#c1-users').style.color = 'green';
+                        points1 = points1 + 1;
+                    }
+                    else {
+                        document.querySelector('#c2-users').style.color = 'green';
+                        points2 = points2 + 1;
+                    }
+
+                    if (comparison1.PercentRequest > comparison2.PercentRequest) {
+                        document.querySelector('#c1-ok').style.color = 'green';
+                        points1 = points1 + 1;
+                    }
+                    else {
+                        document.querySelector('#c2-ok').style.color = 'green';
+                        points2 = points2 + 1;
+                    }
+
+                    if (comparison1.MaxRequest < comparison2.MaxRequest) {
+                        document.querySelector('#c1-max').style.color = 'green';
+                        points1 = points1 + 1;
+                    }
+                    else {
+                        document.querySelector('#c2-max').style.color = 'green';
+                        points2 = points2 + 1;
+                    }
+
+                    if (comparison1.TestsCount > comparison2.TestsCount) {
+                        document.querySelector('#c1-tests').style.color = 'green';
+                        points1 = points1 + 1;
+                    }
+                    else {
+                        document.querySelector('#c2-tests').style.color = 'green';
+                        points2 = points2 + 1;
+                    }
+
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(jqXHR.responseText);
+                }
+            });
         })
 
     </script>
