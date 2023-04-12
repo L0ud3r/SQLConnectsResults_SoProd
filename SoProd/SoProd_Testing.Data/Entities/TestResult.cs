@@ -8,6 +8,11 @@ namespace SoProd_Testing.Data.Entities
 {
     public class TestResult
     {
+        public TestResult()
+        {
+            TestResultExecutions = new HashSet<TestResultExecution>();
+        }
+
         public int Id { get; set; }
         public int TestDefinitionId { get; set; }
         public Guid Identifier { get; set; }
@@ -20,5 +25,6 @@ namespace SoProd_Testing.Data.Entities
         public double TimeEllapsed { get; set; } // in seconds
         public string BaseAddress { get; set; }
         public virtual TestDefinition TestDefinition { get; set; }
+        public virtual ICollection<TestResultExecution> TestResultExecutions { get; set; }
     }
 }

@@ -28,52 +28,65 @@ namespace SoProd.Web.Controllers
         //ADICIONAR PARAMETROS DE SEARCH (FILTERS)
         public async Task<JsonResult> GetResultsJson(DataTableSearchFilters dtFilters)
         {
-            using (var context = new SoProdTestingContext())    
+            using (var context = new SoProdTestingContext())
             {
+                context.Configuration.LazyLoadingEnabled = false;
+
                 List<TestResultViewModel> list = new List<TestResultViewModel>();
 
-                var resultList = await context.TestResults.OrderBy(x => x.Id).Skip(dtFilters.start).Take(dtFilters.length).ToListAsync();
-                var resultsCount = context.TestResults.Count();
-
-                foreach (var result in resultList)
+                var resultList = await context.TestResults.OrderBy(x => x.Id).Skip(dtFilters.start).Take(dtFilters.length)
+                .Select(x => new TestResultViewModel
                 {
-                    TestResultViewModel resultViewModel = new TestResultViewModel();
+                    Id = x.Id,
+                    Identifier = x.Identifier,
+                    StartDate = x.StartDate,
+                    TimeEllapsed = x.TimeEllapsed,
+                    Version = x.Version,
+                    RequestsNumber = x.TestResultExecutions.Count(),
+                    AvgRequestTime = x.TestResultExecutions.Average(tr => tr.TimeEllapsed),
+                }).ToListAsync();
+                
+                var resultsCount = await context.TestResults.CountAsync();
 
-                    resultViewModel.Id = result.Id;
-                    resultViewModel.Identifier = result.Identifier;
-                    resultViewModel.TimeEllapsed = result.TimeEllapsed;
-                    resultViewModel.StartDate = result.StartDate;
-                    resultViewModel.Version = result.Version;
-                    resultViewModel.RequestsOK = result.RequestsOK;
-                    resultViewModel.RequestsError = result.RequestsError;
-                    resultViewModel.RequestsNumber = result.RequestsNumber;
+                //foreach (var result in resultList)
+                //{
+                //    TestResultViewModel resultViewModel = new TestResultViewModel();
 
-                    var executions = await context.TestResultExecutions.Where((x => x.TestResultId == result.Id)).ToListAsync();
-                    var okExecutions = executions.Where(x => x.StatusCode == 200).ToList();
+                //    resultViewModel.Id = result.Id;
+                //    resultViewModel.Identifier = result.Identifier;
+                //    resultViewModel.TimeEllapsed = result.TimeEllapsed;
+                //    resultViewModel.StartDate = result.StartDate;
+                //    resultViewModel.Version = result.Version;
+                //    resultViewModel.RequestsOK = result.RequestsOK;
+                //    resultViewModel.RequestsError = result.RequestsError;
+                //    resultViewModel.RequestsNumber = result.RequestsNumber;
 
-                    if (executions != null && executions.Any()) resultViewModel.TotalRequests = executions.Count;
-                    else resultViewModel.TotalRequests = 0;
+                //    var executions = await context.TestResultExecutions.Where((x => x.TestResultId == result.Id)).ToListAsync();
+                //    var okExecutions = executions.Where(x => x.StatusCode == 200).ToList();
 
-                    if (okExecutions.Any())
-                    {
-                        resultViewModel.AvgRequestTime = okExecutions.Select(x => x.TimeEllapsed).Average();
+                //    if (executions != null && executions.Any()) resultViewModel.TotalRequests = executions.Count;
+                //    else resultViewModel.TotalRequests = 0;
 
-                        double totalOKs = okExecutions.Count();
-                        resultViewModel.RequestPercentage = resultViewModel.TotalRequests > 0 ? (totalOKs / resultViewModel.TotalRequests) * 100 : 0;
+                //    if (okExecutions.Any())
+                //    {
+                //        resultViewModel.AvgRequestTime = okExecutions.Select(x => x.TimeEllapsed).Average();
 
-                        resultViewModel.MaxRequestTime = okExecutions.Select(x => x.TimeEllapsed).Max();
-                    }
-                    else
-                    {
-                        resultViewModel.AvgRequestTime = -1;
-                        resultViewModel.RequestPercentage = -1;
-                        resultViewModel.MaxRequestTime = -1;
-                    }
+                //        double totalOKs = okExecutions.Count();
+                //        resultViewModel.RequestPercentage = resultViewModel.TotalRequests > 0 ? (totalOKs / resultViewModel.TotalRequests) * 100 : 0;
 
-                    list.Add(resultViewModel);
-                }
+                //        resultViewModel.MaxRequestTime = okExecutions.Select(x => x.TimeEllapsed).Max();
+                //    }
+                //    else
+                //    {
+                //        resultViewModel.AvgRequestTime = -1;
+                //        resultViewModel.RequestPercentage = -1;
+                //        resultViewModel.MaxRequestTime = -1;
+                //    }
 
-                return Json(new { iTotal = resultsCount, iTotalDisplay = list.Count, aaData = list, draw = dtFilters.draw }, JsonRequestBehavior.AllowGet);
+                //    list.Add(resultViewModel);
+                //}
+
+                return Json(new { iTotal = resultsCount, iTotalDisplay = resultList.Count, aaData = resultList, draw = dtFilters.draw }, JsonRequestBehavior.AllowGet);
             }
         }
 

@@ -26,7 +26,7 @@ namespace SoProd.Web.Models
         public int RequestsOK { get; set; }
         public int RequestsError { get; set; }
         public int TotalRequests { get; set; }
-        public double AvgRequestTime { get; set; }
+        public double? AvgRequestTime { get; set; }
         public double RequestPercentage { get; set; }
         public double MaxRequestTime { get; set; }
     }
