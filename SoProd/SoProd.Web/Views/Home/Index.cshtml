@@ -94,22 +94,22 @@
             </select>
         </div>
         <div class="table-responsive">
-            <table id="results" class="table">
+            <table id="results" class="table  table-advance">
                 <thead>
                     <tr>
-                        <th data-field="Id">ID</th>
-                        <th data-filed="Identifier">Identifier</th>
-                        <th data-filed="StartDate">Start Date</th>
-                        <th data-filed="TimeEllapsed">Time Ellapsed (ms)</th>
-                        <th data-filed="Version">Version</th>
-                        <th data-filed="RequestsNumber">Total Requests</th>
-                        <th data-filed="AvgRequestTime">Average Request Time (ms)</th>
-                        <th data-filed="RequestPercentage">Ok Percentage</th>
-                        <th data-filed="MaxRequestTime">Max Request (ms)</th>
+                        <th data-field="Id" class="no-sort column-id">ID</th>
+                        <th data-filed="Identifier" class="no-sort">Identifier</th>
+                        <th data-filed="StartDate" class="no-sort">Start Date</th>
+                        <th data-filed="TimeEllapsed" class="no-sort">Time Ellapsed (ms)</th>
+                        <th data-filed="Version" class="no-sort">Version</th>
+                        <th data-filed="RequestsNumber" class="no-sort">Total Requests</th>
+                        <th data-filed="AvgRequestTime" class="no-sort">Average Request Time (ms)</th>
+                        <th data-filed="RequestPercentage" class="no-sort">Ok Percentage</th>
+                        <th data-filed="MaxRequestTime" class="no-sort">Max Request (ms)</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var result in Model)
+                    @*@foreach (var result in Model)
                     {
                         <tr class="tablerow" data-item-id="@result.Id">
                             <td id="tablerow">@result.Id</td>
@@ -124,7 +124,7 @@
                         </tr>
                         <tr id="executions-@result.Id" style="display: none;">
                         </tr>
-                    }
+                    }*@
                 </tbody>
             </table>
         </div>
@@ -133,6 +133,10 @@
 
 @section Scripts {
     <script>
+        var page = 0;
+
+        //#region select2 activation and fill
+
         var select = $('#select2-request');
         var select1 = $('#select2-version-1');
         var select2 = $('#select2-version-2');
@@ -160,7 +164,92 @@
             }
         });
 
+        //#endregion
+
+        TableInit('#results', {
+            "serverSide": true,
+            "ajax": function (data, callback, settings) {
+                var totalColLen = $("#results").DataTable().columns()[0].length;
+                data.countColumns = totalColLen;
+
+                performSearch(data, function (resp, listIds, headers) {
+                    respData = resp.data;
+                    var responseData = WriteTableColumns(resp.data);
+
+                    resp.data = responseData;
+                    callback(resp);
+                });
+            },
+            "language": dataTableFR,
+            "aaSorting": [[0, 'desc']],
+            "fnCreatedRow": function (nRow, aData, iDataIndex) {
+                $(nRow).attr('id', "tablerow");
+            },
+            "lengthMenu": [[20, 50, 100, -1], [20, 50, 100, "All"]],
+            "iDisplayLength": 20,
+            "bDeferRender": true,
+            "bautoWidth": false,
+            "columnDefs": [{
+                "targets": 'no-sort',
+                "orderable": false,
+            }]
+        });
+
+        function performSearch(originalData, callback) {
+            var searchData = getDomainsSearchFilters();
+
+            //Metronic.blockUI({
+            //    target: '#results',
+            //    overlayColor: '#000', overlayOpacity: '0.8',
+            //    centerY: true,
+            //    centerX: true,
+            //    animate: true
+            //});
+
+            $.ajax({
+                url: "/Home/GetResults",
+                method: "GET",
+                error: function () {
+                    alert("error");
+                    /*Metronic.unblockUI('#results');*/
+                },
+                success: function (data) {
+                    var _rows = [];
+                    //Metronic.unblockUI('#results');
+                    if (data.error) {
+                        showWarning("Error Validating", "Please check form inputs and try again...");
+                    }
+                    else {
+                        $.each(data.aaData, function (a, b) {
+                            _rows.push(b);
+                        });
+
+                        //currentSearchTotal = data.iTotal;
+                        if (callback) {
+                            callback({
+                                "draw": data.draw,
+                                "recordsTotal": data.iTotal,
+                                "recordsFiltered": data.iTotal,
+                                "data": _rows
+                            });
+                        }
+                    }
+                }
+            });
+        }
+
+        function getDomainsSearchFilters() {
+            var data = {};
+            $("#domainsFiltersUL li").each(function () {
+                data[$(this).attr('data-label')] = $(this).attr('data-val');
+            });
+
+            return data;
+        }
+
         $(document).ready(function () {
+            
+
             TableInit('#results');
         });
 
@@ -434,7 +523,7 @@
                             document.querySelector('#comparison-result').innerHTML = arrow
                             document.querySelector('#icon-result').hidden = false
                         }
-                        
+
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         alert("Erro")
@@ -442,7 +531,7 @@
                     }
                 });
             }
-            else 
+            else
                 alert("Missing fields!")
         })
 

@@ -18,8 +18,17 @@ namespace SoProd.Web.Controllers
         public async Task<ActionResult> Index()
         {
             using (var context = new SoProdTestingContext()) {
-                List<TestResultViewModel> list = new List<TestResultViewModel>();
+                List<TestResultViewModel> list = await GetResults();
 
+                return View(list);
+            }
+        }
+
+        public async Task<List<TestResultViewModel>> GetResults()
+        {
+            using (var context = new SoProdTestingContext())
+            {
+                List<TestResultViewModel> list = new List<TestResultViewModel>();
                 var resultList = await context.TestResults.Take(10).ToListAsync();
 
                 foreach (var result in resultList)
@@ -36,7 +45,7 @@ namespace SoProd.Web.Controllers
                     resultViewModel.RequestsNumber = result.RequestsNumber;
 
                     var executions = await context.TestResultExecutions.Where((x => x.TestResultId == result.Id)).ToListAsync();
-                    var okExecutions =  executions.Where(x => x.StatusCode == 200).ToList();
+                    var okExecutions = executions.Where(x => x.StatusCode == 200).ToList();
 
                     if (executions != null && executions.Any()) resultViewModel.TotalRequests = executions.Count;
                     else resultViewModel.TotalRequests = 0;
@@ -60,7 +69,7 @@ namespace SoProd.Web.Controllers
                     list.Add(resultViewModel);
                 }
 
-                return View(list);
+                return list;
             }
         }
 
