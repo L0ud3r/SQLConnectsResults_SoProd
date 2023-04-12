@@ -2,6 +2,7 @@
 using SoProd.Web.Models;
 using SoProd_Testing.Data;
 using SoProd_Testing.Data.Entities;
+using SoProd_Web.Models.RecordSearch;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -21,6 +22,61 @@ namespace SoProd.Web.Controllers
                 List<TestResultViewModel> list = await GetResults();
 
                 return View(list);
+            }
+        }
+
+        //public async Task<JsonResult> aSearchDomains(DataTableSearchFilters dtFilters, TestResultViewModel searchFilters)
+        //{
+
+
+        //}
+
+        public async Task<JsonResult> GetResultsJson()
+        {
+            using (var context = new SoProdTestingContext())
+            {
+                List<TestResultViewModel> list = new List<TestResultViewModel>();
+                var resultList = await context.TestResults.Take(10).ToListAsync();
+
+                foreach (var result in resultList)
+                {
+                    TestResultViewModel resultViewModel = new TestResultViewModel();
+
+                    resultViewModel.Id = result.Id;
+                    resultViewModel.Identifier = result.Identifier;
+                    resultViewModel.TimeEllapsed = result.TimeEllapsed;
+                    resultViewModel.StartDate = result.StartDate;
+                    resultViewModel.Version = result.Version;
+                    resultViewModel.RequestsOK = result.RequestsOK;
+                    resultViewModel.RequestsError = result.RequestsError;
+                    resultViewModel.RequestsNumber = result.RequestsNumber;
+
+                    var executions = await context.TestResultExecutions.Where((x => x.TestResultId == result.Id)).ToListAsync();
+                    var okExecutions = executions.Where(x => x.StatusCode == 200).ToList();
+
+                    if (executions != null && executions.Any()) resultViewModel.TotalRequests = executions.Count;
+                    else resultViewModel.TotalRequests = 0;
+
+                    if (okExecutions.Any())
+                    {
+                        resultViewModel.AvgRequestTime = okExecutions.Select(x => x.TimeEllapsed).Average();
+
+                        double totalOKs = okExecutions.Count();
+                        resultViewModel.RequestPercentage = resultViewModel.TotalRequests > 0 ? (totalOKs / resultViewModel.TotalRequests) * 100 : 0;
+
+                        resultViewModel.MaxRequestTime = okExecutions.Select(x => x.TimeEllapsed).Max();
+                    }
+                    else
+                    {
+                        resultViewModel.AvgRequestTime = -1;
+                        resultViewModel.RequestPercentage = -1;
+                        resultViewModel.MaxRequestTime = -1;
+                    }
+
+                    list.Add(resultViewModel);
+                }
+
+                return Json(new { iTotal = list.Count, iTotalDisplay = list.Count, aaData = list, draw = 1 });
             }
         }
 
