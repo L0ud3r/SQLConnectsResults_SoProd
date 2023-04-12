@@ -25,18 +25,15 @@ namespace SoProd.Web.Controllers
             }
         }
 
-        //public async Task<JsonResult> aSearchDomains(DataTableSearchFilters dtFilters, TestResultViewModel searchFilters)
-        //{
-
-
-        //}
-
-        public async Task<JsonResult> GetResultsJson()
+        //ADICIONAR PARAMETROS DE SEARCH (FILTERS)
+        public async Task<JsonResult> GetResultsJson(DataTableSearchFilters dtFilters)
         {
-            using (var context = new SoProdTestingContext())
+            using (var context = new SoProdTestingContext())    
             {
                 List<TestResultViewModel> list = new List<TestResultViewModel>();
-                var resultList = await context.TestResults.Take(10).ToListAsync();
+
+                var resultList = await context.TestResults.OrderBy(x => x.Id).Skip(dtFilters.start).Take(dtFilters.length).ToListAsync();
+                var resultsCount = context.TestResults.Count();
 
                 foreach (var result in resultList)
                 {
@@ -76,7 +73,7 @@ namespace SoProd.Web.Controllers
                     list.Add(resultViewModel);
                 }
 
-                return Json(new { iTotal = list.Count, iTotalDisplay = list.Count, aaData = list, draw = 1 });
+                return Json(new { iTotal = resultsCount, iTotalDisplay = list.Count, aaData = list, draw = dtFilters.draw }, JsonRequestBehavior.AllowGet);
             }
         }
 

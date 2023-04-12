@@ -171,7 +171,6 @@
 
                 performSearch(data, function (resp, listIds, headers) {
                     respData = resp.data
-                    console.log(resp);
                     var responseData = WriteTableColumns(resp.data);
 
                     resp.data = responseData;
@@ -194,7 +193,7 @@
         });
 
         function performSearch(originalData, callback) {
-            var searchData = getDomainsSearchFilters();
+            //var searchData = getDomainsSearchFilters();
 
             //Metronic.blockUI({
             //    target: '#results',
@@ -206,13 +205,15 @@
 
             $.ajax({
                 url: "/Home/GetResultsJson",
-                method: "GET",
+                method: "POST",
+                data: {
+                    dtFilters: originalData
+                },
                 error: function () {
                     alert("error");
                     /*Metronic.unblockUI('#results');*/
                 },
                 success: function (data) {
-                    console.log(data)
                     var _rows = [];
                     //Metronic.unblockUI('#results');
                     if (data.error) {
@@ -246,9 +247,53 @@
             return data;
         }
 
-        $(document).ready(function () {
-            
+        function WriteTableColumns(alldata) {
+            var __data = [];
 
+            $.each(alldata, function (indexRow, data) {
+                var _data = [];
+                var startPos = 0;
+
+                for (var i = startPos; i <= 8; i++) {
+                    switch (i) {
+                        case 0:
+                            _data.push(data.Id);
+                            break;
+                        case 1:
+                            _data.push(data.Identifier)
+                            break;
+                        case 2:
+                            _data.push(data.StartDate)
+                            break;
+                        case 3:
+                            _data.push(data.TimeEllapsed)
+                            break;
+                        case 4:
+                            _data.push(data.Version)
+                            break;
+                        case 5:
+                            _data.push(data.RequestsNumber)
+                            break;
+                        case 6:
+                            _data.push(data.AvgRequestTime)
+                            break;
+                        case 7:
+                            _data.push(data.RequestPercentage)
+                            break;
+                        case 8:
+                            _data.push(data.MaxRequestTime)
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                __data.push(_data);
+
+            });
+            return __data;
+        }
+
+        $(document).ready(function () {
             TableInit('#results');
         });
 
@@ -349,10 +394,6 @@
                 Date1: $("#date-1").val(),
                 Version2: $('#select2-version-2 option:selected').val(),
                 Date2: $("#date-2").val()
-                //Version1: "ANUBIS",
-                //Date1: "2022-03-30",
-                //Version2: "ANUBIS",
-                //Date2: "2022-03-29"
             };
 
             if (comparison.Version1 != "" && comparison.Version2 != "" && comparison.Date1 != "" && comparison.Date2 != "") {
@@ -363,9 +404,6 @@
                     success: function (response) {
                         const comparison1 = response.resultComparison.comparison1;
                         const comparison2 = response.resultComparison.comparison2;
-
-                        alert(comparison1.TestsCount)
-                        alert(comparison2.TestsCount)
 
                         const result1 = document.querySelector('#result1');
                         const result2 = document.querySelector('#result2');
