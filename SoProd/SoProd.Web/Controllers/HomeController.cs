@@ -200,13 +200,6 @@ namespace SoProd.Web.Controllers
                 double c2TotalAvg = 0.0;
                 double c2TotalPercentage = 0.0;
 
-
-                //var compare1 = await context.TestResults.AsNoTracking()
-                //    .Where(x => x.Version == comparison.Version1 && EntityFunctions.TruncateTime(x.StartDate) == comparison.Date1).ToListAsync();
-
-                //var compare2 = await context.TestResults.AsNoTracking()
-                //    .Where(x => x.Version == comparison.Version2 && EntityFunctions.TruncateTime(x.StartDate) == comparison.Date2).ToListAsync();
-
                 var compare1 = await GetData(comparison.Version1, comparison.Date1);
                 var compare2 = await GetData(comparison.Version2, comparison.Date2);
 
@@ -236,32 +229,32 @@ namespace SoProd.Web.Controllers
                 c2.AvgRequest = c2TotalAvg / compare2.Count;
                 c2.PercentRequest = c2TotalPercentage / compare2.Count;
 
+                if(compare1.Count == 0)
+                {
+                    c1.AvgRequest = 0.0;
+                    c1.PercentRequest = 0.0;
+                    c1.TestsCount = 0;
+                    c1.UsersNumber = 0;
+                    c1.MaxRequest = 0.0;
+                    c1.TotalRequest = 0;
+                }
+
+                if (compare2.Count == 0)
+                {
+                    c2.AvgRequest = 0.0;
+                    c2.PercentRequest = 0.0;
+                    c2.TestsCount = 0;
+                    c2.UsersNumber = 0;
+                    c2.MaxRequest = 0.0;
+                    c2.TotalRequest = 0;
+                }
+
                 result.comparison1 = c1;
                 result.comparison2 = c2;
 
                 return Json(new { result = "OK", resultComparison = result }, JsonRequestBehavior.AllowGet);
             }
         }
-
-        //public async Task<JsonResult> GetThemes(int flowId = -1)
-        //{
-        //    using (var context = new SoProdTestingContext())
-        //    {
-        //        List<string[]> list = new List<string[]>();
-        //        var data = await context.TestResults.Distinct.ToListAsync();
-
-        //        foreach (var item in data)
-        //        {
-        //            list.Add(new string[] { Languages.Get("All"), item.Version, item.Version });
-        //        }
-
-        //        return Json(new
-        //        {
-        //            data = list
-        //        });
-        //    }
-        //}
-
         public ActionResult About()
         {
             ViewBag.Message = "Your application description page.";
