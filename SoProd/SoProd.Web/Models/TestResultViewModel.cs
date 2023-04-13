@@ -28,7 +28,7 @@ namespace SoProd.Web.Models
         public int TotalRequests { get; set; }
         public double? AvgRequestTime { get; set; }
         public double RequestPercentage { get; set; }
-        public double MaxRequestTime { get; set; }
+        public double? MaxRequestTime { get; set; }
     }
 
     public class TestResultExecutionViewModel

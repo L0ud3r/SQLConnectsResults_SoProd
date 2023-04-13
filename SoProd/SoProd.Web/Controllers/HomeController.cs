@@ -43,7 +43,11 @@ namespace SoProd.Web.Controllers
                     TimeEllapsed = x.TimeEllapsed,
                     Version = x.Version,
                     RequestsNumber = x.TestResultExecutions.Count(),
-                    AvgRequestTime = x.TestResultExecutions.Average(tr => tr.TimeEllapsed),
+                    AvgRequestTime = x.TestResultExecutions.Where(te => te.StatusCode == 200).Average(te => te.TimeEllapsed),
+                    RequestPercentage = Math.Round(x.TestResultExecutions.Count(te => te.StatusCode == 200) > 0 && x.TestResultExecutions.Count() > 0 ?
+                        (x.TestResultExecutions.Count(te => te.StatusCode == 200) / (double)x.TestResultExecutions.Count()) * 100.0 :
+                        0.0, 2),
+                    MaxRequestTime = x.TestResultExecutions.Max(te => te.TimeEllapsed)
                 }).ToListAsync();
                 
                 var resultsCount = await context.TestResults.CountAsync();

@@ -137,8 +137,6 @@ C:\Programming\SQLConnectsResults_SoProd\SoProd\SoProd.Web\bin\roslyn\vbc.rsp
 C:\Programming\SQLConnectsResults_SoProd\SoProd\SoProd.Web\bin\roslyn\VBCSCompiler.exe
 C:\Programming\SQLConnectsResults_SoProd\SoProd\SoProd.Web\bin\roslyn\VBCSCompiler.exe.config
 C:\Programming\SQLConnectsResults_SoProd\SoProd\SoProd.Web\bin\Antlr3.Runtime.dll
-C:\Programming\SQLConnectsResults_SoProd\SoProd\SoProd.Web\bin\EntityFramework.dll
-C:\Programming\SQLConnectsResults_SoProd\SoProd\SoProd.Web\bin\EntityFramework.SqlServer.dll
 C:\Programming\SQLConnectsResults_SoProd\SoProd\SoProd.Web\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll
 C:\Programming\SQLConnectsResults_SoProd\SoProd\SoProd.Web\bin\Microsoft.Web.Infrastructure.dll
 C:\Programming\SQLConnectsResults_SoProd\SoProd\SoProd.Web\bin\Newtonsoft.Json.dll

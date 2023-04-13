@@ -100,9 +100,9 @@
                         <th data-filed="TimeEllapsed" class="no-sort">Time Ellapsed (ms)</th>
                         <th data-filed="Version" class="no-sort">Version</th>
                         <th data-filed="RequestsNumber" class="no-sort">Total Requests</th>
-                        <th data-filed="AvgRequestTime" class="no-sort">Average Request Time (ms)</th>
-                        @*<th data-filed="RequestPercentage" class="no-sort">Ok Percentage</th>
-                        <th data-filed="MaxRequestTime" class="no-sort">Max Request (ms)</th>*@
+                        <th data-filed="AvgRequestTime" class="no-sort">Average Request Time (s)</th>
+                        <th data-filed="RequestPercentage" class="no-sort">Ok Percentage</th>
+                        <th data-filed="MaxRequestTime" class="no-sort">Max Request (s)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -181,6 +181,13 @@
             "aaSorting": [[0, 'desc']],
             "fnCreatedRow": function (nRow, aData, iDataIndex) {
                 $(nRow).attr('id', "tablerow");
+                $(nRow).attr('data-id', aData[0])
+
+                $(nRow).click(function (e)
+                {
+                    var dataId = $(this).data('id');
+                    GetExecutions(dataId);
+                })
             },
             "lengthMenu": [[20, 50, 100, -1], [20, 50, 100, "All"]],
             "iDisplayLength": 20,
@@ -254,7 +261,7 @@
                 var _data = [];
                 var startPos = 0;
 
-                for (var i = startPos; i <= 6; i++) {
+                for (var i = startPos; i <= 8; i++) {
                     switch (i) {
                         case 0:
                             _data.push(data.Id);
@@ -263,7 +270,14 @@
                             _data.push(data.Identifier)
                             break;
                         case 2:
-                            _data.push(data.StartDate)
+                            var startDateStr = data.StartDate.toString();
+
+                            if (startDateStr.length > 0) {
+                                var startDate = new Date(parseInt(startDateStr.substr(6)));
+                                var formattedStartDate = startDate.toLocaleString().replace(',', '');
+                            }
+
+                            _data.push(formattedStartDate)
                             break;
                         case 3:
                             _data.push(data.TimeEllapsed)
@@ -275,14 +289,22 @@
                             _data.push(data.RequestsNumber)
                             break;
                         case 6:
+                            if (data.AvgRequestTime == null)
+                                data.AvgRequestTime = "N/A"
+
                             _data.push(data.AvgRequestTime)
                             break;
-                        //case 7:
-                        //    _data.push(data.RequestPercentage)
-                        //    break;
-                        //case 8:
-                        //    _data.push(data.MaxRequestTime)
-                        //    break;
+                        case 7:
+                            if (data.RequestPercentage == 0)
+                                data.RequestPercentage = "N/A"
+                            else
+                                data.RequestPercentage = data.RequestPercentage + " %"
+
+                            _data.push(data.RequestPercentage)
+                            break;
+                        case 8:
+                            _data.push(data.MaxRequestTime)
+                            break;
                         default:
                             break;
                     }
@@ -297,56 +319,49 @@
             TableInit('#results');
         });
 
-        $(".tablerow").click(function () {
-            var itemId = $(this).data("item-id");
+        function GetExecutions(id) {
+            alert(id)
+            $.ajax({
+                url: "/Home/GetResultExecutions/" + id,
+                type: "GET",
+                success: function (data) {
+                    console.log(data)
+                    //var executionsTable = $('<table>').addClass('table').css('width', '100%').attr('id', `result-executions-${itemId}`);
+                    //var executionsHeader = $('<thead>').appendTo(executionsTable);
+                    //var executionsBody = $('<tbody>').appendTo(executionsTable);
 
-            var trElement = document.getElementById(`executions-${itemId}`);
+                    //var headerRow = $('<tr>').appendTo(executionsHeader);
+                    //$('<th>').text('ID').appendTo(headerRow);
+                    //$('<th>').text('URL').appendTo(headerRow);
+                    //$('<th>').text('Status Code').appendTo(headerRow);
+                    //$('<th>').text('Time Ellapsed').appendTo(headerRow);
+                    //$('<th>').text('Start Date').appendTo(headerRow);
 
-            if (trElement.style.display === "none") {
-                $.ajax({
-                    url: "/Home/GetResultExecutions/" + itemId,
-                    type: "GET",
-                    success: function (data) {
-                        var executionsTable = $('<table>').addClass('table').css('width', '100%').attr('id', `result-executions-${itemId}`);
-                        var executionsHeader = $('<thead>').appendTo(executionsTable);
-                        var executionsBody = $('<tbody>').appendTo(executionsTable);
+                    //data.results.forEach(function (execution) {
+                    //    var dataRow = $('<tr>').appendTo(executionsBody);
+                    //    $('<td>').text(execution.Id).appendTo(dataRow);
+                    //    $('<td>').text(execution.URL).appendTo(dataRow);
+                    //    $('<td>').text(execution.StatusCode).appendTo(dataRow);
+                    //    $('<td>').text(execution.TimeEllapsed.toFixed(4)).appendTo(dataRow);
 
-                        var headerRow = $('<tr>').appendTo(executionsHeader);
-                        $('<th>').text('ID').appendTo(headerRow);
-                        $('<th>').text('URL').appendTo(headerRow);
-                        $('<th>').text('Status Code').appendTo(headerRow);
-                        $('<th>').text('Time Ellapsed').appendTo(headerRow);
-                        $('<th>').text('Start Date').appendTo(headerRow);
+                    //    var startDateStr = execution.StartDate.toString();
 
-                        data.results.forEach(function (execution) {
-                            var dataRow = $('<tr>').appendTo(executionsBody);
-                            $('<td>').text(execution.Id).appendTo(dataRow);
-                            $('<td>').text(execution.URL).appendTo(dataRow);
-                            $('<td>').text(execution.StatusCode).appendTo(dataRow);
-                            $('<td>').text(execution.TimeEllapsed.toFixed(4)).appendTo(dataRow);
+                    //    if (startDateStr.length > 0) {
+                    //        var startDate = new Date(parseInt(startDateStr.substr(6)));
+                    //        var formattedStartDate = startDate.toLocaleString();
+                    //        $('<td>').text(formattedStartDate).appendTo(dataRow);
+                    //    }
+                    //});
 
-                            var startDateStr = execution.StartDate.toString();
+                    //$("#executions-" + itemId).html($('<td>').attr('colspan', 8).append(executionsTable)).toggle();
 
-                            if (startDateStr.length > 0) {
-                                var startDate = new Date(parseInt(startDateStr.substr(6)));
-                                var formattedStartDate = startDate.toLocaleString();
-                                $('<td>').text(formattedStartDate).appendTo(dataRow);
-                            }
-                        });
-
-                        $("#executions-" + itemId).html($('<td>').attr('colspan', 8).append(executionsTable)).toggle();
-
-                        TableInit(`#result-executions-${itemId}`);
-                    },
-                    error: function () {
-                        alert("Error retrieving test results.");
-                    }
-                });
-            }
-            else {
-                $("#executions-" + itemId).hide();
-            }
-        });
+                    /*TableInit(`#result-executions-${itemId}`);*/
+                },
+                error: function () {
+                    alert("Error retrieving test results.");
+                }
+            });
+        };
 
         $('#select2-request').on('change', function () {
             var selectedValue = $(this).val();
@@ -427,7 +442,7 @@
                                     <label id="c1-ok">${comparison1.PercentRequest.toFixed(2)}</label>
                                 </div>
                                 <div class="result-box-line">
-                                    <label>Max Request Time (ms)</label>
+                                    <label>Max Request Time (s)</label>
                                     <label id="c1-max">${comparison1.MaxRequest.toFixed(2)}</label>
                                 </div>
                                 <div class="result-box-line">
@@ -450,7 +465,7 @@
 
                             const newHtml2 = `
                                 <div class="result-box-line">
-                                    <label>Request Average Time (ms)</label>
+                                    <label>Request Average Time (s)</label>
                                     <label id="c2-avg">${comparison2.AvgRequest.toFixed(2)}</label>
                                 </div>
                                 <div class="result-box-line">
@@ -466,7 +481,7 @@
                                     <label id="c2-ok">${comparison2.PercentRequest.toFixed(2)}</label>
                                 </div>
                                 <div class="result-box-line">
-                                    <label>Max Request Time (ms)</label>
+                                    <label>Max Request Time (s)</label>
                                     <label id="c2-max">${comparison2.MaxRequest.toFixed(2)}</label>
                                 </div>
                                 <div class="result-box-line">

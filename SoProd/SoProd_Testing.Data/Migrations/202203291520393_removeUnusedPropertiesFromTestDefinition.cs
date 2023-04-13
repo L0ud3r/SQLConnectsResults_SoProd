@@ -7,8 +7,8 @@
     {
         public override void Up()
         {
-            DropColumn("dbo.TestDefinitions", "WavesNumber");
-            DropColumn("dbo.TestDefinitions", "UserRequestNumber");
+            //DropColumn("dbo.TestDefinitions", "WavesNumber");
+            //DropColumn("dbo.TestDefinitions", "UserRequestNumber");
         }
         
         public override void Down()

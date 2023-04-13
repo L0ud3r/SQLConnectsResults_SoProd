@@ -23,7 +23,5 @@ namespace SoProd_Testing.Data.Entities
         public double TimeEllapsed { get; set; } // in seconds
 
         public virtual TestResult TestResult { get; set; }
-
-
     }
 }

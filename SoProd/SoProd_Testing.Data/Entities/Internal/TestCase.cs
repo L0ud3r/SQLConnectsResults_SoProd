@@ -18,6 +18,8 @@ namespace SoProd_Testing.Data.Entities.Internal
 
         public int UserId;
         public string UserAuthToken;
+        public int DeltaInterval;
+        public string BaseAddress;
 
         public bool CreatedUser = true;
         public Dictionary<string, string> CleanUpData;
