@@ -1,4 +1,4 @@
-﻿using SoProd_Testing_Data.Entities;
+﻿using SoProd_Testing.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
