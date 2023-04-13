@@ -16,6 +16,9 @@ namespace SoProd_Testing.Data.Entities
             this.FlowIds = string.Empty; // new List<int>();
             this.UserCount = 0;
             this.Scenarios = string.Empty;
+            this.Running = false;
+            this.ThreadsReadyDate = null;
+            this.AllThreadsReady = false;
             this.PreDelay = 0;
             this.PostDelay = 1000;
             this.BetweenDelay = 0;
@@ -54,6 +57,9 @@ namespace SoProd_Testing.Data.Entities
         //public int UsersNumber { get; set; }
         public int MaxErrorCodes { get; set; }
         public string BaseAddress { get; set; }
+        public bool AllThreadsReady { get; set; }
+        public DateTime? ThreadsReadyDate { get; set; }
+        public bool Running { get; set; }
 
         [NotMapped]
         public List<int> FlowIdsList

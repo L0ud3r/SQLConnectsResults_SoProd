@@ -12,7 +12,10 @@ namespace SoProd_Testing.Data.Entities
         public int TestResultId { get; set; }
 
         public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public string EndPoint { get; set; }
         public string URL { get; set; }
+        public string Response { get; set; }
         //public string ResponseURL { get; set; }
         public int UserId { get; set; }
         public string ServerName { get; set; }

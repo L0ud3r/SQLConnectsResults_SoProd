@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SoProd_Testing_Data.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,8 @@ namespace SoProd_Testing.Data.Entities
 
         public int Id { get; set; }
         public int TestDefinitionId { get; set; }
+        public int? TestVersionId { get; set; }
+
         public Guid Identifier { get; set; }
         public DateTime StartDate { get; set; }
         public string Version { get; set; }
@@ -24,6 +27,8 @@ namespace SoProd_Testing.Data.Entities
         public int RequestsError { get; set; }
         public double TimeEllapsed { get; set; } // in seconds
         public string BaseAddress { get; set; }
+
+        public virtual TestVersion TestVersion { get; set; }
         public virtual TestDefinition TestDefinition { get; set; }
         public virtual ICollection<TestResultExecution> TestResultExecutions { get; set; }
     }
