@@ -53,6 +53,7 @@ namespace SoProd_Testing.Data
         public DbSet<TestResult> TestResults { get; set; }
         public DbSet<TestResultExecution> TestResultExecutions { get; set; }
         public DbSet<TestDefinition> TestDefinitions { get; set; }
+        public DbSet<TestVersion> TestVersions { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
