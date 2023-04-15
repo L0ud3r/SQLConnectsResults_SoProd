@@ -31,12 +31,12 @@ namespace SoProd.Web.Models
         public double? MaxRequestTime { get; set; }
     }
 
-    public class TestResultExecutionViewModel
+    public class TestResultExecutionStatsViewModel
     {
-        public int Id { get; set; }
-        public DateTime StartDate { get; set; }
-        public string URL { get; set; }
-        public int StatusCode { get; set; }
-        public double TimeEllapsed { get; set; }
+        public string Endpoint { get; set; }
+        public int RequestsNumber { get; set; }
+        public double AvgRequestTime { get; set; }
+        public double RequestPercentage { get; set; }
+        public double MaxRequestTime { get; set; }
     }
 }

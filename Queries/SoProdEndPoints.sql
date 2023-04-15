@@ -1,20 +1,20 @@
 --select top 200 STRING_SPLIT(URL, ' ') as endpoint, URL from testexecutions
-UPDATE TestResultExecutions
-SET EndPoint = (select f.value +'/' AS 'data()' from (select top 3 value from STRING_SPLIT(SUBSTRING(URL, 1, CHARINDEX('(', URL) - 1), '/')) as f
-        FOR XML PATH('')),
-	Response = CASE
-                   WHEN StatusCode = 200 
-				   THEN SUBSTRING(URL, CHARINDEX('(', URL) + 1, CHARINDEX(')', URL) - CHARINDEX('(', URL) - 1)
-               END
+--UPDATE TestResultExecutions
+--SET EndPoint = (select f.value +'/' AS 'data()' from (select top 3 value from STRING_SPLIT(SUBSTRING(URL, 1, CHARINDEX('(', URL) - 1), '/')) as f
+--        FOR XML PATH('')),
+--	Response = CASE
+--                   WHEN StatusCode = 200 
+--				   THEN SUBSTRING(URL, CHARINDEX('(', URL) + 1, CHARINDEX(')', URL) - CHARINDEX('(', URL) - 1)
+--               END
 
-UPDATE TestResultExecutions
-SET EndPoint = REPLACE(EndPoint,' ','')
+--UPDATE TestResultExecutions
+--SET EndPoint = REPLACE(EndPoint,' ','')
 
-UPDATE TestResultExecutions
-SET EndPoint = LEFT(EndPoint, LEN(EndPoint) - 1)
+--UPDATE TestResultExecutions
+--SET EndPoint = LEFT(EndPoint, LEN(EndPoint) - 1)
 
-UPDATE TestResultExecutions
-SET EndPoint = LEFT(Endpoint, CHARINDEX('?', Endpoint + '?') - 1)
+--UPDATE TestResultExecutions
+--SET EndPoint = LEFT(Endpoint, CHARINDEX('?', Endpoint + '?') - 1)
 
 SELECT top 200
 *
@@ -63,3 +63,13 @@ URL,
 SUBSTRING(URL, 1, CHARINDEX('(', URL) - 2) as Endpoint
 from TestResultExecutions
 
+select 
+Endpoint,
+Max(TimeEllapsed) as AverageRequest
+from TestResultExecutions
+Where TestResultId = 1
+group by EndPoint
+
+select COUNT(Id) from TestResultExecutions Where TestResultId = 2
+select top 200 * from TestResultExecutions
+select top 200 * from TestResults

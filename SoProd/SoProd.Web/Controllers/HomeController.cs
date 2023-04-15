@@ -31,6 +31,9 @@ namespace SoProd.Web.Controllers
             using (var context = new SoProdTestingContext())
             {
                 context.Configuration.LazyLoadingEnabled = false;
+                context.Database.CommandTimeout = 600;
+
+                if (dtFilters.length == -1) dtFilters.length = await context.TestResults.CountAsync();
 
                 List<TestResultViewModel> list = new List<TestResultViewModel>();
 
@@ -52,45 +55,11 @@ namespace SoProd.Web.Controllers
                 
                 var resultsCount = await context.TestResults.CountAsync();
 
-                //foreach (var result in resultList)
-                //{
-                //    TestResultViewModel resultViewModel = new TestResultViewModel();
 
-                //    resultViewModel.Id = result.Id;
-                //    resultViewModel.Identifier = result.Identifier;
-                //    resultViewModel.TimeEllapsed = result.TimeEllapsed;
-                //    resultViewModel.StartDate = result.StartDate;
-                //    resultViewModel.Version = result.Version;
-                //    resultViewModel.RequestsOK = result.RequestsOK;
-                //    resultViewModel.RequestsError = result.RequestsError;
-                //    resultViewModel.RequestsNumber = result.RequestsNumber;
+                var jsonObject = Json(new { iTotal = resultsCount, iTotalDisplay = resultList.Count, aaData = resultList, draw = dtFilters.draw }, JsonRequestBehavior.AllowGet);
+                jsonObject.MaxJsonLength = Int32.MaxValue;
 
-                //    var executions = await context.TestResultExecutions.Where((x => x.TestResultId == result.Id)).ToListAsync();
-                //    var okExecutions = executions.Where(x => x.StatusCode == 200).ToList();
-
-                //    if (executions != null && executions.Any()) resultViewModel.TotalRequests = executions.Count;
-                //    else resultViewModel.TotalRequests = 0;
-
-                //    if (okExecutions.Any())
-                //    {
-                //        resultViewModel.AvgRequestTime = okExecutions.Select(x => x.TimeEllapsed).Average();
-
-                //        double totalOKs = okExecutions.Count();
-                //        resultViewModel.RequestPercentage = resultViewModel.TotalRequests > 0 ? (totalOKs / resultViewModel.TotalRequests) * 100 : 0;
-
-                //        resultViewModel.MaxRequestTime = okExecutions.Select(x => x.TimeEllapsed).Max();
-                //    }
-                //    else
-                //    {
-                //        resultViewModel.AvgRequestTime = -1;
-                //        resultViewModel.RequestPercentage = -1;
-                //        resultViewModel.MaxRequestTime = -1;
-                //    }
-
-                //    list.Add(resultViewModel);
-                //}
-
-                return Json(new { iTotal = resultsCount, iTotalDisplay = resultList.Count, aaData = resultList, draw = dtFilters.draw }, JsonRequestBehavior.AllowGet);
+                return jsonObject;
             }
         }
 
@@ -203,10 +172,21 @@ namespace SoProd.Web.Controllers
             using (var context = new SoProdTestingContext())
             {
                 context.Configuration.LazyLoadingEnabled = false;
-                var results = await context.TestResultExecutions.AsNoTracking().Where(x => x.TestResultId == id).ToListAsync();
+                var results = await context.TestResultExecutions.AsNoTracking().Where(x => x.TestResultId == id).GroupBy(x => x.EndPoint).Select(x => new TestResultExecutionStatsViewModel
+                {
+                    Endpoint = x.FirstOrDefault().EndPoint,
+                    RequestsNumber = x.Count(),
+                    AvgRequestTime = x.Count(te => te.StatusCode == 200) > 0 ? x.Where(tr => tr.StatusCode == 200).Average(tr => tr.TimeEllapsed) : 0.0,
+                    RequestPercentage = Math.Round((x.Count(te => te.StatusCode == 200) > 0 && x.Count() > 0) ?
+                        (x.Count(te => te.StatusCode == 200) / (double)x.Count()) * 100.0 :
+                        0.0, 2),
+                    MaxRequestTime = x.Count(te => te.StatusCode == 200) > 0 ? x.Where(tr => tr.StatusCode == 200).Max(te => te.TimeEllapsed) : 0.0
+                }).ToListAsync();
 
 
-                return Json(new { result = "OK", results = results }, JsonRequestBehavior.AllowGet);
+                var jsonResult = Json(new { result = "OK", results = results }, JsonRequestBehavior.AllowGet);
+               
+                return jsonResult;
             }
         }
 
