@@ -217,14 +217,18 @@ namespace SoProd.Web.Controllers
             }
         }
 
-        public async Task<List<ComparisonResultViewmodel>> GetData(string version, DateTime date)
+        public async Task<List<ComparisonResultViewmodel>> GetResultsInfo(List<TestResult> testResults)
         {
             using (var context = new SoProdTestingContext())
             {
+                context.Database.CommandTimeout = 1500;
+                var ids = testResults.Select(tr => tr.Id);
+                string version = testResults[0].Version;
+
                 var data = await (from t in context.TestResults
                                   join d in context.TestDefinitions on t.TestDefinitionId equals d.Id
                                   join te in context.TestResultExecutions on t.Id equals te.TestResultId
-                                  where t.Version.Contains(version) && DbFunctions.TruncateTime(t.StartDate) == date.Date // Adicionando filtro por versÃ£o e data
+                                  where ids.Contains(t.Id)
                                   group new { t, d, te } by new
                                   {
                                       t.UsersNumber,
@@ -257,8 +261,69 @@ namespace SoProd.Web.Controllers
             }
         }
 
+        public async Task<List<TestResult>> GetData2(string version, DateTime date)
+        {
+            using (var context = new SoProdTestingContext())
+            {
+                context.Configuration.LazyLoadingEnabled = false;
+
+                if (date != null && DateTime.Compare(date, new DateTime(1, 1, 1, 0, 0, 0)) == 0)
+                {
+                    var data = await context.TestResults.Where(x => x.Version.Contains(version)).ToListAsync();
+
+                    return data;
+                }
+                else
+                {
+                    var data = await context.TestResults.Where(x => x.Version.Contains(version) && DbFunctions.TruncateTime(x.StartDate) == date.Date).ToListAsync();
+                 
+                    return data;
+                }
+            }
+        }
+
         [HttpPost]
-        public async Task<JsonResult> Compare(ComparisonViewmodel comparison)
+        public async Task<JsonResult> GetDataToJson(string version, DateTime date)
+        {
+            using (var context = new SoProdTestingContext())
+            {
+                context.Configuration.LazyLoadingEnabled = false;
+
+                if (date == null || DateTime.Compare(date, new DateTime(1, 1, 1, 0, 0, 0)) == 0)
+                {
+                    var data = await context.TestResults.Where(x => x.Version == version).ToListAsync();
+
+                    var jsonObject = Json(new { testResults = data }, JsonRequestBehavior.AllowGet );
+                    jsonObject.MaxJsonLength = Int32.MaxValue;
+
+                    return jsonObject;
+                }
+                else
+                {
+                    var data = await context.TestResults.Where(x => x.Version == version && DbFunctions.TruncateTime(x.StartDate) == date.Date).ToListAsync();
+
+                    var jsonObject = Json(new { testResults = data }, JsonRequestBehavior.AllowGet);
+                    jsonObject.MaxJsonLength = Int32.MaxValue;
+
+                    return jsonObject;
+                }
+            }
+        }
+
+        public async Task<List<TestResult>> IdsToList(List<int> Ids)
+        {
+            using (var context = new SoProdTestingContext())
+            {
+                context.Configuration.LazyLoadingEnabled = false;
+
+                var data = await context.TestResults.Where(x => Ids.Contains(x.Id)).ToListAsync();
+
+                return data;
+            }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> Compare(List<int> listIds1, List<int> listIds2)
         {
             using (var context = new SoProdTestingContext())
             {
@@ -266,7 +331,10 @@ namespace SoProd.Web.Controllers
                 ComparisonResultListViewModel result = new ComparisonResultListViewModel();
                 ComparisonCalculus c1 = new ComparisonCalculus();
                 ComparisonCalculus c2 = new ComparisonCalculus();
-                
+                List<TestResult> listResults1 = new List<TestResult>();
+                List<TestResult> listResults2 = new List<TestResult>();
+
+
                 c1.MaxRequest = -1;
                 double c1TotalAvg = 0.0;
                 double c1TotalPercentage = 0.0;
@@ -275,8 +343,12 @@ namespace SoProd.Web.Controllers
                 double c2TotalAvg = 0.0;
                 double c2TotalPercentage = 0.0;
 
-                var compare1 = await GetData(comparison.Version1, comparison.Date1);
-                var compare2 = await GetData(comparison.Version2, comparison.Date2);
+
+                listResults1 = await IdsToList(listIds1);
+                listResults2 = await IdsToList(listIds2);
+
+                var compare1 = await GetResultsInfo(listResults1);
+                var compare2 = await GetResultsInfo(listResults2);
 
                 foreach (var compare in compare1)
                 {
@@ -304,7 +376,7 @@ namespace SoProd.Web.Controllers
                 c2.AvgRequest = c2TotalAvg / compare2.Count;
                 c2.PercentRequest = c2TotalPercentage / compare2.Count;
 
-                if(compare1.Count == 0)
+                if (compare1.Count == 0)
                 {
                     c1.AvgRequest = 0.0;
                     c1.PercentRequest = 0.0;

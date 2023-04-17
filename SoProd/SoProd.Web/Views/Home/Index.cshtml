@@ -50,12 +50,14 @@
                     <option value="">Choose a version</option>
                 </select>
                 <input id="date-1" type="date" class="form-control" required />
+                <i id="filter-compare" data-id="1" class="fa fa-filter filter-icon" data-toggle="modal" href="#basic-1"></i>
             </div>
             <div id="result1" class="result-box">
                 No data
             </div>
         </div>
         <div class="centered-box">
+            <button type="button" id="btn-test" class="btn btn-info compare">Test</button>
             <button type="button" id="btn-compare" class="btn btn-info compare">Compare</button>
             <div id="comparison-result"></div>
             <div id="result-text"></div>
@@ -66,9 +68,51 @@
                     <option value="">Choose a version</option>
                 </select>
                 <input id="date-2" type="date" class="form-control" required />
+                <i id="filter-compare" data-id="2" class="fa fa-filter filter-icon" data-toggle="modal" href="#basic-2"></i>
             </div>
             <div id="result2" class="result-box">
                 No data
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="basic-1" tabindex="-1" role="basic" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Test Results</h4>
+                </div>
+                <div class="modal-body">
+                    <div style="height: 500px; overflow: auto; border: 2px solid lightblue ">
+                        <ul id="list-filter-1" style="list-style: none">
+                            Empty List!
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn blue">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="basic-2" tabindex="-1" role="basic" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Test Results</h4>
+                </div>
+                <div class="modal-body">
+                    <div style="height: 500px; overflow: auto; border: 2px solid lightblue ">
+                        <ul id="list-filter-2" style="list-style: none">
+                            Empty List!
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn blue">Save changes</button>
+                </div>
             </div>
         </div>
     </div>
@@ -387,20 +431,123 @@
             });
         });
 
+        $('#select2-version-1, #date-1').on('change', function () {
+            var version1 = $('#select2-version-1 option:selected').val();
+            var date1 = $("#date-1").val();
+
+            if (!date1)
+                date1 = '0001-01-01'
+
+            $.ajax({
+                url: '/Home/GetDataToJson',
+                type: 'POST',
+                data: { version: version1, date: date1 },
+                success: function (response) {
+                    var list = $('#list-filter-1')
+                    list.empty()
+
+                    if (response.testResults.length > 0) {
+                        $.each(response.testResults, function (index, item) {
+                            var startDateStr = item.StartDate.toString();
+
+                            if (startDateStr.length > 0) {
+                                var startDate = new Date(parseInt(startDateStr.substr(6)));
+                                item.startDate = startDate.toLocaleString().replace(',', '');
+                            }
+
+                            list.append(`<li style="display: flex; gap: 5px">
+                            <input type="checkbox" id="filter-checkbox-1" data-id="${item.Id}" checked/>${item.Version} - ${item.startDate} (TestDefinitionId: ${item.TestDefinitionId})</li>`)
+                        });
+                    }
+                    else {
+                        list.append(`No results found!`)
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("Erro")
+                    console.log(jqXHR);
+                }
+            });
+        });
+
+        $('#select2-version-2, #date-2').on('change', function () {
+            var version2 = $('#select2-version-2 option:selected').val();
+            var date2 = $("#date-2").val();
+
+            if (!date2)
+                date2 = '0001-01-01'
+
+            $.ajax({
+                url: '/Home/GetDataToJson',
+                type: 'POST',
+                data: { version: version2, date: date2 },
+                success: function (response) {
+                    var list = $('#list-filter-2')
+                    list.empty()
+
+                    if (response.testResults.length > 0) {
+                        $.each(response.testResults, function (index, item) {
+                            var startDateStr = item.StartDate.toString();
+
+                            if (startDateStr.length > 0) {
+                                var startDate = new Date(parseInt(startDateStr.substr(6)));
+                                var formattedStartDate = startDate.toLocaleString().replace(',', '');
+                            }
+
+                            list.append(`<li style="display: flex; gap: 5px">
+                            <input type="checkbox" id="filter-checkbox-2" data-id="${item.Id}" checked/>${item.Version} - ${formattedStartDate} (TestDefinitionId: ${item.TestDefinitionId})</li>`)
+                        });
+                    }
+                    else {
+                        list.append(`No results found!`)
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("Erro")
+                    console.log(jqXHR);
+                }
+            });
+        });
+
+        $("#btn-test").click(function () {
+            alert("Boas")
+            //$.ajax({
+            //    url: '/Home/GetDataToJson',
+            //    type: 'POST',
+            //    data: comparison,
+            //    success: function (response) {
+            //        console.log(response)
+            //    },
+            //    error: function (jqXHR, textStatus, errorThrown) {
+            //        alert("Erro")
+            //        console.log(jqXHR);
+            //    }
+            //});
+        });
+
         $("#btn-compare").click(function () {
+            var version1 = $('#select2-version-1 option:selected').val();
+            var version2 = $('#select2-version-2 option:selected').val();
+            var comparelist1 = [];
+            var comparelist2 = [];
 
-            let comparison = {
-                Version1: $('#select2-version-1 option:selected').val(),
-                Date1: $("#date-1").val(),
-                Version2: $('#select2-version-2 option:selected').val(),
-                Date2: $("#date-2").val()
-            };
+            $('#list-filter-1 input[type="checkbox"]').each(function () {
+                if ($(this).is(':checked')) {
+                    comparelist1.push($(this).data('id'))
+                }
+            });
 
-            if (comparison.Version1 != "" && comparison.Version2 != "" && comparison.Date1 != "" && comparison.Date2 != "") {
+            $('#list-filter-2 input[type="checkbox"]').each(function () {
+                if ($(this).is(':checked')) {
+                    comparelist2.push($(this).data('id'))
+                }
+            });
+
+            if (version1 != "" && version2 != "") {
                 $.ajax({
                     url: '/Home/Compare',
                     type: 'POST',
-                    data: comparison,
+                    data: { listIds1: comparelist1, listIds2: comparelist2 },
                     success: function (response) {
                         const comparison1 = response.resultComparison.comparison1;
                         const comparison2 = response.resultComparison.comparison2;
@@ -493,7 +640,7 @@
                                 document.querySelector('#c1-avg').style.color = 'green';
                                 points1 = points1 + 1;
                             }
-                            else {
+                            else if (comparison1.AvgRequest > comparison2.AvgRequest) {
                                 document.querySelector('#c2-avg').style.color = 'green';
                                 points2 = points2 + 1;
                             }
@@ -502,7 +649,7 @@
                                 document.querySelector('#c1-total').style.color = 'green';
                                 points1 = points1 + 1;
                             }
-                            else {
+                            else if (comparison1.TotalRequest < comparison2.TotalRequest){
                                 document.querySelector('#c2-total').style.color = 'green';
                                 points2 = points2 + 1;
                             }
@@ -511,7 +658,7 @@
                                 document.querySelector('#c1-users').style.color = 'green';
                                 points1 = points1 + 1;
                             }
-                            else {
+                            else if(comparison1.UsersNumber < comparison2.UsersNumber) {
                                 document.querySelector('#c2-users').style.color = 'green';
                                 points2 = points2 + 1;
                             }
@@ -520,7 +667,7 @@
                                 document.querySelector('#c1-ok').style.color = 'green';
                                 points1 = points1 + 1;
                             }
-                            else {
+                            else if (comparison1.PercentRequest < comparison2.PercentRequest) {
                                 document.querySelector('#c2-ok').style.color = 'green';
                                 points2 = points2 + 1;
                             }
@@ -529,7 +676,7 @@
                                 document.querySelector('#c1-max').style.color = 'green';
                                 points1 = points1 + 1;
                             }
-                            else {
+                            else if (comparison1.MaxRequest > comparison2.MaxRequest) {
                                 document.querySelector('#c2-max').style.color = 'green';
                                 points2 = points2 + 1;
                             }
@@ -538,7 +685,7 @@
                                 document.querySelector('#c1-tests').style.color = 'green';
                                 points1 = points1 + 1;
                             }
-                            else {
+                            else if (comparison1.TestsCount < comparison2.TestsCount) {
                                 document.querySelector('#c2-tests').style.color = 'green';
                                 points2 = points2 + 1;
                             }
@@ -571,6 +718,10 @@
             else
                 alert("Missing fields!")
         })
+
+        //$('i#filter-compare').on('click', function (event) {
+        //    const dataId = $(this).data('id');
+        //});
 
     </script>
 }
