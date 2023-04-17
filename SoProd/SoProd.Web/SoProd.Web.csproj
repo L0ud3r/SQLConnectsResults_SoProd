@@ -169,6 +169,7 @@
     <Content Include="css\custom.css" />
     <Content Include="css\layout.css" />
     <Content Include="css\plugins.css" />
+    <Content Include="css\tasks.css" />
     <Content Include="css\themes\blue.css" />
     <Content Include="css\themes\darkblue.css" />
     <Content Include="css\themes\default.css" />

@@ -38,25 +38,34 @@
         border: 1px solid lightgrey;
         text-align: center
     }
+
+    .filter-icon {
+        margin: auto;
+        color: skyblue;
+    }
+
+    .filter-icon:hover {
+        cursor: pointer;
+    }
 </style>
 
-<div class="portlet box blue">
+<div class="portlet box blue mt-4">
     <div class="portlet-title">
         <div class="caption">
             <i class="fa fa-cogs"></i>Results Comparation
         </div>
         <div class="tools">
-            <a href="javascript:;" class="reload">
-            </a>
+            <a href="javascript:;" class="collapse"></a>
         </div>
     </div>
-    <div class="portlet-body" style="display: flex;justify-content:space-around">
+    <div class="portlet-body" style="display: flex; justify-content:space-around">
         <div>
             <div class="mb-3" style="display: flex; gap: 5px">
                 <select id="select2-version-1" class="select2-version-1" style="width: 300px">
                     <option value="">Choose a version</option>
                 </select>
                 <input id="date-1" type="date" class="form-control" required />
+                <i id="filter-compare" data-id="1" class="fa fa-filter filter-icon" data-toggle="modal" href="#basic"></i>
             </div>
             <div id="result1" class="result-box">
                 No data
@@ -73,13 +82,64 @@
                     <option value="">Choose a version</option>
                 </select>
                 <input id="date-2" type="date" class="form-control" required />
+                <i id="filter-compare" data-id="2" class="fa fa-filter filter-icon" data-toggle="modal" href="#basic"></i>
             </div>
             <div id="result2" class="result-box">
                 No data
             </div>
         </div>
     </div>
+    <div class="modal fade" id="basic" tabindex="-1" role="basic" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Test Results</h4>
+                </div>
+                <div class="modal-body">
+                    <div style="height: 500px; overflow: auto; border: 2px solid lightblue ">
+                        <ul style="list-style: none">
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn blue">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+
 
 <div class="portlet box red mt-1">
     <div class="portlet-title">
@@ -87,7 +147,7 @@
             <i class="fa fa-cogs"></i>Database Results
         </div>
         <div class="tools">
-            <a href="javascript:;" class="reload">
+            <a href="javascript:;" class="collapse"></a>
             </a>
         </div>
     </div>
@@ -374,7 +434,6 @@
                             </tr>`)
                         }
 
-                        console.log(data)
                     },
                     error: function (jqXHR) {
                         console.log(jqXHR.responseText)
@@ -432,12 +491,14 @@
                 Date2: $("#date-2").val()
             };
 
-            if (comparison.Version1 != "" && comparison.Version2 != "" && comparison.Date1 != "" && comparison.Date2 != "") {
+            if (comparison.Version1 != "" && comparison.Version2 != "") {
                 $.ajax({
                     url: '/Home/Compare',
                     type: 'POST',
                     data: comparison,
                     success: function (response) {
+                        console.log(response.compare1)
+
                         const comparison1 = response.resultComparison.comparison1;
                         const comparison2 = response.resultComparison.comparison2;
 
@@ -607,6 +668,12 @@
             else
                 alert("Missing fields!")
         })
+
+        $('i#filter-compare').on('click', function (event) {
+            const dataId = $(this).data('id');
+
+
+        });
 
     </script>
 }

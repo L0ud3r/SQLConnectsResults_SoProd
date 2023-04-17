@@ -201,43 +201,105 @@ namespace SoProd.Web.Controllers
             }
         }
 
-        public async Task<List<ComparisonResultViewmodel>> GetData(string version, DateTime date)
+        public async Task<List<ComparisonResultViewmodel>> GetResultsInfo(string version, DateTime date)
         {
             using (var context = new SoProdTestingContext())
             {
-                var data = await (from t in context.TestResults
-                                  join d in context.TestDefinitions on t.TestDefinitionId equals d.Id
-                                  join te in context.TestResultExecutions on t.Id equals te.TestResultId
-                                  where t.Version.Contains(version) && DbFunctions.TruncateTime(t.StartDate) == date.Date // Adicionando filtro por versÃ£o e data
-                                  group new { t, d, te } by new
-                                  {
-                                      t.UsersNumber,
-                                      d.Name,
-                                      t.StartDate,
-                                      t.BaseAddress,
-                                      Version = (version != null && t.Version.Contains(version)) ? version : "UNKNOWN",
-                                      TestType = t.Version.Contains("Filters") ? "Filters Search" :
-                                                 t.Version.Contains("(Search)") ? "Search" :
-                                                 t.Version.Contains("Operator") ? "Operator" :
-                                                 t.Version.Contains("Record") ? "Record" :
-                                                 "UNKNOWN"
-                                  } into g
-                                  where g.Select(x => x.t.Id).Distinct().Count() >= 1
-                                  select new ComparisonResultViewmodel()
-                                  {
-                                      TotalCount = g.Select(x => x.t.Id).Distinct().Count(),
-                                      Name = g.Key.Name,
-                                      StartDate = g.Key.StartDate,
-                                      Version = g.Key.Version,
-                                      TestType = g.Key.TestType,
-                                      BaseAddress = g.Key.BaseAddress,
-                                      AvgRequest = g.Where(x => x.te.StatusCode == 200).Average(x => x.te.TimeEllapsed),
-                                      TotalRequest = g.Count(),
-                                      UsersNumber = g.Key.UsersNumber,
-                                      PercentRequest = g.Where(x => x.te.StatusCode == 200).Count() * 100.0 / g.Count(),
-                                      MaxRequest = g.Where(x => x.te.StatusCode == 200).Max(x => x.te.TimeEllapsed)
-                                  }).ToListAsync();
-                return data;
+                context.Database.CommandTimeout = 1500;
+
+                if (date != null && DateTime.Compare(date, new DateTime(1, 1, 1, 0, 0, 0)) == 0)
+                {
+                    var data = await (from t in context.TestResults
+                                      join d in context.TestDefinitions on t.TestDefinitionId equals d.Id
+                                      join te in context.TestResultExecutions on t.Id equals te.TestResultId
+                                      where t.Version.Contains(version)
+                                      group new { t, d, te } by new
+                                      {
+                                          t.UsersNumber,
+                                          d.Name,
+                                          t.StartDate,
+                                          t.BaseAddress,
+                                          Version = (version != null && t.Version.Contains(version)) ? version : "UNKNOWN",
+                                          TestType = t.Version.Contains("Filters") ? "Filters Search" :
+                                                     t.Version.Contains("(Search)") ? "Search" :
+                                                     t.Version.Contains("Operator") ? "Operator" :
+                                                     t.Version.Contains("Record") ? "Record" :
+                                                     "UNKNOWN"
+                                      } into g
+                                      where g.Select(x => x.t.Id).Distinct().Count() >= 1
+                                      select new ComparisonResultViewmodel()
+                                      {
+                                          TotalCount = g.Select(x => x.t.Id).Distinct().Count(),
+                                          Name = g.Key.Name,
+                                          StartDate = g.Key.StartDate,
+                                          Version = g.Key.Version,
+                                          TestType = g.Key.TestType,
+                                          BaseAddress = g.Key.BaseAddress,
+                                          AvgRequest = g.Where(x => x.te.StatusCode == 200).Average(x => x.te.TimeEllapsed),
+                                          TotalRequest = g.Count(),
+                                          UsersNumber = g.Key.UsersNumber,
+                                          PercentRequest = g.Where(x => x.te.StatusCode == 200).Count() * 100.0 / g.Count(),
+                                          MaxRequest = g.Where(x => x.te.StatusCode == 200).Max(x => x.te.TimeEllapsed)
+                                      }).ToListAsync();
+
+                    return data;
+                }
+                else
+                {
+                    var data = await (from t in context.TestResults
+                                      join d in context.TestDefinitions on t.TestDefinitionId equals d.Id
+                                      join te in context.TestResultExecutions on t.Id equals te.TestResultId
+                                      where t.Version.Contains(version) && DbFunctions.TruncateTime(t.StartDate) == date.Date // Adicionando filtro por versÃ£o e data
+                                      group new { t, d, te } by new
+                                      {
+                                          t.UsersNumber,
+                                          d.Name,
+                                          t.StartDate,
+                                          t.BaseAddress,
+                                          Version = (version != null && t.Version.Contains(version)) ? version : "UNKNOWN",
+                                          TestType = t.Version.Contains("Filters") ? "Filters Search" :
+                                                     t.Version.Contains("(Search)") ? "Search" :
+                                                     t.Version.Contains("Operator") ? "Operator" :
+                                                     t.Version.Contains("Record") ? "Record" :
+                                                     "UNKNOWN"
+                                      } into g
+                                      where g.Select(x => x.t.Id).Distinct().Count() >= 1
+                                      select new ComparisonResultViewmodel()
+                                      {
+                                          TotalCount = g.Select(x => x.t.Id).Distinct().Count(),
+                                          Name = g.Key.Name,
+                                          StartDate = g.Key.StartDate,
+                                          Version = g.Key.Version,
+                                          TestType = g.Key.TestType,
+                                          BaseAddress = g.Key.BaseAddress,
+                                          AvgRequest = g.Where(x => x.te.StatusCode == 200).Average(x => x.te.TimeEllapsed),
+                                          TotalRequest = g.Count(),
+                                          UsersNumber = g.Key.UsersNumber,
+                                          PercentRequest = g.Where(x => x.te.StatusCode == 200).Count() * 100.0 / g.Count(),
+                                          MaxRequest = g.Where(x => x.te.StatusCode == 200).Max(x => x.te.TimeEllapsed)
+                                      }).ToListAsync();
+
+                    return data;
+                }
+            }
+        }
+
+        public async Task<List<TestResult>> GetData2(string version, DateTime date)
+        {
+            using (var context = new SoProdTestingContext())
+            {
+                if (date != null && DateTime.Compare(date, new DateTime(1, 1, 1, 0, 0, 0)) == 0)
+                {
+                    var data = await context.TestResults.Where(x => x.Version.Contains(version)).ToListAsync();
+
+                    return data;
+                }
+                else
+                {
+                    var data = await context.TestResults.Where(x => x.Version.Contains(version) && DbFunctions.TruncateTime(x.StartDate) == date.Date).ToListAsync();
+                 
+                    return data;
+                }
             }
         }
 
@@ -259,21 +321,21 @@ namespace SoProd.Web.Controllers
                 double c2TotalAvg = 0.0;
                 double c2TotalPercentage = 0.0;
 
-                var compare1 = await GetData(comparison.Version1, comparison.Date1);
-                var compare2 = await GetData(comparison.Version2, comparison.Date2);
+                var compare1 = await GetData2(comparison.Version1, comparison.Date1);
+                var compare2 = await GetResultsInfo(comparison.Version2, comparison.Date2);
 
-                foreach (var compare in compare1)
-                {
-                    c1.UsersNumber += compare.UsersNumber;
-                    c1.TestsCount++;
-                    c1.TotalRequest += compare.TotalRequest;
-                    if (c1.MaxRequest < compare.MaxRequest) c1.MaxRequest = compare.MaxRequest;
-                    c1TotalAvg += compare.AvgRequest;
-                    c1TotalPercentage += compare.PercentRequest;
-                }
+                //foreach (var compare in compare1)
+                //{
+                //    c1.UsersNumber += compare.UsersNumber;
+                //    c1.TestsCount++;
+                //    c1.TotalRequest += compare.TotalRequest;
+                //    if (c1.MaxRequest < compare.MaxRequest) c1.MaxRequest = compare.MaxRequest;
+                //    c1TotalAvg += compare.AvgRequest;
+                //    c1TotalPercentage += compare.PercentRequest;
+                //}
 
-                c1.AvgRequest = c1TotalAvg / compare1.Count;
-                c1.PercentRequest = c1TotalPercentage / compare1.Count;
+                //c1.AvgRequest = c1TotalAvg / compare1.Count;
+                //c1.PercentRequest = c1TotalPercentage / compare1.Count;
 
                 foreach (var compare in compare2)
                 {
@@ -288,15 +350,15 @@ namespace SoProd.Web.Controllers
                 c2.AvgRequest = c2TotalAvg / compare2.Count;
                 c2.PercentRequest = c2TotalPercentage / compare2.Count;
 
-                if(compare1.Count == 0)
-                {
-                    c1.AvgRequest = 0.0;
-                    c1.PercentRequest = 0.0;
-                    c1.TestsCount = 0;
-                    c1.UsersNumber = 0;
-                    c1.MaxRequest = 0.0;
-                    c1.TotalRequest = 0;
-                }
+                //if(compare1.Count == 0)
+                //{
+                //    c1.AvgRequest = 0.0;
+                //    c1.PercentRequest = 0.0;
+                //    c1.TestsCount = 0;
+                //    c1.UsersNumber = 0;
+                //    c1.MaxRequest = 0.0;
+                //    c1.TotalRequest = 0;
+                //}
 
                 if (compare2.Count == 0)
                 {
@@ -311,7 +373,7 @@ namespace SoProd.Web.Controllers
                 result.comparison1 = c1;
                 result.comparison2 = c2;
 
-                return Json(new { result = "OK", resultComparison = result }, JsonRequestBehavior.AllowGet);
+                return Json(new { result = "OK", resultComparison = result, compare1 = compare1 }, JsonRequestBehavior.AllowGet);
             }
         }
         public ActionResult About()
