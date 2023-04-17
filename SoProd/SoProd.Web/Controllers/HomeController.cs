@@ -236,11 +236,12 @@ namespace SoProd.Web.Controllers
                                       Version = g.Key.Version,
                                       TestType = g.Key.TestType,
                                       BaseAddress = g.Key.BaseAddress,
-                                      AvgRequest = g.Where(x => x.te.StatusCode == 200).Average(x => x.te.TimeEllapsed),
+                                      AvgRequest = g.Count(x => x.te.StatusCode == 200) > 0 && g.Count() > 0 ? g.Where(x => x.te.StatusCode == 200).Average(x => x.te.TimeEllapsed) : 0.0,
                                       TotalRequest = g.Count(),
                                       UsersNumber = g.Key.UsersNumber,
-                                      PercentRequest = g.Where(x => x.te.StatusCode == 200).Count() * 100.0 / g.Count(),
-                                      MaxRequest = g.Where(x => x.te.StatusCode == 200).Max(x => x.te.TimeEllapsed)
+                                      PercentRequest = g.Count(x => x.te.StatusCode == 200) > 0 && g.Count() > 0 ?
+                                                            g.Where(x => x.te.StatusCode == 200).Count() * 100.0 / g.Count() : 0.0,
+                                      MaxRequest = g.Count(x => x.te.StatusCode == 200) > 0 && g.Count() > 0 ? g.Where(x => x.te.StatusCode == 200).Max(x => x.te.TimeEllapsed) : 0.0
                                   }).ToListAsync();
                 return data;
             }

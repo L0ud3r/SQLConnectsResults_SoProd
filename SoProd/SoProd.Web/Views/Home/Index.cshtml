@@ -24,6 +24,13 @@
         justify-content: space-between
     }
 
+    .empty-results {
+        margin: auto;
+        padding: 10%;
+        border: 1px solid lightgrey;
+        text-align: center
+    }
+
     .centered-box {
         display: flex;
         flex-direction: column;
@@ -97,8 +104,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn blue">Save changes</button>
+                    <button type="button" class="btn default">Close</button>
+                    <button type="button" class="btn blue" data-dismiss="modal">Save changes</button>
                 </div>
             </div>
         </div>
@@ -152,9 +159,9 @@
                         <th data-filed="TimeEllapsed" class="no-sort">Time Ellapsed (ms)</th>
                         <th data-filed="Version" class="no-sort">Version</th>
                         <th data-filed="RequestsNumber" class="no-sort">Total Requests</th>
-                        <th data-filed="AvgRequestTime" class="no-sort">Average Request Time (ms)</th>
+                        <th data-filed="AvgRequestTime" class="no-sort">Average Request Time (s)</th>
                         <th data-filed="RequestPercentage" class="no-sort">Ok Percentage</th>
-                        <th data-filed="MaxRequestTime" class="no-sort">Max Request (ms)</th>
+                        <th data-filed="MaxRequestTime" class="no-sort">Max Request (s)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -177,6 +184,8 @@
         select.select2();
         select1.select2();
         select2.select2();
+
+        var currentResult = []
 
         $.ajax({
             url: '/Home/GetVersions',
@@ -344,6 +353,9 @@
                             _data.push(data.RequestPercentage)
                             break;
                         case 8:
+                            if (data.MaxRequestTime == null)
+                                data.MaxRequestTime = "N/A"
+
                             _data.push(data.MaxRequestTime)
                             break;
                         default:
@@ -373,12 +385,19 @@
                         $("[id^='executions-stats-']").remove()
 
                         if (data.results.length > 0) {
+                            var maxAverageTimes = [];
+                            var labels = [];
+                            data.results.forEach(function (item) {
+                                maxAverageTimes.push(item.AvgRequestTime);
+                                labels.push(item.Endpoint);
+                            });
+
                             $(nRow).after(`
                             <tr id="executions-stats-${id}" style="align-self: center">
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <td colspan="5" >
+                                <td colspan="5">
                                     <table class="table border">
                                         <thead>
                                             <tr>
@@ -392,6 +411,12 @@
                                         <tbody>
                                         </tbody>
                                     </table>
+                                    <canvas id="myChart"></canvas>
+                                    <div style="display: flex">
+                                    <button id="btn-max" class="btn btn-danger" onclick="showMaxChart()">Max</button>
+                                    <button id="btn-percentage" class="btn btn-info" onclick="showPercentageChart()">Percentage</button>
+                                    <button id="btn-average" class="btn btn-success" onclick="showAverageChart()">Average</button>
+                                    </div>
                                 </td>
                             </tr>`)
 
@@ -405,10 +430,37 @@
 
                                 $(`#executions-stats-${id} tbody`).append(tr)
                             });
+
+                            var ctx = document.getElementById('myChart').getContext('2d');
+                            window.myChart = new Chart(ctx, {
+                                type: 'bar',
+                                data: {
+                                    labels: labels,
+                                    datasets: [{
+                                        label: 'Average Request Time (s)',
+                                        data: maxAverageTimes,
+                                        backgroundColor: 'rgba(54, 235, 65, 0.2)',
+                                        borderColor: 'rgba(54, 235, 65, 1)',
+                                        borderWidth: 1
+                                    }]
+                                },
+                                options: {
+                                    scales: {
+                                        yAxes: [{
+                                            ticks: {
+                                                beginAtZero: true
+                                            }
+                                        }]
+                                    }
+                                }
+                            });
+
+                            currentResult = data.results
                         }
                         else {
                             $(nRow).after(`
                             <tr id="executions-stats-${id}" style="align-self: center">
+                                <td></td>
                                 <td></td>
                                 <td></td>
                                 <td colspan="5" >
@@ -416,6 +468,8 @@
                                         There are no executions made in this test!
                                     </div>
                             </tr>`)
+
+                            currentResult = []
                         }
                     },
                     error: function (jqXHR) {
@@ -594,7 +648,7 @@
                                         <label id="c1-ok">${comparison1.PercentRequest.toFixed(2)}</label>
                                     </div>
                                     <div class="result-box-line">
-                                        <label>Max Request Time (ms)</label>
+                                        <label>Max Request Time (s)</label>
                                         <label id="c1-max">${comparison1.MaxRequest.toFixed(2)}</label>
                                     </div>
                                     <div class="result-box-line">
@@ -618,7 +672,7 @@
 
                             const newHtml2 = `
                                     <div class="result-box-line">
-                                        <label>Request Average Time (ms)</label>
+                                        <label>Request Average Time (s)</label>
                                         <label id="c2-avg">${comparison2.AvgRequest.toFixed(2)}</label>
                                     </div>
                                     <div class="result-box-line">
@@ -634,7 +688,7 @@
                                         <label id="c2-ok">${comparison2.PercentRequest.toFixed(2)}</label>
                                     </div>
                                     <div class="result-box-line">
-                                        <label>Max Request Time (ms)</label>
+                                        <label>Max Request Time (s)</label>
                                         <label id="c2-max">${comparison2.MaxRequest.toFixed(2)}</label>
                                     </div>
                                     <div class="result-box-line">
@@ -742,8 +796,113 @@
                 alert("Missing fields!")
         })
 
-        //$('i#filter-compare').on('click', function (event) {
-        //    const dataId = $(this).data('id');
-        //});
+        function showMaxChart() {
+            if (window.myChart instanceof Chart) {
+                window.myChart.destroy();
+            }
+            var maxRequestTimes = [];
+            var labels = [];
+            currentResult.forEach(function (item) {
+                maxRequestTimes.push(item.MaxRequestTime);
+                labels.push(item.Endpoint);
+            });
+
+            var ctx = document.getElementById('myChart').getContext('2d');
+            window.myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Max Request Time (s)',
+                        data: maxRequestTimes,
+                        backgroundColor: 'rgba(235, 21, 54, 0.2)',
+                        borderColor: 'rgba(235, 21, 54, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+
+        function showAverageChart() {
+            if (window.myChart instanceof Chart) {
+                window.myChart.destroy();
+            }
+            var maxAvgRequestTime = [];
+            var labels = [];
+            currentResult.forEach(function (item) {
+                maxAvgRequestTime.push(item.AvgRequestTime);
+                labels.push(item.Endpoint);
+            });
+
+            var ctx = document.getElementById('myChart').getContext('2d');
+            window.myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Average Request Time (s)',
+                        data: maxAvgRequestTime,
+                        backgroundColor: 'rgba(54, 235, 65, 0.2)',
+                        borderColor: 'rgba(54, 235, 65, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+
+        function showPercentageChart() {
+            if (window.myChart instanceof Chart) {
+                window.myChart.destroy();
+            }
+            var maxRequestPercentage = [];
+            var labels = [];
+            currentResult.forEach(function (item) {
+                maxRequestPercentage.push(item.RequestPercentage);
+                labels.push(item.Endpoint);
+            });
+
+            var ctx = document.getElementById('myChart').getContext('2d');
+            window.myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Requests OK (%)',
+                        data: maxRequestPercentage,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+
     </script>
 }
