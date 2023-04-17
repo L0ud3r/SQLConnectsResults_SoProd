@@ -18,7 +18,8 @@ namespace SoProd.Web.Controllers
     {
         public async Task<ActionResult> Index()
         {
-            using (var context = new SoProdTestingContext()) {
+            using (var context = new SoProdTestingContext())
+            {
                 List<TestResultViewModel> list = await GetResults();
 
                 return View(list);
@@ -31,9 +32,6 @@ namespace SoProd.Web.Controllers
             using (var context = new SoProdTestingContext())
             {
                 context.Configuration.LazyLoadingEnabled = false;
-                context.Database.CommandTimeout = 600;
-
-                if (dtFilters.length == -1) dtFilters.length = await context.TestResults.CountAsync();
 
                 List<TestResultViewModel> list = new List<TestResultViewModel>();
 
@@ -46,20 +44,50 @@ namespace SoProd.Web.Controllers
                     TimeEllapsed = x.TimeEllapsed,
                     Version = x.Version,
                     RequestsNumber = x.TestResultExecutions.Count(),
-                    AvgRequestTime = x.TestResultExecutions.Where(te => te.StatusCode == 200).Average(te => te.TimeEllapsed),
-                    RequestPercentage = Math.Round(x.TestResultExecutions.Count(te => te.StatusCode == 200) > 0 && x.TestResultExecutions.Count() > 0 ?
-                        (x.TestResultExecutions.Count(te => te.StatusCode == 200) / (double)x.TestResultExecutions.Count()) * 100.0 :
-                        0.0, 2),
-                    MaxRequestTime = x.TestResultExecutions.Max(te => te.TimeEllapsed)
+                    AvgRequestTime = x.TestResultExecutions.Average(tr => tr.TimeEllapsed),
                 }).ToListAsync();
-                
+
                 var resultsCount = await context.TestResults.CountAsync();
 
+                //foreach (var result in resultList)
+                //{
+                //    TestResultViewModel resultViewModel = new TestResultViewModel();
 
-                var jsonObject = Json(new { iTotal = resultsCount, iTotalDisplay = resultList.Count, aaData = resultList, draw = dtFilters.draw }, JsonRequestBehavior.AllowGet);
-                jsonObject.MaxJsonLength = Int32.MaxValue;
+                //    resultViewModel.Id = result.Id;
+                //    resultViewModel.Identifier = result.Identifier;
+                //    resultViewModel.TimeEllapsed = result.TimeEllapsed;
+                //    resultViewModel.StartDate = result.StartDate;
+                //    resultViewModel.Version = result.Version;
+                //    resultViewModel.RequestsOK = result.RequestsOK;
+                //    resultViewModel.RequestsError = result.RequestsError;
+                //    resultViewModel.RequestsNumber = result.RequestsNumber;
 
-                return jsonObject;
+                //    var executions = await context.TestResultExecutions.Where((x => x.TestResultId == result.Id)).ToListAsync();
+                //    var okExecutions = executions.Where(x => x.StatusCode == 200).ToList();
+
+                //    if (executions != null && executions.Any()) resultViewModel.TotalRequests = executions.Count;
+                //    else resultViewModel.TotalRequests = 0;
+
+                //    if (okExecutions.Any())
+                //    {
+                //        resultViewModel.AvgRequestTime = okExecutions.Select(x => x.TimeEllapsed).Average();
+
+                //        double totalOKs = okExecutions.Count();
+                //        resultViewModel.RequestPercentage = resultViewModel.TotalRequests > 0 ? (totalOKs / resultViewModel.TotalRequests) * 100 : 0;
+
+                //        resultViewModel.MaxRequestTime = okExecutions.Select(x => x.TimeEllapsed).Max();
+                //    }
+                //    else
+                //    {
+                //        resultViewModel.AvgRequestTime = -1;
+                //        resultViewModel.RequestPercentage = -1;
+                //        resultViewModel.MaxRequestTime = -1;
+                //    }
+
+                //    list.Add(resultViewModel);
+                //}
+
+                return Json(new { iTotal = resultsCount, iTotalDisplay = resultList.Count, aaData = resultList, draw = dtFilters.draw }, JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -120,7 +148,7 @@ namespace SoProd.Web.Controllers
                 var results = await context.TestResults.Take(10).ToListAsync(); ;
 
                 context.Configuration.LazyLoadingEnabled = false;
-                if(version != null && version != "")
+                if (version != null && version != "")
                 {
                     results = await context.TestResults.AsNoTracking().Where(x => x.Version == version).ToListAsync();
                 }
@@ -172,21 +200,10 @@ namespace SoProd.Web.Controllers
             using (var context = new SoProdTestingContext())
             {
                 context.Configuration.LazyLoadingEnabled = false;
-                var results = await context.TestResultExecutions.AsNoTracking().Where(x => x.TestResultId == id).GroupBy(x => x.EndPoint).Select(x => new TestResultExecutionStatsViewModel
-                {
-                    Endpoint = x.FirstOrDefault().EndPoint,
-                    RequestsNumber = x.Count(),
-                    AvgRequestTime = x.Count(te => te.StatusCode == 200) > 0 ? x.Where(tr => tr.StatusCode == 200).Average(tr => tr.TimeEllapsed) : 0.0,
-                    RequestPercentage = Math.Round((x.Count(te => te.StatusCode == 200) > 0 && x.Count() > 0) ?
-                        (x.Count(te => te.StatusCode == 200) / (double)x.Count()) * 100.0 :
-                        0.0, 2),
-                    MaxRequestTime = x.Count(te => te.StatusCode == 200) > 0 ? x.Where(tr => tr.StatusCode == 200).Max(te => te.TimeEllapsed) : 0.0
-                }).ToListAsync();
+                var results = await context.TestResultExecutions.AsNoTracking().Where(x => x.TestResultId == id).ToListAsync();
 
 
-                var jsonResult = Json(new { result = "OK", results = results }, JsonRequestBehavior.AllowGet);
-               
-                return jsonResult;
+                return Json(new { result = "OK", results = results }, JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -201,86 +218,47 @@ namespace SoProd.Web.Controllers
             }
         }
 
-        public async Task<List<ComparisonResultViewmodel>> GetResultsInfo(string version, DateTime date)
+        public async Task<List<ComparisonResultViewmodel>> GetResultsInfo(List<TestResult> testResults)
         {
             using (var context = new SoProdTestingContext())
             {
                 context.Database.CommandTimeout = 1500;
+                var ids = testResults.Select(tr => tr.Id);
+                string version = testResults[0].Version;
 
-                if (date != null && DateTime.Compare(date, new DateTime(1, 1, 1, 0, 0, 0)) == 0)
-                {
-                    var data = await (from t in context.TestResults
-                                      join d in context.TestDefinitions on t.TestDefinitionId equals d.Id
-                                      join te in context.TestResultExecutions on t.Id equals te.TestResultId
-                                      where t.Version.Contains(version)
-                                      group new { t, d, te } by new
-                                      {
-                                          t.UsersNumber,
-                                          d.Name,
-                                          t.StartDate,
-                                          t.BaseAddress,
-                                          Version = (version != null && t.Version.Contains(version)) ? version : "UNKNOWN",
-                                          TestType = t.Version.Contains("Filters") ? "Filters Search" :
-                                                     t.Version.Contains("(Search)") ? "Search" :
-                                                     t.Version.Contains("Operator") ? "Operator" :
-                                                     t.Version.Contains("Record") ? "Record" :
-                                                     "UNKNOWN"
-                                      } into g
-                                      where g.Select(x => x.t.Id).Distinct().Count() >= 1
-                                      select new ComparisonResultViewmodel()
-                                      {
-                                          TotalCount = g.Select(x => x.t.Id).Distinct().Count(),
-                                          Name = g.Key.Name,
-                                          StartDate = g.Key.StartDate,
-                                          Version = g.Key.Version,
-                                          TestType = g.Key.TestType,
-                                          BaseAddress = g.Key.BaseAddress,
-                                          AvgRequest = g.Where(x => x.te.StatusCode == 200).Average(x => x.te.TimeEllapsed),
-                                          TotalRequest = g.Count(),
-                                          UsersNumber = g.Key.UsersNumber,
-                                          PercentRequest = g.Where(x => x.te.StatusCode == 200).Count() * 100.0 / g.Count(),
-                                          MaxRequest = g.Where(x => x.te.StatusCode == 200).Max(x => x.te.TimeEllapsed)
-                                      }).ToListAsync();
-
-                    return data;
-                }
-                else
-                {
-                    var data = await (from t in context.TestResults
-                                      join d in context.TestDefinitions on t.TestDefinitionId equals d.Id
-                                      join te in context.TestResultExecutions on t.Id equals te.TestResultId
-                                      where t.Version.Contains(version) && DbFunctions.TruncateTime(t.StartDate) == date.Date // Adicionando filtro por versÃ£o e data
-                                      group new { t, d, te } by new
-                                      {
-                                          t.UsersNumber,
-                                          d.Name,
-                                          t.StartDate,
-                                          t.BaseAddress,
-                                          Version = (version != null && t.Version.Contains(version)) ? version : "UNKNOWN",
-                                          TestType = t.Version.Contains("Filters") ? "Filters Search" :
-                                                     t.Version.Contains("(Search)") ? "Search" :
-                                                     t.Version.Contains("Operator") ? "Operator" :
-                                                     t.Version.Contains("Record") ? "Record" :
-                                                     "UNKNOWN"
-                                      } into g
-                                      where g.Select(x => x.t.Id).Distinct().Count() >= 1
-                                      select new ComparisonResultViewmodel()
-                                      {
-                                          TotalCount = g.Select(x => x.t.Id).Distinct().Count(),
-                                          Name = g.Key.Name,
-                                          StartDate = g.Key.StartDate,
-                                          Version = g.Key.Version,
-                                          TestType = g.Key.TestType,
-                                          BaseAddress = g.Key.BaseAddress,
-                                          AvgRequest = g.Where(x => x.te.StatusCode == 200).Average(x => x.te.TimeEllapsed),
-                                          TotalRequest = g.Count(),
-                                          UsersNumber = g.Key.UsersNumber,
-                                          PercentRequest = g.Where(x => x.te.StatusCode == 200).Count() * 100.0 / g.Count(),
-                                          MaxRequest = g.Where(x => x.te.StatusCode == 200).Max(x => x.te.TimeEllapsed)
-                                      }).ToListAsync();
-
-                    return data;
-                }
+                var data = await (from t in context.TestResults
+                                  join d in context.TestDefinitions on t.TestDefinitionId equals d.Id
+                                  join te in context.TestResultExecutions on t.Id equals te.TestResultId
+                                  where ids.Contains(t.Id)
+                                  group new { t, d, te } by new
+                                  {
+                                      t.UsersNumber,
+                                      d.Name,
+                                      t.StartDate,
+                                      t.BaseAddress,
+                                      Version = (version != null && t.Version.Contains(version)) ? version : "UNKNOWN",
+                                      TestType = t.Version.Contains("Filters") ? "Filters Search" :
+                                                 t.Version.Contains("(Search)") ? "Search" :
+                                                 t.Version.Contains("Operator") ? "Operator" :
+                                                 t.Version.Contains("Record") ? "Record" :
+                                                 "UNKNOWN"
+                                  } into g
+                                  where g.Select(x => x.t.Id).Distinct().Count() >= 1
+                                  select new ComparisonResultViewmodel()
+                                  {
+                                      TotalCount = g.Select(x => x.t.Id).Distinct().Count(),
+                                      Name = g.Key.Name,
+                                      StartDate = g.Key.StartDate,
+                                      Version = g.Key.Version,
+                                      TestType = g.Key.TestType,
+                                      BaseAddress = g.Key.BaseAddress,
+                                      AvgRequest = g.Where(x => x.te.StatusCode == 200).Average(x => x.te.TimeEllapsed),
+                                      TotalRequest = g.Count(),
+                                      UsersNumber = g.Key.UsersNumber,
+                                      PercentRequest = g.Where(x => x.te.StatusCode == 200).Count() * 100.0 / g.Count(),
+                                      MaxRequest = g.Where(x => x.te.StatusCode == 200).Max(x => x.te.TimeEllapsed)
+                                  }).ToListAsync();
+                return data;
             }
         }
 
@@ -288,6 +266,8 @@ namespace SoProd.Web.Controllers
         {
             using (var context = new SoProdTestingContext())
             {
+                context.Configuration.LazyLoadingEnabled = false;
+
                 if (date != null && DateTime.Compare(date, new DateTime(1, 1, 1, 0, 0, 0)) == 0)
                 {
                     var data = await context.TestResults.Where(x => x.Version.Contains(version)).ToListAsync();
@@ -297,14 +277,54 @@ namespace SoProd.Web.Controllers
                 else
                 {
                     var data = await context.TestResults.Where(x => x.Version.Contains(version) && DbFunctions.TruncateTime(x.StartDate) == date.Date).ToListAsync();
-                 
+
                     return data;
                 }
             }
         }
 
         [HttpPost]
-        public async Task<JsonResult> Compare(ComparisonViewmodel comparison)
+        public async Task<JsonResult> GetDataToJson(string version, DateTime date)
+        {
+            using (var context = new SoProdTestingContext())
+            {
+                context.Configuration.LazyLoadingEnabled = false;
+
+                if (date == null || DateTime.Compare(date, new DateTime(1, 1, 1, 0, 0, 0)) == 0)
+                {
+                    var data = await context.TestResults.Where(x => x.Version == version).ToListAsync();
+
+                    var jsonObject = Json(new { testResults = data }, JsonRequestBehavior.AllowGet);
+                    jsonObject.MaxJsonLength = Int32.MaxValue;
+
+                    return jsonObject;
+                }
+                else
+                {
+                    var data = await context.TestResults.Where(x => x.Version == version && DbFunctions.TruncateTime(x.StartDate) == date.Date).ToListAsync();
+
+                    var jsonObject = Json(new { testResults = data }, JsonRequestBehavior.AllowGet);
+                    jsonObject.MaxJsonLength = Int32.MaxValue;
+
+                    return jsonObject;
+                }
+            }
+        }
+
+        public async Task<List<TestResult>> IdsToList(List<int> Ids)
+        {
+            using (var context = new SoProdTestingContext())
+            {
+                context.Configuration.LazyLoadingEnabled = false;
+
+                var data = await context.TestResults.Where(x => Ids.Contains(x.Id)).ToListAsync();
+
+                return data;
+            }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> Compare(List<int> listIds1, List<int> listIds2)
         {
             using (var context = new SoProdTestingContext())
             {
@@ -312,7 +332,10 @@ namespace SoProd.Web.Controllers
                 ComparisonResultListViewModel result = new ComparisonResultListViewModel();
                 ComparisonCalculus c1 = new ComparisonCalculus();
                 ComparisonCalculus c2 = new ComparisonCalculus();
-                
+                List<TestResult> listResults1 = new List<TestResult>();
+                List<TestResult> listResults2 = new List<TestResult>();
+
+
                 c1.MaxRequest = -1;
                 double c1TotalAvg = 0.0;
                 double c1TotalPercentage = 0.0;
@@ -321,21 +344,25 @@ namespace SoProd.Web.Controllers
                 double c2TotalAvg = 0.0;
                 double c2TotalPercentage = 0.0;
 
-                var compare1 = await GetData2(comparison.Version1, comparison.Date1);
-                var compare2 = await GetResultsInfo(comparison.Version2, comparison.Date2);
 
-                //foreach (var compare in compare1)
-                //{
-                //    c1.UsersNumber += compare.UsersNumber;
-                //    c1.TestsCount++;
-                //    c1.TotalRequest += compare.TotalRequest;
-                //    if (c1.MaxRequest < compare.MaxRequest) c1.MaxRequest = compare.MaxRequest;
-                //    c1TotalAvg += compare.AvgRequest;
-                //    c1TotalPercentage += compare.PercentRequest;
-                //}
+                listResults1 = await IdsToList(listIds1);
+                listResults2 = await IdsToList(listIds2);
 
-                //c1.AvgRequest = c1TotalAvg / compare1.Count;
-                //c1.PercentRequest = c1TotalPercentage / compare1.Count;
+                var compare1 = await GetResultsInfo(listResults1);
+                var compare2 = await GetResultsInfo(listResults2);
+
+                foreach (var compare in compare1)
+                {
+                    c1.UsersNumber += compare.UsersNumber;
+                    c1.TestsCount++;
+                    c1.TotalRequest += compare.TotalRequest;
+                    if (c1.MaxRequest < compare.MaxRequest) c1.MaxRequest = compare.MaxRequest;
+                    c1TotalAvg += compare.AvgRequest;
+                    c1TotalPercentage += compare.PercentRequest;
+                }
+
+                c1.AvgRequest = c1TotalAvg / compare1.Count;
+                c1.PercentRequest = c1TotalPercentage / compare1.Count;
 
                 foreach (var compare in compare2)
                 {
@@ -350,15 +377,15 @@ namespace SoProd.Web.Controllers
                 c2.AvgRequest = c2TotalAvg / compare2.Count;
                 c2.PercentRequest = c2TotalPercentage / compare2.Count;
 
-                //if(compare1.Count == 0)
-                //{
-                //    c1.AvgRequest = 0.0;
-                //    c1.PercentRequest = 0.0;
-                //    c1.TestsCount = 0;
-                //    c1.UsersNumber = 0;
-                //    c1.MaxRequest = 0.0;
-                //    c1.TotalRequest = 0;
-                //}
+                if (compare1.Count == 0)
+                {
+                    c1.AvgRequest = 0.0;
+                    c1.PercentRequest = 0.0;
+                    c1.TestsCount = 0;
+                    c1.UsersNumber = 0;
+                    c1.MaxRequest = 0.0;
+                    c1.TotalRequest = 0;
+                }
 
                 if (compare2.Count == 0)
                 {
@@ -373,7 +400,7 @@ namespace SoProd.Web.Controllers
                 result.comparison1 = c1;
                 result.comparison2 = c2;
 
-                return Json(new { result = "OK", resultComparison = result, compare1 = compare1 }, JsonRequestBehavior.AllowGet);
+                return Json(new { result = "OK", resultComparison = result }, JsonRequestBehavior.AllowGet);
             }
         }
         public ActionResult About()

@@ -15,7 +15,7 @@
         flex-direction: column;
         border: 3px solid lightblue;
         padding: 5px;
-        text-align:center
+        text-align: center
     }
 
     .result-box-line {
@@ -29,14 +29,7 @@
         flex-direction: column;
         justify-content: space-between;
         width: 15%;
-        text-align: center
-    }
-
-    .empty-results {
-        margin: auto;
-        padding: 10%;
-        border: 1px solid lightgrey;
-        text-align: center
+        text-align: center;
     }
 
     .filter-icon {
@@ -49,29 +42,31 @@
     }
 </style>
 
-<div class="portlet box blue mt-4">
+<div class="portlet box blue">
     <div class="portlet-title">
         <div class="caption">
             <i class="fa fa-cogs"></i>Results Comparation
         </div>
         <div class="tools">
-            <a href="javascript:;" class="collapse"></a>
+            <a href="javascript:;" class="reload">
+            </a>
         </div>
     </div>
-    <div class="portlet-body" style="display: flex; justify-content:space-around">
+    <div class="portlet-body" style="display: flex;justify-content:space-around">
         <div>
             <div class="mb-3" style="display: flex; gap: 5px">
                 <select id="select2-version-1" class="select2-version-1" style="width: 300px">
                     <option value="">Choose a version</option>
                 </select>
                 <input id="date-1" type="date" class="form-control" required />
-                <i id="filter-compare" data-id="1" class="fa fa-filter filter-icon" data-toggle="modal" href="#basic"></i>
+                <i id="filter-compare" data-id="1" class="fa fa-filter filter-icon" data-toggle="modal" href="#basic-1"></i>
             </div>
             <div id="result1" class="result-box">
                 No data
             </div>
         </div>
         <div class="centered-box">
+            <button type="button" id="btn-test" class="btn btn-info compare">Test</button>
             <button type="button" id="btn-compare" class="btn btn-info compare">Compare</button>
             <div id="comparison-result"></div>
             <div id="result-text"></div>
@@ -82,14 +77,14 @@
                     <option value="">Choose a version</option>
                 </select>
                 <input id="date-2" type="date" class="form-control" required />
-                <i id="filter-compare" data-id="2" class="fa fa-filter filter-icon" data-toggle="modal" href="#basic"></i>
+                <i id="filter-compare" data-id="2" class="fa fa-filter filter-icon" data-toggle="modal" href="#basic-2"></i>
             </div>
             <div id="result2" class="result-box">
                 No data
             </div>
         </div>
     </div>
-    <div class="modal fade" id="basic" tabindex="-1" role="basic" aria-hidden="true">
+    <div class="modal fade" id="basic-1" tabindex="-1" role="basic" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -97,36 +92,29 @@
                 </div>
                 <div class="modal-body">
                     <div style="height: 500px; overflow: auto; border: 2px solid lightblue ">
-                        <ul style="list-style: none">
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
-                            <li style="display: flex; gap: 5px"><input type="checkbox" /> x</li>
+                        <ul id="list-filter-1" style="list-style: none">
+                            Empty List!
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn blue">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="basic-2" tabindex="-1" role="basic" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Test Results</h4>
+                </div>
+                <div class="modal-body">
+                    <div style="height: 500px; overflow: auto; border: 2px solid lightblue ">
+                        <ul id="list-filter-2" style="list-style: none">
+                            Empty List!
                         </ul>
                     </div>
                 </div>
@@ -139,15 +127,13 @@
     </div>
 </div>
 
-
-
 <div class="portlet box red mt-1">
     <div class="portlet-title">
         <div class="caption">
             <i class="fa fa-cogs"></i>Database Results
         </div>
         <div class="tools">
-            <a href="javascript:;" class="collapse"></a>
+            <a href="javascript:;" class="reload">
             </a>
         </div>
     </div>
@@ -158,7 +144,7 @@
             </select>
         </div>
         <div class="table-responsive">
-            <table id="results" class="table table-advance">
+            <table id="results" class="table  table-advance">
                 <thead>
                     <tr>
                         <th data-field="Id" class="no-sort column-id">ID</th>
@@ -167,12 +153,28 @@
                         <th data-filed="TimeEllapsed" class="no-sort">Time Ellapsed (ms)</th>
                         <th data-filed="Version" class="no-sort">Version</th>
                         <th data-filed="RequestsNumber" class="no-sort">Total Requests</th>
-                        <th data-filed="AvgRequestTime" class="no-sort">Average Request Time (s)</th>
-                        <th data-filed="RequestPercentage" class="no-sort">Ok Percentage</th>
-                        <th data-filed="MaxRequestTime" class="no-sort">Max Request (s)</th>
+                        <th data-filed="AvgRequestTime" class="no-sort">Average Request Time (ms)</th>
+                        @*<th data-filed="RequestPercentage" class="no-sort">Ok Percentage</th>
+                            <th data-filed="MaxRequestTime" class="no-sort">Max Request (ms)</th>*@
                     </tr>
                 </thead>
                 <tbody>
+                    @*@foreach (var result in Model)
+                        {
+                            <tr class="tablerow" data-item-id="@result.Id">
+                                <td id="tablerow">@result.Id</td>
+                                <td id="tablerow">@result.Identifier</td>
+                                <td id="tablerow">@result.StartDate</td>
+                                <td id="tablerow">@result.TimeEllapsed</td>
+                                <td id="tablerow">@result.Version</td>
+                                <td id="tablerow">@result.RequestsNumber</td>
+                                <td id="tablerow">@result.AvgRequestTime</td>
+                                <td id="tablerow">@result.RequestPercentage %</td>
+                                <td id="tablerow">@result.MaxRequestTime</td>
+                            </tr>
+                            <tr id="executions-@result.Id" style="display: none;">
+                            </tr>
+                        }*@
                 </tbody>
             </table>
         </div>
@@ -232,14 +234,6 @@
             "aaSorting": [[0, 'desc']],
             "fnCreatedRow": function (nRow, aData, iDataIndex) {
                 $(nRow).attr('id', "tablerow");
-                $(nRow).attr('data-id', aData[0])
-                
-
-                $(nRow).click(function (e)
-                {
-                    var dataId = $(this).data('id');
-                    GetExecutions($(nRow), dataId);
-                })
             },
             "lengthMenu": [[20, 50, 100, -1], [20, 50, 100, "All"]],
             "iDisplayLength": 20,
@@ -313,7 +307,7 @@
                 var _data = [];
                 var startPos = 0;
 
-                for (var i = startPos; i <= 8; i++) {
+                for (var i = startPos; i <= 6; i++) {
                     switch (i) {
                         case 0:
                             _data.push(data.Id);
@@ -322,46 +316,26 @@
                             _data.push(data.Identifier)
                             break;
                         case 2:
-                            var startDateStr = data.StartDate.toString();
-
-                            if (startDateStr.length > 0) {
-                                var startDate = new Date(parseInt(startDateStr.substr(6)));
-                                var formattedStartDate = startDate.toLocaleString().replace(',', '');
-                            }
-
-                            _data.push(formattedStartDate)
+                            _data.push(data.StartDate)
                             break;
                         case 3:
                             _data.push(data.TimeEllapsed)
                             break;
                         case 4:
-                            if (data.Version == null)
-                                data.Version = "N/A"
-
                             _data.push(data.Version)
                             break;
                         case 5:
                             _data.push(data.RequestsNumber)
                             break;
                         case 6:
-                            if (data.AvgRequestTime == null)
-                                data.AvgRequestTime = "N/A"
-
                             _data.push(data.AvgRequestTime)
                             break;
-                        case 7:
-                            if (data.RequestPercentage == 0 && data.RequestsNumber == 0)
-                                data.RequestPercentage = "N/A"
-                            else if (data.RequestPercentage == 0 && data.RequestsNumber != 0)
-                                data.RequestPercentage = "0 %"
-                            else
-                                data.RequestPercentage = data.RequestPercentage + " %"
-
-                            _data.push(data.RequestPercentage)
-                            break;
-                        case 8:
-                            _data.push(data.MaxRequestTime)
-                            break;
+                        //case 7:
+                        //    _data.push(data.RequestPercentage)
+                        //    break;
+                        //case 8:
+                        //    _data.push(data.MaxRequestTime)
+                        //    break;
                         default:
                             break;
                     }
@@ -376,72 +350,56 @@
             TableInit('#results');
         });
 
-        function GetExecutions(nRow, id) {
-            if ($(`#executions-stats-${id}`).length) {
-                $(`#executions-stats-${id}`).remove()
+        $(".tablerow").click(function () {
+            var itemId = $(this).data("item-id");
 
-            }
-            else {
+            var trElement = document.getElementById(`executions-${itemId}`);
+
+            if (trElement.style.display === "none") {
                 $.ajax({
-                    url: "/Home/GetResultExecutions/" + id,
+                    url: "/Home/GetResultExecutions/" + itemId,
                     type: "GET",
                     success: function (data) {
-                        $("[id^='executions-stats-']").remove()
+                        var executionsTable = $('<table>').addClass('table').css('width', '100%').attr('id', `result-executions-${itemId}`);
+                        var executionsHeader = $('<thead>').appendTo(executionsTable);
+                        var executionsBody = $('<tbody>').appendTo(executionsTable);
 
-                        if (data.results.length > 0) {
-                            $(nRow).after(`
-                            <tr id="executions-stats-${id}" style="align-self: center">
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td colspan="5" >
-                                    <table class="table border">
-                                        <thead>
-                                            <tr>
-                                                <th style="font-weight: bold;">Endpoint</th>
-                                                <th style="font-weight: bold;">Total Requests</th>
-                                                <th style="font-weight: bold;">OK Response Percentage</th>
-                                                <th style="font-weight: bold;">Average Request Time(s)</th>
-                                                <th style="font-weight: bold;">Max Request Time(s)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                        </tbody>
-                                    </table>
-                                </td>
-                            </tr>`)
+                        var headerRow = $('<tr>').appendTo(executionsHeader);
+                        $('<th>').text('ID').appendTo(headerRow);
+                        $('<th>').text('URL').appendTo(headerRow);
+                        $('<th>').text('Status Code').appendTo(headerRow);
+                        $('<th>').text('Time Ellapsed').appendTo(headerRow);
+                        $('<th>').text('Start Date').appendTo(headerRow);
 
-                            $.each(data.results, function (index, item) {
-                                var tr = $('<tr>');
-                                tr.append($('<td>').text(item.Endpoint));
-                                tr.append($('<td>').text(item.RequestsNumber));
-                                tr.append($('<td>').text(item.RequestPercentage + " %"));
-                                tr.append($('<td>').text(item.AvgRequestTime));
-                                tr.append($('<td>').text(item.MaxRequestTime));
+                        data.results.forEach(function (execution) {
+                            var dataRow = $('<tr>').appendTo(executionsBody);
+                            $('<td>').text(execution.Id).appendTo(dataRow);
+                            $('<td>').text(execution.URL).appendTo(dataRow);
+                            $('<td>').text(execution.StatusCode).appendTo(dataRow);
+                            $('<td>').text(execution.TimeEllapsed.toFixed(4)).appendTo(dataRow);
 
-                                $(`#executions-stats-${id} tbody`).append(tr)
-                            });
-                        }
-                        else {
-                            $(nRow).after(`
-                            <tr id="executions-stats-${id}" style="align-self: center">
-                                <td></td>
-                                <td></td>
-                                <td colspan="5" >
-                                    <div class="empty-results">
-                                        There are no executions made in this test!
-                                    </div>
-                            </tr>`)
-                        }
+                            var startDateStr = execution.StartDate.toString();
 
+                            if (startDateStr.length > 0) {
+                                var startDate = new Date(parseInt(startDateStr.substr(6)));
+                                var formattedStartDate = startDate.toLocaleString();
+                                $('<td>').text(formattedStartDate).appendTo(dataRow);
+                            }
+                        });
+
+                        $("#executions-" + itemId).html($('<td>').attr('colspan', 8).append(executionsTable)).toggle();
+
+                        TableInit(`#result-executions-${itemId}`);
                     },
-                    error: function (jqXHR) {
-                        console.log(jqXHR.responseText)
+                    error: function () {
                         alert("Error retrieving test results.");
                     }
                 });
             }
-        };
+            else {
+                $("#executions-" + itemId).hide();
+            }
+        });
 
         $('#select2-request').on('change', function () {
             var selectedValue = $(this).val();
@@ -482,23 +440,124 @@
             });
         });
 
+        $('#select2-version-1, #date-1').on('change', function () {
+            var version1 = $('#select2-version-1 option:selected').val();
+            var date1 = $("#date-1").val();
+
+            if (!date1)
+                date1 = '0001-01-01'
+
+            $.ajax({
+                url: '/Home/GetDataToJson',
+                type: 'POST',
+                data: { version: version1, date: date1 },
+                success: function (response) {
+                    var list = $('#list-filter-1')
+                    list.empty()
+
+                    if (response.testResults.length > 0) {
+                        $.each(response.testResults, function (index, item) {
+                            var startDateStr = item.StartDate.toString();
+
+                            if (startDateStr.length > 0) {
+                                var startDate = new Date(parseInt(startDateStr.substr(6)));
+                                item.startDate = startDate.toLocaleString().replace(',', '');
+                            }
+
+                            list.append(`<li style="display: flex; gap: 5px">
+                                <input type="checkbox" id="filter-checkbox-1" data-id="${item.Id}" checked/>${item.Version} - ${item.startDate} (TestDefinitionId: ${item.TestDefinitionId})</li>`)
+                        });
+                    }
+                    else {
+                        list.append(`No results found!`)
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("Erro")
+                    console.log(jqXHR);
+                }
+            });
+        });
+
+        $('#select2-version-2, #date-2').on('change', function () {
+            var version2 = $('#select2-version-2 option:selected').val();
+            var date2 = $("#date-2").val();
+
+            if (!date2)
+                date2 = '0001-01-01'
+
+            $.ajax({
+                url: '/Home/GetDataToJson',
+                type: 'POST',
+                data: { version: version2, date: date2 },
+                success: function (response) {
+                    var list = $('#list-filter-2')
+                    list.empty()
+
+                    if (response.testResults.length > 0) {
+                        $.each(response.testResults, function (index, item) {
+                            var startDateStr = item.StartDate.toString();
+
+                            if (startDateStr.length > 0) {
+                                var startDate = new Date(parseInt(startDateStr.substr(6)));
+                                var formattedStartDate = startDate.toLocaleString().replace(',', '');
+                            }
+
+                            list.append(`<li style="display: flex; gap: 5px">
+                                <input type="checkbox" id="filter-checkbox-2" data-id="${item.Id}" checked/>${item.Version} - ${formattedStartDate} (TestDefinitionId: ${item.TestDefinitionId})</li>`)
+                        });
+                    }
+                    else {
+                        list.append(`No results found!`)
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("Erro")
+                    console.log(jqXHR);
+                }
+            });
+        });
+
+        $("#btn-test").click(function () {
+            alert("Boas")
+            //$.ajax({
+            //    url: '/Home/GetDataToJson',
+            //    type: 'POST',
+            //    data: comparison,
+            //    success: function (response) {
+            //        console.log(response)
+            //    },
+            //    error: function (jqXHR, textStatus, errorThrown) {
+            //        alert("Erro")
+            //        console.log(jqXHR);
+            //    }
+            //});
+        });
+
         $("#btn-compare").click(function () {
+            var version1 = $('#select2-version-1 option:selected').val();
+            var version2 = $('#select2-version-2 option:selected').val();
+            var comparelist1 = [];
+            var comparelist2 = [];
 
-            let comparison = {
-                Version1: $('#select2-version-1 option:selected').val(),
-                Date1: $("#date-1").val(),
-                Version2: $('#select2-version-2 option:selected').val(),
-                Date2: $("#date-2").val()
-            };
+            $('#list-filter-1 input[type="checkbox"]').each(function () {
+                if ($(this).is(':checked')) {
+                    comparelist1.push($(this).data('id'))
+                }
+            });
 
-            if (comparison.Version1 != "" && comparison.Version2 != "") {
+            $('#list-filter-2 input[type="checkbox"]').each(function () {
+                if ($(this).is(':checked')) {
+                    comparelist2.push($(this).data('id'))
+                }
+            });
+
+            if (version1 != "" && version2 != "") {
                 $.ajax({
                     url: '/Home/Compare',
                     type: 'POST',
-                    data: comparison,
+                    data: { listIds1: comparelist1, listIds2: comparelist2 },
                     success: function (response) {
-                        console.log(response.compare1)
-
                         const comparison1 = response.resultComparison.comparison1;
                         const comparison2 = response.resultComparison.comparison2;
 
@@ -507,31 +566,31 @@
 
                         if (comparison1.TestsCount != 0) {
                             const newHtml1 = `
-                                <div class="result-box-line">
-                                    <label>Request Average</label>
-                                    <label id="c1-avg">${comparison1.AvgRequest.toFixed(2)}</label>
-                                </div>
-                                <div class="result-box-line">
-                                    <label>Total Requests</label>
-                                    <label id="c1-total">${comparison1.TotalRequest}</label>
-                                </div>
-                                <div class="result-box-line">
-                                    <label>Users Number</label>
-                                    <label id="c1-users">${comparison1.UsersNumber}</label>
-                                </div>
-                                <div class="result-box-line">
-                                    <label>Requests OK (%)</label>
-                                    <label id="c1-ok">${comparison1.PercentRequest.toFixed(2)}</label>
-                                </div>
-                                <div class="result-box-line">
-                                    <label>Max Request Time (s)</label>
-                                    <label id="c1-max">${comparison1.MaxRequest.toFixed(2)}</label>
-                                </div>
-                                <div class="result-box-line">
-                                    <label>Tests Number</label>
-                                    <label id="c1-tests">${comparison1.TestsCount}</label>
-                                </div>
-                            `;
+                                    <div class="result-box-line">
+                                        <label>Request Average</label>
+                                        <label id="c1-avg">${comparison1.AvgRequest.toFixed(2)}</label>
+                                    </div>
+                                    <div class="result-box-line">
+                                        <label>Total Requests</label>
+                                        <label id="c1-total">${comparison1.TotalRequest}</label>
+                                    </div>
+                                    <div class="result-box-line">
+                                        <label>Users Number</label>
+                                        <label id="c1-users">${comparison1.UsersNumber}</label>
+                                    </div>
+                                    <div class="result-box-line">
+                                        <label>Requests OK (%)</label>
+                                        <label id="c1-ok">${comparison1.PercentRequest.toFixed(2)}</label>
+                                    </div>
+                                    <div class="result-box-line">
+                                        <label>Max Request Time (ms)</label>
+                                        <label id="c1-max">${comparison1.MaxRequest.toFixed(2)}</label>
+                                    </div>
+                                    <div class="result-box-line">
+                                        <label>Tests Number</label>
+                                        <label id="c1-tests">${comparison1.TestsCount}</label>
+                                    </div>
+                                `;
 
                             result1.innerHTML = newHtml1;
                         }
@@ -546,31 +605,31 @@
                         if (comparison2.TestsCount != 0) {
 
                             const newHtml2 = `
-                                <div class="result-box-line">
-                                    <label>Request Average Time (s)</label>
-                                    <label id="c2-avg">${comparison2.AvgRequest.toFixed(2)}</label>
-                                </div>
-                                <div class="result-box-line">
-                                    <label>Total Requests</label>
-                                    <label id="c2-total">${comparison2.TotalRequest}</label>
-                                </div>
-                                <div class="result-box-line">
-                                    <label>Users Number</label>
-                                    <label id="c2-users">${comparison2.UsersNumber}</label>
-                                </div>
-                                <div class="result-box-line">
-                                    <label>Requests OK (%)</label>
-                                    <label id="c2-ok">${comparison2.PercentRequest.toFixed(2)}</label>
-                                </div>
-                                <div class="result-box-line">
-                                    <label>Max Request Time (s)</label>
-                                    <label id="c2-max">${comparison2.MaxRequest.toFixed(2)}</label>
-                                </div>
-                                <div class="result-box-line">
-                                    <label>Tests Number</label>
-                                    <label id="c2-tests">${comparison2.TestsCount}</label>
-                                </div>
-                            `;
+                                    <div class="result-box-line">
+                                        <label>Request Average Time (ms)</label>
+                                        <label id="c2-avg">${comparison2.AvgRequest.toFixed(2)}</label>
+                                    </div>
+                                    <div class="result-box-line">
+                                        <label>Total Requests</label>
+                                        <label id="c2-total">${comparison2.TotalRequest}</label>
+                                    </div>
+                                    <div class="result-box-line">
+                                        <label>Users Number</label>
+                                        <label id="c2-users">${comparison2.UsersNumber}</label>
+                                    </div>
+                                    <div class="result-box-line">
+                                        <label>Requests OK (%)</label>
+                                        <label id="c2-ok">${comparison2.PercentRequest.toFixed(2)}</label>
+                                    </div>
+                                    <div class="result-box-line">
+                                        <label>Max Request Time (ms)</label>
+                                        <label id="c2-max">${comparison2.MaxRequest.toFixed(2)}</label>
+                                    </div>
+                                    <div class="result-box-line">
+                                        <label>Tests Number</label>
+                                        <label id="c2-tests">${comparison2.TestsCount}</label>
+                                    </div>
+                                `;
 
                             result2.innerHTML = newHtml2;
                         }
@@ -590,7 +649,7 @@
                                 document.querySelector('#c1-avg').style.color = 'green';
                                 points1 = points1 + 1;
                             }
-                            else {
+                            else if (comparison1.AvgRequest > comparison2.AvgRequest) {
                                 document.querySelector('#c2-avg').style.color = 'green';
                                 points2 = points2 + 1;
                             }
@@ -599,7 +658,7 @@
                                 document.querySelector('#c1-total').style.color = 'green';
                                 points1 = points1 + 1;
                             }
-                            else {
+                            else if (comparison1.TotalRequest < comparison2.TotalRequest) {
                                 document.querySelector('#c2-total').style.color = 'green';
                                 points2 = points2 + 1;
                             }
@@ -608,7 +667,7 @@
                                 document.querySelector('#c1-users').style.color = 'green';
                                 points1 = points1 + 1;
                             }
-                            else {
+                            else if (comparison1.UsersNumber < comparison2.UsersNumber) {
                                 document.querySelector('#c2-users').style.color = 'green';
                                 points2 = points2 + 1;
                             }
@@ -617,7 +676,7 @@
                                 document.querySelector('#c1-ok').style.color = 'green';
                                 points1 = points1 + 1;
                             }
-                            else {
+                            else if (comparison1.PercentRequest < comparison2.PercentRequest) {
                                 document.querySelector('#c2-ok').style.color = 'green';
                                 points2 = points2 + 1;
                             }
@@ -626,7 +685,7 @@
                                 document.querySelector('#c1-max').style.color = 'green';
                                 points1 = points1 + 1;
                             }
-                            else {
+                            else if (comparison1.MaxRequest > comparison2.MaxRequest) {
                                 document.querySelector('#c2-max').style.color = 'green';
                                 points2 = points2 + 1;
                             }
@@ -635,7 +694,7 @@
                                 document.querySelector('#c1-tests').style.color = 'green';
                                 points1 = points1 + 1;
                             }
-                            else {
+                            else if (comparison1.TestsCount < comparison2.TestsCount) {
                                 document.querySelector('#c2-tests').style.color = 'green';
                                 points2 = points2 + 1;
                             }
@@ -669,11 +728,9 @@
                 alert("Missing fields!")
         })
 
-        $('i#filter-compare').on('click', function (event) {
-            const dataId = $(this).data('id');
-
-
-        });
+            //$('i#filter-compare').on('click', function (event) {
+            //    const dataId = $(this).data('id');
+            //});
 
     </script>
 }
