@@ -32,6 +32,9 @@ namespace SoProd.Web.Controllers
             using (var context = new SoProdTestingContext())
             {
                 context.Configuration.LazyLoadingEnabled = false;
+                context.Database.CommandTimeout = 600;
+
+                if (dtFilters.length == -1) dtFilters.length = await context.TestResults.CountAsync();
 
                 List<TestResultViewModel> list = new List<TestResultViewModel>();
 
@@ -44,50 +47,20 @@ namespace SoProd.Web.Controllers
                     TimeEllapsed = x.TimeEllapsed,
                     Version = x.Version,
                     RequestsNumber = x.TestResultExecutions.Count(),
-                    AvgRequestTime = x.TestResultExecutions.Average(tr => tr.TimeEllapsed),
+                    AvgRequestTime = x.TestResultExecutions.Where(te => te.StatusCode == 200).Average(te => te.TimeEllapsed),
+                    RequestPercentage = Math.Round(x.TestResultExecutions.Count(te => te.StatusCode == 200) > 0 && x.TestResultExecutions.Count() > 0 ?
+                        (x.TestResultExecutions.Count(te => te.StatusCode == 200) / (double)x.TestResultExecutions.Count()) * 100.0 :
+                        0.0, 2),
+                    MaxRequestTime = x.TestResultExecutions.Max(te => te.TimeEllapsed)
                 }).ToListAsync();
 
                 var resultsCount = await context.TestResults.CountAsync();
 
-                //foreach (var result in resultList)
-                //{
-                //    TestResultViewModel resultViewModel = new TestResultViewModel();
 
-                //    resultViewModel.Id = result.Id;
-                //    resultViewModel.Identifier = result.Identifier;
-                //    resultViewModel.TimeEllapsed = result.TimeEllapsed;
-                //    resultViewModel.StartDate = result.StartDate;
-                //    resultViewModel.Version = result.Version;
-                //    resultViewModel.RequestsOK = result.RequestsOK;
-                //    resultViewModel.RequestsError = result.RequestsError;
-                //    resultViewModel.RequestsNumber = result.RequestsNumber;
+                var jsonObject = Json(new { iTotal = resultsCount, iTotalDisplay = resultList.Count, aaData = resultList, draw = dtFilters.draw }, JsonRequestBehavior.AllowGet);
+                jsonObject.MaxJsonLength = Int32.MaxValue;
 
-                //    var executions = await context.TestResultExecutions.Where((x => x.TestResultId == result.Id)).ToListAsync();
-                //    var okExecutions = executions.Where(x => x.StatusCode == 200).ToList();
-
-                //    if (executions != null && executions.Any()) resultViewModel.TotalRequests = executions.Count;
-                //    else resultViewModel.TotalRequests = 0;
-
-                //    if (okExecutions.Any())
-                //    {
-                //        resultViewModel.AvgRequestTime = okExecutions.Select(x => x.TimeEllapsed).Average();
-
-                //        double totalOKs = okExecutions.Count();
-                //        resultViewModel.RequestPercentage = resultViewModel.TotalRequests > 0 ? (totalOKs / resultViewModel.TotalRequests) * 100 : 0;
-
-                //        resultViewModel.MaxRequestTime = okExecutions.Select(x => x.TimeEllapsed).Max();
-                //    }
-                //    else
-                //    {
-                //        resultViewModel.AvgRequestTime = -1;
-                //        resultViewModel.RequestPercentage = -1;
-                //        resultViewModel.MaxRequestTime = -1;
-                //    }
-
-                //    list.Add(resultViewModel);
-                //}
-
-                return Json(new { iTotal = resultsCount, iTotalDisplay = resultList.Count, aaData = resultList, draw = dtFilters.draw }, JsonRequestBehavior.AllowGet);
+                return jsonObject;
             }
         }
 
@@ -200,10 +173,21 @@ namespace SoProd.Web.Controllers
             using (var context = new SoProdTestingContext())
             {
                 context.Configuration.LazyLoadingEnabled = false;
-                var results = await context.TestResultExecutions.AsNoTracking().Where(x => x.TestResultId == id).ToListAsync();
+                var results = await context.TestResultExecutions.AsNoTracking().Where(x => x.TestResultId == id).GroupBy(x => x.EndPoint).Select(x => new TestResultExecutionStatsViewModel
+                {
+                    Endpoint = x.FirstOrDefault().EndPoint,
+                    RequestsNumber = x.Count(),
+                    AvgRequestTime = x.Count(te => te.StatusCode == 200) > 0 ? x.Where(tr => tr.StatusCode == 200).Average(tr => tr.TimeEllapsed) : 0.0,
+                    RequestPercentage = Math.Round((x.Count(te => te.StatusCode == 200) > 0 && x.Count() > 0) ?
+                        (x.Count(te => te.StatusCode == 200) / (double)x.Count()) * 100.0 :
+                        0.0, 2),
+                    MaxRequestTime = x.Count(te => te.StatusCode == 200) > 0 ? x.Where(tr => tr.StatusCode == 200).Max(te => te.TimeEllapsed) : 0.0
+                }).ToListAsync();
 
 
-                return Json(new { result = "OK", results = results }, JsonRequestBehavior.AllowGet);
+                var jsonResult = Json(new { result = "OK", results = results }, JsonRequestBehavior.AllowGet);
+
+                return jsonResult;
             }
         }
 
@@ -311,15 +295,20 @@ namespace SoProd.Web.Controllers
             }
         }
 
-        public async Task<List<TestResult>> IdsToList(List<int> Ids)
+        public async Task<List<TestResult>> IdsToList(List<int> ids)
         {
             using (var context = new SoProdTestingContext())
             {
                 context.Configuration.LazyLoadingEnabled = false;
 
-                var data = await context.TestResults.Where(x => Ids.Contains(x.Id)).ToListAsync();
+                if(ids != null)
+                {
+                    var data = await context.TestResults.Where(x => ids.Contains(x.Id)).ToListAsync();
+                 
+                    return data;
+                }
 
-                return data;
+                return null;
             }
         }
 
@@ -344,40 +333,47 @@ namespace SoProd.Web.Controllers
                 double c2TotalAvg = 0.0;
                 double c2TotalPercentage = 0.0;
 
-
                 listResults1 = await IdsToList(listIds1);
                 listResults2 = await IdsToList(listIds2);
 
-                var compare1 = await GetResultsInfo(listResults1);
-                var compare2 = await GetResultsInfo(listResults2);
+                var compare1 = new List<ComparisonResultViewmodel>();
+                var compare2 = new List<ComparisonResultViewmodel>();
 
-                foreach (var compare in compare1)
+                if (listResults1 != null)
                 {
-                    c1.UsersNumber += compare.UsersNumber;
-                    c1.TestsCount++;
-                    c1.TotalRequest += compare.TotalRequest;
-                    if (c1.MaxRequest < compare.MaxRequest) c1.MaxRequest = compare.MaxRequest;
-                    c1TotalAvg += compare.AvgRequest;
-                    c1TotalPercentage += compare.PercentRequest;
+                    compare1 = await GetResultsInfo(listResults1);
+                }
+                else
+                {
+                    compare1 = null;
+
                 }
 
-                c1.AvgRequest = c1TotalAvg / compare1.Count;
-                c1.PercentRequest = c1TotalPercentage / compare1.Count;
-
-                foreach (var compare in compare2)
+                if (listResults2 != null)
                 {
-                    c2.UsersNumber += compare.UsersNumber;
-                    c2.TestsCount++;
-                    c2.TotalRequest += compare.TotalRequest;
-                    if (c2.MaxRequest < compare.MaxRequest) c2.MaxRequest = compare.MaxRequest;
-                    c2TotalAvg += compare.AvgRequest;
-                    c2TotalPercentage += compare.PercentRequest;
+                    compare2 = await GetResultsInfo(listResults2);
+                }
+                else
+                {
+                    compare2 = null;
                 }
 
-                c2.AvgRequest = c2TotalAvg / compare2.Count;
-                c2.PercentRequest = c2TotalPercentage / compare2.Count;
+                if(compare1 != null)
+                {
+                    foreach (var compare in compare1)
+                    {
+                        c1.UsersNumber += compare.UsersNumber;
+                        c1.TestsCount++;
+                        c1.TotalRequest += compare.TotalRequest;
+                        if (c1.MaxRequest < compare.MaxRequest) c1.MaxRequest = compare.MaxRequest;
+                        c1TotalAvg += compare.AvgRequest;
+                        c1TotalPercentage += compare.PercentRequest;
+                    }
 
-                if (compare1.Count == 0)
+                    c1.AvgRequest = c1TotalAvg / compare1.Count;
+                    c1.PercentRequest = c1TotalPercentage / compare1.Count;
+                }
+                else
                 {
                     c1.AvgRequest = 0.0;
                     c1.PercentRequest = 0.0;
@@ -387,7 +383,22 @@ namespace SoProd.Web.Controllers
                     c1.TotalRequest = 0;
                 }
 
-                if (compare2.Count == 0)
+                if (compare2 != null)
+                {
+                    foreach (var compare in compare2)
+                    {
+                        c2.UsersNumber += compare.UsersNumber;
+                        c2.TestsCount++;
+                        c2.TotalRequest += compare.TotalRequest;
+                        if (c2.MaxRequest < compare.MaxRequest) c2.MaxRequest = compare.MaxRequest;
+                        c2TotalAvg += compare.AvgRequest;
+                        c2TotalPercentage += compare.PercentRequest;
+                    }
+
+                    c2.AvgRequest = c2TotalAvg / compare2.Count;
+                    c2.PercentRequest = c2TotalPercentage / compare2.Count;
+                }
+                else
                 {
                     c2.AvgRequest = 0.0;
                     c2.PercentRequest = 0.0;

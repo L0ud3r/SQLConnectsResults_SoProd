@@ -55,29 +55,28 @@
     <div class="portlet-body" style="display: flex;justify-content:space-around">
         <div>
             <div class="mb-3" style="display: flex; gap: 5px">
+                <i id="filter-compare" data-id="1" class="fa fa-filter filter-icon" data-toggle="modal" href="#basic-1"></i>
                 <select id="select2-version-1" class="select2-version-1" style="width: 300px">
                     <option value="">Choose a version</option>
                 </select>
                 <input id="date-1" type="date" class="form-control" required />
-                <i id="filter-compare" data-id="1" class="fa fa-filter filter-icon" data-toggle="modal" href="#basic-1"></i>
             </div>
             <div id="result1" class="result-box">
                 No data
             </div>
         </div>
         <div class="centered-box">
-            <button type="button" id="btn-test" class="btn btn-info compare">Test</button>
             <button type="button" id="btn-compare" class="btn btn-info compare">Compare</button>
             <div id="comparison-result"></div>
             <div id="result-text"></div>
         </div>
         <div>
             <div class="mb-3" style="display: flex; gap: 5px">
+                <i id="filter-compare" data-id="2" class="fa fa-filter filter-icon" data-toggle="modal" href="#basic-2"></i>
                 <select id="select2-version-2" class="select2-version-2" style="width: 300px">
                     <option value="">Choose a version</option>
                 </select>
                 <input id="date-2" type="date" class="form-control" required />
-                <i id="filter-compare" data-id="2" class="fa fa-filter filter-icon" data-toggle="modal" href="#basic-2"></i>
             </div>
             <div id="result2" class="result-box">
                 No data
@@ -154,27 +153,11 @@
                         <th data-filed="Version" class="no-sort">Version</th>
                         <th data-filed="RequestsNumber" class="no-sort">Total Requests</th>
                         <th data-filed="AvgRequestTime" class="no-sort">Average Request Time (ms)</th>
-                        @*<th data-filed="RequestPercentage" class="no-sort">Ok Percentage</th>
-                            <th data-filed="MaxRequestTime" class="no-sort">Max Request (ms)</th>*@
+                        <th data-filed="RequestPercentage" class="no-sort">Ok Percentage</th>
+                        <th data-filed="MaxRequestTime" class="no-sort">Max Request (ms)</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @*@foreach (var result in Model)
-                        {
-                            <tr class="tablerow" data-item-id="@result.Id">
-                                <td id="tablerow">@result.Id</td>
-                                <td id="tablerow">@result.Identifier</td>
-                                <td id="tablerow">@result.StartDate</td>
-                                <td id="tablerow">@result.TimeEllapsed</td>
-                                <td id="tablerow">@result.Version</td>
-                                <td id="tablerow">@result.RequestsNumber</td>
-                                <td id="tablerow">@result.AvgRequestTime</td>
-                                <td id="tablerow">@result.RequestPercentage %</td>
-                                <td id="tablerow">@result.MaxRequestTime</td>
-                            </tr>
-                            <tr id="executions-@result.Id" style="display: none;">
-                            </tr>
-                        }*@
                 </tbody>
             </table>
         </div>
@@ -234,6 +217,13 @@
             "aaSorting": [[0, 'desc']],
             "fnCreatedRow": function (nRow, aData, iDataIndex) {
                 $(nRow).attr('id', "tablerow");
+                $(nRow).attr('data-id', aData[0])
+
+
+                $(nRow).click(function (e) {
+                    var dataId = $(this).data('id');
+                    GetExecutions($(nRow), dataId);
+                })
             },
             "lengthMenu": [[20, 50, 100, -1], [20, 50, 100, "All"]],
             "iDisplayLength": 20,
@@ -307,7 +297,7 @@
                 var _data = [];
                 var startPos = 0;
 
-                for (var i = startPos; i <= 6; i++) {
+                for (var i = startPos; i <= 8; i++) {
                     switch (i) {
                         case 0:
                             _data.push(data.Id);
@@ -316,26 +306,46 @@
                             _data.push(data.Identifier)
                             break;
                         case 2:
-                            _data.push(data.StartDate)
+                            var startDateStr = data.StartDate.toString();
+
+                            if (startDateStr.length > 0) {
+                                var startDate = new Date(parseInt(startDateStr.substr(6)));
+                                var formattedStartDate = startDate.toLocaleString().replace(',', '');
+                            }
+
+                            _data.push(formattedStartDate)
                             break;
                         case 3:
                             _data.push(data.TimeEllapsed)
                             break;
                         case 4:
+                            if (data.Version == null)
+                                data.Version = "N/A"
+
                             _data.push(data.Version)
                             break;
                         case 5:
                             _data.push(data.RequestsNumber)
                             break;
                         case 6:
+                            if (data.AvgRequestTime == null)
+                                data.AvgRequestTime = "N/A"
+
                             _data.push(data.AvgRequestTime)
                             break;
-                        //case 7:
-                        //    _data.push(data.RequestPercentage)
-                        //    break;
-                        //case 8:
-                        //    _data.push(data.MaxRequestTime)
-                        //    break;
+                        case 7:
+                            if (data.RequestPercentage == 0 && data.RequestsNumber == 0)
+                                data.RequestPercentage = "N/A"
+                            else if (data.RequestPercentage == 0 && data.RequestsNumber != 0)
+                                data.RequestPercentage = "0 %"
+                            else
+                                data.RequestPercentage = data.RequestPercentage + " %"
+
+                            _data.push(data.RequestPercentage)
+                            break;
+                        case 8:
+                            _data.push(data.MaxRequestTime)
+                            break;
                         default:
                             break;
                     }
@@ -350,56 +360,71 @@
             TableInit('#results');
         });
 
-        $(".tablerow").click(function () {
-            var itemId = $(this).data("item-id");
+        function GetExecutions(nRow, id) {
+            if ($(`#executions-stats-${id}`).length) {
+                $(`#executions-stats-${id}`).remove()
 
-            var trElement = document.getElementById(`executions-${itemId}`);
-
-            if (trElement.style.display === "none") {
+            }
+            else {
                 $.ajax({
-                    url: "/Home/GetResultExecutions/" + itemId,
+                    url: "/Home/GetResultExecutions/" + id,
                     type: "GET",
                     success: function (data) {
-                        var executionsTable = $('<table>').addClass('table').css('width', '100%').attr('id', `result-executions-${itemId}`);
-                        var executionsHeader = $('<thead>').appendTo(executionsTable);
-                        var executionsBody = $('<tbody>').appendTo(executionsTable);
+                        $("[id^='executions-stats-']").remove()
 
-                        var headerRow = $('<tr>').appendTo(executionsHeader);
-                        $('<th>').text('ID').appendTo(headerRow);
-                        $('<th>').text('URL').appendTo(headerRow);
-                        $('<th>').text('Status Code').appendTo(headerRow);
-                        $('<th>').text('Time Ellapsed').appendTo(headerRow);
-                        $('<th>').text('Start Date').appendTo(headerRow);
+                        if (data.results.length > 0) {
+                            $(nRow).after(`
+                            <tr id="executions-stats-${id}" style="align-self: center">
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td colspan="5" >
+                                    <table class="table border">
+                                        <thead>
+                                            <tr>
+                                                <th style="font-weight: bold;">Endpoint</th>
+                                                <th style="font-weight: bold;">Total Requests</th>
+                                                <th style="font-weight: bold;">OK Response Percentage</th>
+                                                <th style="font-weight: bold;">Average Request Time(s)</th>
+                                                <th style="font-weight: bold;">Max Request Time(s)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>`)
 
-                        data.results.forEach(function (execution) {
-                            var dataRow = $('<tr>').appendTo(executionsBody);
-                            $('<td>').text(execution.Id).appendTo(dataRow);
-                            $('<td>').text(execution.URL).appendTo(dataRow);
-                            $('<td>').text(execution.StatusCode).appendTo(dataRow);
-                            $('<td>').text(execution.TimeEllapsed.toFixed(4)).appendTo(dataRow);
+                            $.each(data.results, function (index, item) {
+                                var tr = $('<tr>');
+                                tr.append($('<td>').text(item.Endpoint));
+                                tr.append($('<td>').text(item.RequestsNumber));
+                                tr.append($('<td>').text(item.RequestPercentage + " %"));
+                                tr.append($('<td>').text(item.AvgRequestTime));
+                                tr.append($('<td>').text(item.MaxRequestTime));
 
-                            var startDateStr = execution.StartDate.toString();
-
-                            if (startDateStr.length > 0) {
-                                var startDate = new Date(parseInt(startDateStr.substr(6)));
-                                var formattedStartDate = startDate.toLocaleString();
-                                $('<td>').text(formattedStartDate).appendTo(dataRow);
-                            }
-                        });
-
-                        $("#executions-" + itemId).html($('<td>').attr('colspan', 8).append(executionsTable)).toggle();
-
-                        TableInit(`#result-executions-${itemId}`);
+                                $(`#executions-stats-${id} tbody`).append(tr)
+                            });
+                        }
+                        else {
+                            $(nRow).after(`
+                            <tr id="executions-stats-${id}" style="align-self: center">
+                                <td></td>
+                                <td></td>
+                                <td colspan="5" >
+                                    <div class="empty-results">
+                                        There are no executions made in this test!
+                                    </div>
+                            </tr>`)
+                        }
                     },
-                    error: function () {
+                    error: function (jqXHR) {
+                        console.log(jqXHR.responseText)
                         alert("Error retrieving test results.");
                     }
                 });
             }
-            else {
-                $("#executions-" + itemId).hide();
-            }
-        });
+        };
 
         $('#select2-request').on('change', function () {
             var selectedValue = $(this).val();
@@ -518,22 +543,6 @@
             });
         });
 
-        $("#btn-test").click(function () {
-            alert("Boas")
-            //$.ajax({
-            //    url: '/Home/GetDataToJson',
-            //    type: 'POST',
-            //    data: comparison,
-            //    success: function (response) {
-            //        console.log(response)
-            //    },
-            //    error: function (jqXHR, textStatus, errorThrown) {
-            //        alert("Erro")
-            //        console.log(jqXHR);
-            //    }
-            //});
-        });
-
         $("#btn-compare").click(function () {
             var version1 = $('#select2-version-1 option:selected').val();
             var version2 = $('#select2-version-2 option:selected').val();
@@ -564,6 +573,8 @@
                         const result1 = document.querySelector('#result1');
                         const result2 = document.querySelector('#result2');
 
+                        console.log(response)
+
                         if (comparison1.TestsCount != 0) {
                             const newHtml1 = `
                                     <div class="result-box-line">
@@ -589,15 +600,16 @@
                                     <div class="result-box-line">
                                         <label>Tests Number</label>
                                         <label id="c1-tests">${comparison1.TestsCount}</label>
-                                    </div>
-                                `;
+                                    </div>`;
 
                             result1.innerHTML = newHtml1;
                         }
                         else {
                             const newHtml1 = `This version has no tests on this date `
                             document.querySelector('#result-text').innerHTML = ""
-                            document.querySelector('#icon-result').hidden = true
+
+                            if (document.querySelector('#icon-result') != null)
+                                document.querySelector('#icon-result').hidden = true
 
                             result1.innerHTML = newHtml1;
                         }
@@ -714,7 +726,9 @@
                             }
 
                             document.querySelector('#comparison-result').innerHTML = arrow
-                            document.querySelector('#icon-result').hidden = false
+
+                            if (document.querySelector('#icon-result') != null)
+                                document.querySelector('#icon-result').hidden = false
                         }
 
                     },
@@ -728,9 +742,8 @@
                 alert("Missing fields!")
         })
 
-            //$('i#filter-compare').on('click', function (event) {
-            //    const dataId = $(this).data('id');
-            //});
-
+        //$('i#filter-compare').on('click', function (event) {
+        //    const dataId = $(this).data('id');
+        //});
     </script>
 }
