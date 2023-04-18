@@ -44,11 +44,12 @@
         color: skyblue;
     }
 
-    .filter-icon:hover {
-        cursor: pointer;
-    }
+        .filter-icon:hover {
+            cursor: pointer;
+        }
 </style>
 
+<!-- Compare Section -->
 <div class="portlet box blue">
     <div class="portlet-title">
         <div class="caption">
@@ -90,6 +91,8 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal for left filter -->
     <div class="modal fade" id="basic-1" tabindex="-1" role="basic" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -111,6 +114,7 @@
         </div>
     </div>
 
+    <!-- Modal for right filter -->
     <div class="modal fade" id="basic-2" tabindex="-1" role="basic" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -133,6 +137,7 @@
     </div>
 </div>
 
+<!-- Section that contains the TestResults table -->
 <div class="portlet box red mt-1">
     <div class="portlet-title">
         <div class="caption">
@@ -171,12 +176,30 @@
     </div>
 </div>
 
+<!-- Charts section -->
+<div class="portlet box green">
+    <div class="portlet-title">
+        <div class="caption">
+            <i class="fa fa-cogs"></i>Data Analysis
+        </div>
+        <div class="tools">
+            <a href="javascript:;" class="collapse">
+            </a>
+        </div>
+    </div>
+    <div class="portlet-body flip-scroll">
+        <canvas id="myChart1"></canvas>
+        <canvas id="myChart2"></canvas>
+        <canvas id="myChart3"></canvas>
+    </div>
+</div>
+
 @section Scripts {
     <script>
-        var page = 0;
+        //Current list of testExecutions being analised
+        var currentResult = []
 
         //#region select2 activation and fill
-
         var select = $('#select2-request');
         var select1 = $('#select2-version-1');
         var select2 = $('#select2-version-2');
@@ -185,7 +208,6 @@
         select1.select2();
         select2.select2();
 
-        var currentResult = []
 
         $.ajax({
             url: '/Home/GetVersions',
@@ -205,9 +227,10 @@
                 alert("Error on loading data...")
             }
         });
-
         //#endregion
 
+        //#region TestResults Table
+        //Initialize TestResults Table with paginate
         TableInit('#results', {
             "serverSide": true,
             "ajax": function (data, callback, settings) {
@@ -244,6 +267,7 @@
             }]
         });
 
+        //Get data to TestResults table
         function performSearch(originalData, callback) {
             //var searchData = getDomainsSearchFilters();
 
@@ -290,6 +314,7 @@
             });
         }
 
+        //Search Filter for TestResults (TO DO)
         function getDomainsSearchFilters() {
             var data = {};
             $("#domainsFiltersUL li").each(function () {
@@ -299,6 +324,7 @@
             return data;
         }
 
+        //Fill TestResults table columns
         function WriteTableColumns(alldata) {
             var __data = [];
 
@@ -368,10 +394,7 @@
             return __data;
         }
 
-        $(document).ready(function () {
-            TableInit('#results');
-        });
-
+        //Get TestResult Executions
         function GetExecutions(nRow, id) {
             if ($(`#executions-stats-${id}`).length) {
                 $(`#executions-stats-${id}`).remove()
@@ -393,32 +416,32 @@
                             });
 
                             $(nRow).after(`
-                            <tr id="executions-stats-${id}" style="align-self: center">
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td colspan="5">
-                                    <table class="table border">
-                                        <thead>
-                                            <tr>
-                                                <th style="font-weight: bold;">Endpoint</th>
-                                                <th style="font-weight: bold;">Total Requests</th>
-                                                <th style="font-weight: bold;">OK Response Percentage</th>
-                                                <th style="font-weight: bold;">Average Request Time(s)</th>
-                                                <th style="font-weight: bold;">Max Request Time(s)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                        </tbody>
-                                    </table>
-                                    <canvas id="myChart"></canvas>
-                                    <div style="display: flex">
-                                    <button id="btn-max" class="btn btn-danger" onclick="showMaxChart()">Max</button>
-                                    <button id="btn-percentage" class="btn btn-info" onclick="showPercentageChart()">Percentage</button>
-                                    <button id="btn-average" class="btn btn-success" onclick="showAverageChart()">Average</button>
-                                    </div>
-                                </td>
-                            </tr>`)
+                                <tr id="executions-stats-${id}" style="align-self: center">
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td colspan="5">
+                                        <table class="table border">
+                                            <thead>
+                                                <tr>
+                                                    <th style="font-weight: bold;">Endpoint</th>
+                                                    <th style="font-weight: bold;">Total Requests</th>
+                                                    <th style="font-weight: bold;">OK Response Percentage</th>
+                                                    <th style="font-weight: bold;">Average Request Time(s)</th>
+                                                    <th style="font-weight: bold;">Max Request Time(s)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                        <canvas id="myChart"></canvas>
+                                        <div style="display: flex">
+                                        <button id="btn-max" class="btn btn-danger" onclick="showMaxChart()">Max</button>
+                                        <button id="btn-percentage" class="btn btn-info" onclick="showPercentageChart()">Percentage</button>
+                                        <button id="btn-average" class="btn btn-success" onclick="showAverageChart()">Average</button>
+                                        </div>
+                                    </td>
+                                </tr>`)
 
                             $.each(data.results, function (index, item) {
                                 var tr = $('<tr>');
@@ -459,15 +482,15 @@
                         }
                         else {
                             $(nRow).after(`
-                            <tr id="executions-stats-${id}" style="align-self: center">
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td colspan="5" >
-                                    <div class="empty-results">
-                                        There are no executions made in this test!
-                                    </div>
-                            </tr>`)
+                                <tr id="executions-stats-${id}" style="align-self: center">
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td colspan="5" >
+                                        <div class="empty-results">
+                                            There are no executions made in this test!
+                                        </div>
+                                </tr>`)
 
                             currentResult = []
                         }
@@ -480,6 +503,7 @@
             }
         };
 
+        //Update Table on select change
         $('#select2-request').on('change', function () {
             var selectedValue = $(this).val();
 
@@ -518,7 +542,14 @@
                 }
             });
         });
+        //#endregion
 
+        //#region Compare
+        /*TO DO
+         * BUTTONS (SAVE AND CANCEL)
+         * CHECK ALL AND UNCHECK ALL
+        */
+        //#region Filter update on Version and data selection
         $('#select2-version-1, #date-1').on('change', function () {
             var version1 = $('#select2-version-1 option:selected').val();
             var date1 = $("#date-1").val();
@@ -544,7 +575,7 @@
                             }
 
                             list.append(`<li style="display: flex; gap: 5px">
-                                <input type="checkbox" id="filter-checkbox-1" data-id="${item.Id}" checked/>${item.Version} - ${item.startDate} (TestDefinitionId: ${item.TestDefinitionId})</li>`)
+                                    <input type="checkbox" id="filter-checkbox-1" data-id="${item.Id}" checked/>${item.Version} - ${item.startDate} (TestDefinitionId: ${item.TestDefinitionId})</li>`)
                         });
                     }
                     else {
@@ -583,7 +614,7 @@
                             }
 
                             list.append(`<li style="display: flex; gap: 5px">
-                                <input type="checkbox" id="filter-checkbox-2" data-id="${item.Id}" checked/>${item.Version} - ${formattedStartDate} (TestDefinitionId: ${item.TestDefinitionId})</li>`)
+                                    <input type="checkbox" id="filter-checkbox-2" data-id="${item.Id}" checked/>${item.Version} - ${formattedStartDate} (TestDefinitionId: ${item.TestDefinitionId})</li>`)
                         });
                     }
                     else {
@@ -596,7 +627,9 @@
                 }
             });
         });
+        //#endregion
 
+        //Compare button
         $("#btn-compare").click(function () {
             var version1 = $('#select2-version-1 option:selected').val();
             var version2 = $('#select2-version-2 option:selected').val();
@@ -631,30 +664,30 @@
 
                         if (comparison1.TestsCount != 0) {
                             const newHtml1 = `
-                                    <div class="result-box-line">
-                                        <label>Request Average</label>
-                                        <label id="c1-avg">${comparison1.AvgRequest.toFixed(2)}</label>
-                                    </div>
-                                    <div class="result-box-line">
-                                        <label>Total Requests</label>
-                                        <label id="c1-total">${comparison1.TotalRequest}</label>
-                                    </div>
-                                    <div class="result-box-line">
-                                        <label>Users Number</label>
-                                        <label id="c1-users">${comparison1.UsersNumber}</label>
-                                    </div>
-                                    <div class="result-box-line">
-                                        <label>Requests OK (%)</label>
-                                        <label id="c1-ok">${comparison1.PercentRequest.toFixed(2)}</label>
-                                    </div>
-                                    <div class="result-box-line">
-                                        <label>Max Request Time (s)</label>
-                                        <label id="c1-max">${comparison1.MaxRequest.toFixed(2)}</label>
-                                    </div>
-                                    <div class="result-box-line">
-                                        <label>Tests Number</label>
-                                        <label id="c1-tests">${comparison1.TestsCount}</label>
-                                    </div>`;
+                                        <div class="result-box-line">
+                                            <label>Request Average</label>
+                                            <label id="c1-avg">${comparison1.AvgRequest.toFixed(2)}</label>
+                                        </div>
+                                        <div class="result-box-line">
+                                            <label>Total Requests</label>
+                                            <label id="c1-total">${comparison1.TotalRequest}</label>
+                                        </div>
+                                        <div class="result-box-line">
+                                            <label>Users Number</label>
+                                            <label id="c1-users">${comparison1.UsersNumber}</label>
+                                        </div>
+                                        <div class="result-box-line">
+                                            <label>Requests OK (%)</label>
+                                            <label id="c1-ok">${comparison1.PercentRequest.toFixed(2)}</label>
+                                        </div>
+                                        <div class="result-box-line">
+                                            <label>Max Request Time (s)</label>
+                                            <label id="c1-max">${comparison1.MaxRequest.toFixed(2)}</label>
+                                        </div>
+                                        <div class="result-box-line">
+                                            <label>Tests Number</label>
+                                            <label id="c1-tests">${comparison1.TestsCount}</label>
+                                        </div>`;
 
                             result1.innerHTML = newHtml1;
                         }
@@ -671,31 +704,31 @@
                         if (comparison2.TestsCount != 0) {
 
                             const newHtml2 = `
-                                    <div class="result-box-line">
-                                        <label>Request Average Time (s)</label>
-                                        <label id="c2-avg">${comparison2.AvgRequest.toFixed(2)}</label>
-                                    </div>
-                                    <div class="result-box-line">
-                                        <label>Total Requests</label>
-                                        <label id="c2-total">${comparison2.TotalRequest}</label>
-                                    </div>
-                                    <div class="result-box-line">
-                                        <label>Users Number</label>
-                                        <label id="c2-users">${comparison2.UsersNumber}</label>
-                                    </div>
-                                    <div class="result-box-line">
-                                        <label>Requests OK (%)</label>
-                                        <label id="c2-ok">${comparison2.PercentRequest.toFixed(2)}</label>
-                                    </div>
-                                    <div class="result-box-line">
-                                        <label>Max Request Time (s)</label>
-                                        <label id="c2-max">${comparison2.MaxRequest.toFixed(2)}</label>
-                                    </div>
-                                    <div class="result-box-line">
-                                        <label>Tests Number</label>
-                                        <label id="c2-tests">${comparison2.TestsCount}</label>
-                                    </div>
-                                `;
+                                        <div class="result-box-line">
+                                            <label>Request Average Time (s)</label>
+                                            <label id="c2-avg">${comparison2.AvgRequest.toFixed(2)}</label>
+                                        </div>
+                                        <div class="result-box-line">
+                                            <label>Total Requests</label>
+                                            <label id="c2-total">${comparison2.TotalRequest}</label>
+                                        </div>
+                                        <div class="result-box-line">
+                                            <label>Users Number</label>
+                                            <label id="c2-users">${comparison2.UsersNumber}</label>
+                                        </div>
+                                        <div class="result-box-line">
+                                            <label>Requests OK (%)</label>
+                                            <label id="c2-ok">${comparison2.PercentRequest.toFixed(2)}</label>
+                                        </div>
+                                        <div class="result-box-line">
+                                            <label>Max Request Time (s)</label>
+                                            <label id="c2-max">${comparison2.MaxRequest.toFixed(2)}</label>
+                                        </div>
+                                        <div class="result-box-line">
+                                            <label>Tests Number</label>
+                                            <label id="c2-tests">${comparison2.TestsCount}</label>
+                                        </div>
+                                    `;
 
                             result2.innerHTML = newHtml2;
                         }
@@ -796,6 +829,7 @@
                 alert("Missing fields!")
         })
 
+        //#region Executions Charts
         function showMaxChart() {
             if (window.myChart instanceof Chart) {
                 window.myChart.destroy();
@@ -903,6 +937,15 @@
                 }
             });
         }
+            //#endregion
+        //#endregion
+
+        //#region Unused Code
+            //Initialize TableInit on executions table
+            //$(document).ready(function () {
+            //    TableInit('#results');
+            //});
+        //#endregion
 
     </script>
 }
