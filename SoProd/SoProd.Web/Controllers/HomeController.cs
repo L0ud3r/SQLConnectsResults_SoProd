@@ -269,6 +269,22 @@ namespace SoProd.Web.Controllers
         }
 
         [HttpPost]
+        public async Task<JsonResult> GetTestResultsByVersion(string version)
+        {
+            using (var context = new SoProdTestingContext())
+            {
+                context.Configuration.LazyLoadingEnabled = false;
+
+                var data = await context.TestResults.Where(x => x.Version == version).OrderBy(x => x.StartDate).ToListAsync();
+
+                var jsonObject = Json(new { data = data }, JsonRequestBehavior.AllowGet);
+                jsonObject.MaxJsonLength = Int32.MaxValue;
+
+                return jsonObject;
+            }
+        }
+
+        [HttpPost]
         public async Task<JsonResult> GetDataToJson(string version, DateTime date)
         {
             using (var context = new SoProdTestingContext())

@@ -188,9 +188,32 @@
         </div>
     </div>
     <div class="portlet-body flip-scroll">
-        <canvas id="myChart1"></canvas>
-        <canvas id="myChart2"></canvas>
-        <canvas id="myChart3"></canvas>
+        @*<div style="display: flex; justify-content: space-between; gap: 5px">
+            <div class="panel panel-default" style="width: 50%">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Version with the most Tests</h3>
+                </div>
+                <div class="panel-body">
+                    <canvas id="myChart1"></canvas>
+                </div>
+            </div>
+            <div class="panel panel-default" style="width: 50%">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Last updated Version</h3>
+                </div>
+                <div class="panel-body">
+                    <canvas id="myChart2"></canvas>
+                </div>
+            </div>
+        </div>*@
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Selected Version</h3>
+            </div>
+            <div class="panel-body">
+                <canvas id="myChart3"></canvas>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -208,6 +231,162 @@
         select1.select2();
         select2.select2();
 
+        $.ajax({
+            url: '/Home/GetTestResultsByVersion',
+            data: { version : 'ANUBIS' },
+            type: 'POST',
+            success: function (response) {
+                console.log(response.data)
+
+                // The list of objects is in response.data
+                const data = response.data;
+
+                // Generate chart
+                const timeEllapsed = [];
+                const requestNumber = [];
+
+                for (let i = 0; i < data.length; i++) {
+                    var startDateStr = data[i].StartDate.toString();
+
+                    if (startDateStr.length > 0) {
+                        var startDate = new Date(parseInt(startDateStr.substr(6)));
+                        var formattedStartDate = startDate.toLocaleString().replace(',', '');
+                        const dateParts = formattedStartDate.split(' ');
+                        const date = dateParts[0]; // 'dd/MM/yyyy'
+                        const time = dateParts[1]; // 'HH:mm:ss'
+                        var formattedDate = date.split('/').slice(0, 2).join('/') + '\n' + time.split(':').slice(0, 2).join(':');
+                    }
+
+                    requestNumber.push({
+                        x: formattedDate,
+                        y: data[i].RequestsNumber
+                    })
+
+                    timeEllapsed.push({
+                        x: formattedDate,
+                        y: data[i].TimeEllapsed
+                    });
+                }
+                
+                var ctx3 = document.getElementById('myChart3').getContext('2d');
+
+                const chart3 = new Chart(ctx3, {
+                    type: 'line',
+                    data: {
+                        datasets: [{
+                            label: data[0].Version,
+                            data: timeEllapsed,
+                            borderColor: 'rgb(255, 99, 132)',
+                            fill: false
+                        },
+                        {
+                            label: data[0].Version,
+                            data: requestNumber,
+                            borderColor: 'rgb(255, 99, 132)',
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            xAxes: [{
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Date'
+                                }
+                            }],
+                            yAxes: [{
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Time Ellapsed (ms)'
+                                },
+                                ticks: {
+                                    beginAtZero: false
+                                }
+                            }]
+                        }
+                    }
+                });
+
+                /*
+                var maxRequestTimes = response.data.map(function (item) {
+                    return item.MaxRequestTime;
+                });
+
+                var ctx1 = document.getElementById('myChart1').getContext('2d');
+                var ctx2 = document.getElementById('myChart2').getContext('2d');
+                var ctx3 = document.getElementById('myChart3').getContext('2d');
+
+                var chart = new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: ['Endpoint 1', 'Endpoint 2', 'Endpoint 3', 'Endpoint 4'],
+                        datasets: [{
+                            label: 'Max Request Time',
+                            data: maxRequestTimes,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: false
+                                }
+                            }]
+                        }
+                    }
+                });
+                var chart2 = new Chart(ctx2, {
+                    type: 'line',
+                    data: {
+                        labels: ['Endpoint 1', 'Endpoint 2', 'Endpoint 3', 'Endpoint 4'],
+                        datasets: [{
+                            label: 'Max Request Time',
+                            data: maxRequestTimes,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: false
+                                }
+                            }]
+                        }
+                    }
+                });
+                var chart3 = new Chart(ctx3, {
+                    type: 'line',
+                    data: {
+                        labels: ['Endpoint 1', 'Endpoint 2', 'Endpoint 3', 'Endpoint 4'],
+                        datasets: [{
+                            label: 'Max Request Time',
+                            data: maxRequestTimes,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: false
+                                }
+                            }]
+                        }
+                    }
+                });*/
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("Error on loading data...")
+            }
+        });
 
         $.ajax({
             url: '/Home/GetVersions',
