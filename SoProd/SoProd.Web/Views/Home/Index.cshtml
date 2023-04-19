@@ -188,30 +188,26 @@
         </div>
     </div>
     <div class="portlet-body flip-scroll">
-        @*<div style="display: flex; justify-content: space-between; gap: 5px">
-            <div class="panel panel-default" style="width: 50%">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Version with the most Tests</h3>
-                </div>
-                <div class="panel-body">
-                    <canvas id="myChart1"></canvas>
-                </div>
-            </div>
-            <div class="panel panel-default" style="width: 50%">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Last updated Version</h3>
-                </div>
-                <div class="panel-body">
-                    <canvas id="myChart2"></canvas>
-                </div>
-            </div>
-        </div>*@
-        <div class="panel panel-default">
+        <div style="display: flex; justify-content: space-between">
+            <h3 class="panel-title" style="margin-top:auto; margin-bottom: auto">Selected Version</h3>
+            <select id="select2-chart" class="select2-chart" style="width: 85%">
+                <option value="">Choose a version</option>
+            </select>
+        </div>
+        <div class="panel panel-default mt-4">
             <div class="panel-heading">
-                <h3 class="panel-title">Selected Version</h3>
+                <h3 class="panel-title mt-3" style="font-weight: bold; text-align: center">Time Ellapsed Chart</h3>
             </div>
             <div class="panel-body">
-                <canvas id="myChart3"></canvas>
+                <canvas id="myChartTime"></canvas>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title" style="font-weight: bold; text-align: center">Accuracy Chart</h3>
+            </div>
+            <div class="panel-body">
+                <canvas id="myChartAccuracy"></canvas>
             </div>
         </div>
     </div>
@@ -221,173 +217,23 @@
     <script>
         //Current list of testExecutions being analised
         var currentResult = []
+        var chartTime = null
+        var chartAccuracy = null
+        var chartE1 = null
+        var chartE2 = null
 
         //#region select2 activation and fill
         var select = $('#select2-request');
         var select1 = $('#select2-version-1');
         var select2 = $('#select2-version-2');
+        var selectChart = $('#select2-chart');
 
         select.select2();
         select1.select2();
         select2.select2();
+        selectChart.select2();
 
-        $.ajax({
-            url: '/Home/GetTestResultsByVersion',
-            data: { version : 'ANUBIS' },
-            type: 'POST',
-            success: function (response) {
-                console.log(response.data)
-
-                // The list of objects is in response.data
-                const data = response.data;
-
-                // Generate chart
-                const timeEllapsed = [];
-                const requestNumber = [];
-
-                for (let i = 0; i < data.length; i++) {
-                    var startDateStr = data[i].StartDate.toString();
-
-                    if (startDateStr.length > 0) {
-                        var startDate = new Date(parseInt(startDateStr.substr(6)));
-                        var formattedStartDate = startDate.toLocaleString().replace(',', '');
-                        const dateParts = formattedStartDate.split(' ');
-                        const date = dateParts[0]; // 'dd/MM/yyyy'
-                        const time = dateParts[1]; // 'HH:mm:ss'
-                        var formattedDate = date.split('/').slice(0, 2).join('/') + '\n' + time.split(':').slice(0, 2).join(':');
-                    }
-
-                    requestNumber.push({
-                        x: formattedDate,
-                        y: data[i].RequestsNumber
-                    })
-
-                    timeEllapsed.push({
-                        x: formattedDate,
-                        y: data[i].TimeEllapsed
-                    });
-                }
-                
-                var ctx3 = document.getElementById('myChart3').getContext('2d');
-
-                const chart3 = new Chart(ctx3, {
-                    type: 'line',
-                    data: {
-                        datasets: [{
-                            label: data[0].Version,
-                            data: timeEllapsed,
-                            borderColor: 'rgb(255, 99, 132)',
-                            fill: false
-                        },
-                        {
-                            label: data[0].Version,
-                            data: requestNumber,
-                            borderColor: 'rgb(255, 99, 132)',
-                            fill: false
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            xAxes: [{
-                                scaleLabel: {
-                                    display: true,
-                                    labelString: 'Date'
-                                }
-                            }],
-                            yAxes: [{
-                                scaleLabel: {
-                                    display: true,
-                                    labelString: 'Time Ellapsed (ms)'
-                                },
-                                ticks: {
-                                    beginAtZero: false
-                                }
-                            }]
-                        }
-                    }
-                });
-
-                /*
-                var maxRequestTimes = response.data.map(function (item) {
-                    return item.MaxRequestTime;
-                });
-
-                var ctx1 = document.getElementById('myChart1').getContext('2d');
-                var ctx2 = document.getElementById('myChart2').getContext('2d');
-                var ctx3 = document.getElementById('myChart3').getContext('2d');
-
-                var chart = new Chart(ctx1, {
-                    type: 'line',
-                    data: {
-                        labels: ['Endpoint 1', 'Endpoint 2', 'Endpoint 3', 'Endpoint 4'],
-                        datasets: [{
-                            label: 'Max Request Time',
-                            data: maxRequestTimes,
-                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    beginAtZero: false
-                                }
-                            }]
-                        }
-                    }
-                });
-                var chart2 = new Chart(ctx2, {
-                    type: 'line',
-                    data: {
-                        labels: ['Endpoint 1', 'Endpoint 2', 'Endpoint 3', 'Endpoint 4'],
-                        datasets: [{
-                            label: 'Max Request Time',
-                            data: maxRequestTimes,
-                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    beginAtZero: false
-                                }
-                            }]
-                        }
-                    }
-                });
-                var chart3 = new Chart(ctx3, {
-                    type: 'line',
-                    data: {
-                        labels: ['Endpoint 1', 'Endpoint 2', 'Endpoint 3', 'Endpoint 4'],
-                        datasets: [{
-                            label: 'Max Request Time',
-                            data: maxRequestTimes,
-                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    beginAtZero: false
-                                }
-                            }]
-                        }
-                    }
-                });*/
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert("Error on loading data...")
-            }
-        });
-
+        //Fill Selects
         $.ajax({
             url: '/Home/GetVersions',
             type: 'GET',
@@ -401,11 +247,292 @@
                 $.each(response.themes, function (index, item) {
                     select2.append('<option>' + item + '</option>');
                 });
+                $.each(response.themes, function (index, item) {
+                    selectChart.append('<option>' + item + '</option>');
+                });
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert("Error on loading data...")
             }
         });
+
+        //Generate Default Table
+        $.ajax({
+            url: '/Home/GetTestResultsByVersion',
+            data: { version : 'ANUBIS' },
+            type: 'POST',
+            success: function (response) {
+                const data = response.data;
+
+                const averageEllapsed = [];
+                const timeEllapsed = [];
+                const requestNumber = [];
+                const requestsOk = [];
+
+                for (let i = 0; i < data.length; i++) {
+                    var startDateStr = data[i].StartDate.toString();
+
+                    if (startDateStr.length > 0) {
+                        var startDate = new Date(parseInt(startDateStr.substr(6)));
+                        var formattedStartDate = startDate.toLocaleString().replace(',', '');
+                        const dateParts = formattedStartDate.split(' ');
+                        const date = dateParts[0];
+                        const time = dateParts[1];
+                        var formattedDate = date.split('/').slice(0, 2).join('/') + '\n' + time.split(':').slice(0, 2).join(':');
+                    }
+
+                    requestNumber.push({
+                        x: formattedDate,
+                        y: data[i].RequestsNumber
+                    })
+
+                    requestsOk.push({
+                        x: formattedDate,
+                        y: data[i].RequestsOK
+                    })
+
+                    averageEllapsed.push({
+                        x: formattedDate,
+                        y: data[i].AverageTimeEllapsed
+                    });
+
+                    timeEllapsed.push({
+                        x: formattedDate,
+                        y: data[i].TimeEllapsed
+                    });
+                }
+                console.log(data)
+                var ctx = document.getElementById('myChartTime').getContext('2d');
+
+                chartTime = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        datasets: [{
+                            label: "Time Ellapsed (s)",
+                            data: timeEllapsed,
+                            borderColor: 'rgb(132, 99, 255)',
+                            fill: false
+                        },{
+                            label: "Average Time Ellapsed (s)",
+                            data: averageEllapsed,
+                            borderColor: 'rgb(48, 154, 255)',
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            xAxes: [{
+                                scaleLabel: {
+                                    display: true,
+                                }
+                            }],
+                            yAxes: [{
+                                scaleLabel: {
+                                    display: true,
+                                },
+                                ticks: {
+                                    beginAtZero: false
+                                }
+                            }]
+                        },
+                        zoom: {
+                            enabled: true,
+                            mode: 'x',
+                            sensitivity: 3,
+                            speed: 10
+                        }
+                    }
+                });
+
+                var ctx2 = document.getElementById('myChartAccuracy').getContext('2d');
+
+                chartAccuracy = new Chart(ctx2, {
+                    type: 'line',
+                    data: {
+                        datasets: [{
+                                label: "Requests OK (Count)",
+                                data: requestsOk,
+                                borderColor: 'rgb(46, 253, 45)',
+                                fill: false
+                            }
+                            ,{
+                                label: "Total Requests (Count)",
+                                data: requestNumber,
+                                borderColor: 'rgb(235, 75, 46)',
+                                fill: false
+                            }
+                        ]
+                    },
+                    options: {
+                        scales: {
+                            xAxes: [{
+                                scaleLabel: {
+                                    display: true,
+                                }
+                            }],
+                            yAxes: [{
+                                scaleLabel: {
+                                    display: true,
+                                },
+                                ticks: {
+                                    beginAtZero: false
+                                }
+                            }]
+                        }
+                    }
+                });
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("Error on loading data...")
+            }
+        });
+
+        if (chartTime instanceof Chart) {
+            chartTime.destroy();
+        }
+
+        selectChart.on('change', function () {
+            var version = $('#select2-chart option:selected').val()
+
+            if (chartTime instanceof Chart) {
+                chartTime.destroy();
+            }
+
+            if (chartAccuracy instanceof Chart) {
+                chartAccuracy.destroy();
+            }
+
+            $.ajax({
+                url: '/Home/GetTestResultsByVersion',
+                data: { version: version },
+                type: 'POST',
+                success: function (response) {
+                    const data = response.data;
+
+                    const averageEllapsed = [];
+                    const timeEllapsed = [];
+                    const requestNumber = [];
+                    const requestsOk = [];
+
+                    for (let i = 0; i < data.length; i++) {
+                        var startDateStr = data[i].StartDate.toString();
+
+                        if (startDateStr.length > 0) {
+                            var startDate = new Date(parseInt(startDateStr.substr(6)));
+                            var formattedStartDate = startDate.toLocaleString().replace(',', '');
+                            const dateParts = formattedStartDate.split(' ');
+                            const date = dateParts[0];
+                            const time = dateParts[1];
+                            var formattedDate = date.split('/').slice(0, 2).join('/') + '\n' + time.split(':').slice(0, 2).join(':');
+                        }
+
+                        requestNumber.push({
+                            x: formattedDate,
+                            y: data[i].RequestsNumber
+                        })
+
+                        requestsOk.push({
+                            x: formattedDate,
+                            y: data[i].RequestsOK
+                        })
+
+                        averageEllapsed.push({
+                            x: formattedDate,
+                            y: data[i].AverageTimeEllapsed
+                        });
+
+                        timeEllapsed.push({
+                            x: formattedDate,
+                            y: data[i].TimeEllapsed
+                        });
+                    }
+
+                    var ctx = document.getElementById('myChartTime').getContext('2d');
+
+                    chartTime = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            datasets: [{
+                                label: "Time Ellapsed (s)",
+                                data: timeEllapsed,
+                                borderColor: 'rgb(132, 99, 255)',
+                                fill: false
+                            }, {
+                                label: "Average Time Ellapsed (s)",
+                                data: averageEllapsed,
+                                borderColor: 'rgb(48, 154, 255)',
+                                fill: false
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                xAxes: [{
+                                    scaleLabel: {
+                                        display: true,
+                                    }
+                                }],
+                                yAxes: [{
+                                    scaleLabel: {
+                                        display: true,
+                                    },
+                                    ticks: {
+                                        beginAtZero: false
+                                    }
+                                }]
+                            },
+                            zoom: {
+                                enabled: true,
+                                mode: 'x',
+                                sensitivity: 3,
+                                speed: 10
+                            }
+                        }
+                    });
+
+                    var ctx2 = document.getElementById('myChartAccuracy').getContext('2d');
+
+                    chartAccuracy = new Chart(ctx2, {
+                        type: 'line',
+                        data: {
+                            datasets: [{
+                                label: "Requests OK (Count)",
+                                data: requestsOk,
+                                borderColor: 'rgb(46, 253, 45)',
+                                fill: false
+                            }
+                                , {
+                                label: "Total Requests (Count)",
+                                data: requestNumber,
+                                borderColor: 'rgb(235, 75, 46)',
+                                fill: false
+                            }
+                            ]
+                        },
+                        options: {
+                            scales: {
+                                xAxes: [{
+                                    scaleLabel: {
+                                        display: true,
+                                    }
+                                }],
+                                yAxes: [{
+                                    scaleLabel: {
+                                        display: true,
+                                    },
+                                    ticks: {
+                                        beginAtZero: false
+                                    }
+                                }]
+                            }
+                        }
+                    });
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("Error on loading data...")
+                }
+            });
+        })
+
         //#endregion
 
         //#region TestResults Table
@@ -588,9 +715,14 @@
 
                         if (data.results.length > 0) {
                             var maxAverageTimes = [];
+                            var maxRequestTimes = [];
+                            var maxRequestPercentage = [];
+
                             var labels = [];
                             data.results.forEach(function (item) {
                                 maxAverageTimes.push(item.AvgRequestTime);
+                                maxRequestTimes.push(item.MaxRequestTime);
+                                maxRequestPercentage.push(item.RequestPercentage);
                                 labels.push(item.Endpoint);
                             });
 
@@ -613,11 +745,14 @@
                                             <tbody>
                                             </tbody>
                                         </table>
-                                        <canvas id="myChart"></canvas>
-                                        <div style="display: flex">
-                                        <button id="btn-max" class="btn btn-danger" onclick="showMaxChart()">Max</button>
-                                        <button id="btn-percentage" class="btn btn-info" onclick="showPercentageChart()">Percentage</button>
-                                        <button id="btn-average" class="btn btn-success" onclick="showAverageChart()">Average</button>
+                                        <div class="panel panel-default mt-4">
+                                            <div class="panel-heading">
+                                                <h3 class="panel-title mt-3" style="font-weight: bold; text-align: center">Analysis charts</h3>
+                                            </div>
+                                            <div class="panel-body">
+                                                <canvas id="myChart1"></canvas>
+                                                <canvas id="myChart2"></canvas>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>`)
@@ -633,8 +768,8 @@
                                 $(`#executions-stats-${id} tbody`).append(tr)
                             });
 
-                            var ctx = document.getElementById('myChart').getContext('2d');
-                            window.myChart = new Chart(ctx, {
+                            var ctx = document.getElementById('myChart1').getContext('2d');
+                            chartE1 = new Chart(ctx, {
                                 type: 'bar',
                                 data: {
                                     labels: labels,
@@ -643,6 +778,45 @@
                                         data: maxAverageTimes,
                                         backgroundColor: 'rgba(54, 235, 65, 0.2)',
                                         borderColor: 'rgba(54, 235, 65, 1)',
+                                        borderWidth: 1
+                                    },
+                                    {
+                                        label: 'Max Request Time (s)',
+                                        data: maxRequestTimes,
+                                        backgroundColor: 'rgba(235, 45, 65, 0.2)',
+                                        borderColor: 'rgba(235, 45, 65, 1)',
+                                        borderWidth: 1
+                                    },
+                                    //{
+                                    //    label: 'Resquests OK (%)',
+                                    //    data: maxRequestPercentage,
+                                    //    backgroundColor: 'rgba(54, 65, 235, 0.2)',
+                                    //    borderColor: 'rgba(54, 65, 235, 1)',
+                                    //    borderWidth: 1
+                                    //}
+                                    ]
+                                },
+                                options: {
+                                    scales: {
+                                        yAxes: [{
+                                            ticks: {
+                                                beginAtZero: true
+                                            }
+                                        }]
+                                    }
+                                }
+                            });
+
+                            var ctx2 = document.getElementById('myChart2').getContext('2d');
+                            chartE2 = new Chart(ctx2, {
+                                type: 'bar',
+                                data: {
+                                    labels: labels,
+                                    datasets: [{
+                                        label: 'Resquests OK (%)',
+                                        data: maxRequestPercentage,
+                                        backgroundColor: 'rgba(54, 65, 235, 0.2)',
+                                        borderColor: 'rgba(54, 65, 235, 1)',
                                         borderWidth: 1
                                     }]
                                 },
@@ -1009,113 +1183,6 @@
         })
 
         //#region Executions Charts
-        function showMaxChart() {
-            if (window.myChart instanceof Chart) {
-                window.myChart.destroy();
-            }
-            var maxRequestTimes = [];
-            var labels = [];
-            currentResult.forEach(function (item) {
-                maxRequestTimes.push(item.MaxRequestTime);
-                labels.push(item.Endpoint);
-            });
-
-            var ctx = document.getElementById('myChart').getContext('2d');
-            window.myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Max Request Time (s)',
-                        data: maxRequestTimes,
-                        backgroundColor: 'rgba(235, 21, 54, 0.2)',
-                        borderColor: 'rgba(235, 21, 54, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: true
-                            }
-                        }]
-                    }
-                }
-            });
-        }
-
-        function showAverageChart() {
-            if (window.myChart instanceof Chart) {
-                window.myChart.destroy();
-            }
-            var maxAvgRequestTime = [];
-            var labels = [];
-            currentResult.forEach(function (item) {
-                maxAvgRequestTime.push(item.AvgRequestTime);
-                labels.push(item.Endpoint);
-            });
-
-            var ctx = document.getElementById('myChart').getContext('2d');
-            window.myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Average Request Time (s)',
-                        data: maxAvgRequestTime,
-                        backgroundColor: 'rgba(54, 235, 65, 0.2)',
-                        borderColor: 'rgba(54, 235, 65, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: true
-                            }
-                        }]
-                    }
-                }
-            });
-        }
-
-        function showPercentageChart() {
-            if (window.myChart instanceof Chart) {
-                window.myChart.destroy();
-            }
-            var maxRequestPercentage = [];
-            var labels = [];
-            currentResult.forEach(function (item) {
-                maxRequestPercentage.push(item.RequestPercentage);
-                labels.push(item.Endpoint);
-            });
-
-            var ctx = document.getElementById('myChart').getContext('2d');
-            window.myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Requests OK (%)',
-                        data: maxRequestPercentage,
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: true
-                            }
-                        }]
-                    }
-                }
-            });
-        }
             //#endregion
         //#endregion
 

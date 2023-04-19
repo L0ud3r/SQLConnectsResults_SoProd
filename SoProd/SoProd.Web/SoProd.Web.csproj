@@ -155,6 +155,7 @@
     </Compile>
     <Compile Include="Models\ComparisonViewmodel.cs" />
     <Compile Include="Models\DataTableSearchFilters.cs" />
+    <Compile Include="Models\TestResultsChartViewModel.cs" />
     <Compile Include="Models\TestResultViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -274,8 +274,33 @@ namespace SoProd.Web.Controllers
             using (var context = new SoProdTestingContext())
             {
                 context.Configuration.LazyLoadingEnabled = false;
+                context.Database.CommandTimeout = 600;
 
-                var data = await context.TestResults.Where(x => x.Version == version).OrderBy(x => x.StartDate).ToListAsync();
+                var data = await (from tr in context.TestResults
+                                  join tre in context.TestResultExecutions on tr.Id equals tre.TestResultId
+                                  where tr.Version == version
+                                  group tre by new
+                                  {
+                                      tr.Id,
+                                      tr.Version,
+                                      tr.StartDate,
+                                      tr.RequestsOK,
+                                      tr.RequestsNumber,
+                                      tr.TimeEllapsed
+                                  } into g
+                                  orderby g.Key.StartDate ascending
+                                  select new
+                                  {
+                                      g.Key.Id,
+                                      g.Key.Version,
+                                      g.Key.StartDate,
+                                      g.Key.RequestsOK,
+                                      g.Key.RequestsNumber,
+                                      TimeEllapsed = g.Key.TimeEllapsed / 1000,
+                                      AverageTimeEllapsed = g.Average(tre => tre.TimeEllapsed)
+                                  }).ToListAsync();
+
+                data = data.OrderBy(x => x.StartDate).ToList();
 
                 var jsonObject = Json(new { data = data }, JsonRequestBehavior.AllowGet);
                 jsonObject.MaxJsonLength = Int32.MaxValue;
