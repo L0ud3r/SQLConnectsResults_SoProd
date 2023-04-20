@@ -64,7 +64,7 @@
         <div>
             <div class="mb-3" style="display: flex; gap: 5px">
                 <i id="filter-compare" data-id="1" class="fa fa-filter filter-icon" data-toggle="modal" href="#basic-1"></i>
-                <select id="select2-version-1" class="select2-version-1" style="width: 300px">
+                <select id="select2-version-1" class="select2-version-1" style="width: 300px; margin-top: auto; margin-bottom: auto">
                     <option value="">Choose a version</option>
                 </select>
                 <input id="date-1" type="date" class="form-control" required />
@@ -80,11 +80,11 @@
         </div>
         <div>
             <div class="mb-3" style="display: flex; gap: 5px">
-                <i id="filter-compare" data-id="2" class="fa fa-filter filter-icon" data-toggle="modal" href="#basic-2"></i>
-                <select id="select2-version-2" class="select2-version-2" style="width: 300px">
+                <input id="date-2" type="date" class="form-control" required />
+                <select id="select2-version-2" class="select2-version-2" style="width: 300px; margin-top: auto; margin-bottom: auto">
                     <option value="">Choose a version</option>
                 </select>
-                <input id="date-2" type="date" class="form-control" required />
+                <i id="filter-compare" data-id="2" class="fa fa-filter filter-icon" data-toggle="modal" href="#basic-2"></i>
             </div>
             <div id="result2" class="result-box">
                 No data
@@ -100,15 +100,12 @@
                     <h4 class="modal-title">Test Results</h4>
                 </div>
                 <div class="modal-body">
-                    <div style="height: 500px; overflow: auto; border: 2px solid lightblue ">
-                        <ul id="list-filter-1" style="list-style: none">
-                            Empty List!
-                        </ul>
+                    <div id="div-list-test-results-1" style="height: 500px; overflow: auto; border: 2px solid lightblue ">
+                        Empty List!
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn default">Close</button>
-                    <button type="button" class="btn blue" data-dismiss="modal">Save changes</button>
+                    <button type="button" class="btn default" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -122,15 +119,12 @@
                     <h4 class="modal-title">Test Results</h4>
                 </div>
                 <div class="modal-body">
-                    <div style="height: 500px; overflow: auto; border: 2px solid lightblue ">
-                        <ul id="list-filter-2" style="list-style: none">
-                            Empty List!
-                        </ul>
+                    <div id="div-list-test-results-2" style="height: 500px; overflow: auto; border: 2px solid lightblue ">
+                        Empty List!
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn blue">Save changes</button>
                 </div>
             </div>
         </div>
@@ -150,7 +144,7 @@
     </div>
     <div class="portlet-body" style="display: block;">
         <div class="mb-3">
-            <select id="select2-request" class="select2-request" style="width: 35%">
+            <select id="select2-request" class="select2-request" style="width: 35%;">
                 <option value="">All Versions</option>
             </select>
         </div>
@@ -301,7 +295,6 @@
                         y: data[i].TimeEllapsed
                     });
                 }
-                console.log(data)
                 var ctx = document.getElementById('myChartTime').getContext('2d');
 
                 chartTime = new Chart(ctx, {
@@ -915,8 +908,11 @@
                 type: 'POST',
                 data: { version: version1, date: date1 },
                 success: function (response) {
-                    var list = $('#list-filter-1')
-                    list.empty()
+                    var listSection = $('#div-list-test-results-1')
+                    listSection.empty()
+
+                    var selectAllDiv = '<div style="display: flex; margin-left: 0.5em; gap: 0.25em"><input type="checkbox" id="check-all-1" class="check-all-1" style="margin-top: auto;margin-bottom: auto;" checked><a id="check-all-text-1">Select All</a></div>'
+                    var list = '<ul id="list-filter-1" style="list-style: none;">'
 
                     if (response.testResults.length > 0) {
                         $.each(response.testResults, function (index, item) {
@@ -927,12 +923,33 @@
                                 item.startDate = startDate.toLocaleString().replace(',', '');
                             }
 
-                            list.append(`<li style="display: flex; gap: 5px">
-                                    <input type="checkbox" id="filter-checkbox-1" data-id="${item.Id}" checked/>${item.Version} - ${item.startDate} (TestDefinitionId: ${item.TestDefinitionId})</li>`)
+                            list = list + `<li style="display: flex; gap: 5px">
+                                    <input type="checkbox" class="filter-checkbox-1" id="filter-checkbox-1" data-id="${item.Id}" checked/>${item.Version} - ${item.startDate} (TestDefinitionId: ${item.TestDefinitionId})</li>`
+                        });
+                        list = list + '</ul>'
+
+                        listSection.append(selectAllDiv + list)
+
+                        $('.check-all-1').click(function () {
+                            var isChecked = $('.check-all-1').prop('checked');
+
+                            $('.filter-checkbox-1').prop('checked', isChecked);
+                        });
+
+                        $('#check-all-text-1').click(function () {
+                            var isChecked = $('.check-all-1').prop('checked');
+
+                            $('.check-all-1').prop('checked', !isChecked);
+                            $('.filter-checkbox-1').prop('checked', !isChecked);
+                        });
+
+                        $('.filter-checkbox-1').click(function () {
+                            $('.check-all-1').prop('checked', false);
                         });
                     }
                     else {
-                        list.append(`No results found!`)
+                        listSection.empty()
+                        listSection.append(`No results found!`)
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
@@ -954,8 +971,11 @@
                 type: 'POST',
                 data: { version: version2, date: date2 },
                 success: function (response) {
-                    var list = $('#list-filter-2')
-                    list.empty()
+                    var listSection = $('#div-list-test-results-2')
+                    listSection.empty()
+
+                    var selectAllDiv = '<div style="display: flex; margin-left: 0.5em; gap: 0.25em"><input type="checkbox" id="check-all-2" class="check-all-2" style="margin-top: auto;margin-bottom: auto;" checked><a id="check-all-text-2">Select All</a></div>'
+                    var list = '<ul id="list-filter-2" style="list-style: none;">'
 
                     if (response.testResults.length > 0) {
                         $.each(response.testResults, function (index, item) {
@@ -963,15 +983,36 @@
 
                             if (startDateStr.length > 0) {
                                 var startDate = new Date(parseInt(startDateStr.substr(6)));
-                                var formattedStartDate = startDate.toLocaleString().replace(',', '');
+                                item.startDate = startDate.toLocaleString().replace(',', '');
                             }
 
-                            list.append(`<li style="display: flex; gap: 5px">
-                                    <input type="checkbox" id="filter-checkbox-2" data-id="${item.Id}" checked/>${item.Version} - ${formattedStartDate} (TestDefinitionId: ${item.TestDefinitionId})</li>`)
+                            list = list + `<li style="display: flex; gap: 5px">
+                                    <input type="checkbox" class="filter-checkbox-2" id="filter-checkbox-2" data-id="${item.Id}" checked/>${item.Version} - ${item.startDate} (TestDefinitionId: ${item.TestDefinitionId})</li>`
+                        });
+                        list = list + '</ul>'
+
+                        listSection.append(selectAllDiv + list)
+
+                        $('.check-all-2').click(function () {
+                            var isChecked = $('.check-all-2').prop('checked');
+
+                            $('.filter-checkbox-2').prop('checked', isChecked);
+                        });
+
+                        $('#check-all-text-2').click(function () {
+                            var isChecked = $('.check-all-2').prop('checked');
+
+                            $('.check-all-2').prop('checked', !isChecked);
+                            $('.filter-checkbox-2').prop('checked', !isChecked);
+                        });
+
+                        $('.filter-checkbox-2').click(function () {
+                            $('.check-all-2').prop('checked', false);
                         });
                     }
                     else {
-                        list.append(`No results found!`)
+                        listSection.empty()
+                        listSection.append(`No results found!`)
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
