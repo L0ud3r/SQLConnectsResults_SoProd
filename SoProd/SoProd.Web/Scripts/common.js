@@ -194,7 +194,7 @@ $(function () {
     };
 
 
-    jQuery.extend(jQuery.validator.messages, {
+    /*jQuery.extend(jQuery.validator.messages, {
         required: "Ce champ est requis.",
         remote: "Veuillez remplir ce champ pour continuer.",
         email: "Veuillez entrer une adresse email valide.",
@@ -212,7 +212,8 @@ $(function () {
         range: jQuery.validator.format("Veuillez entrer une valeur entre {0} et {1}."),
         max: jQuery.validator.format("Veuillez entrer une valeur inférieure ou égale à {0}."),
         min: jQuery.validator.format("Veuillez entrer une valeur supérieure ou égale à {0}.")
-    });
+    });*/
+
     //
     // Pipelining function for DataTables. To be used to the `ajax` option of DataTables
     //

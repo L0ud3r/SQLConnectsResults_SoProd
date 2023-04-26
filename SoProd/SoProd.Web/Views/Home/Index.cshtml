@@ -44,50 +44,60 @@
         color: skyblue;
     }
 
-        .filter-icon:hover {
-            cursor: pointer;
-        }
+    .filter-icon:hover {
+        cursor: pointer;
+    }
+
+    .center-text {
+        margin: 0;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        -ms-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+        font-size: large
+    }
 </style>
 
 <!-- Compare Section -->
 <div class="portlet box blue mt-4">
     <div class="portlet-title">
         <div class="caption">
-            <i class="fa fa-cogs"></i>Results Comparation
+            <i class="fa fa-bug"></i>@Languages.Get("Results Comparation")
         </div>
         <div class="tools">
             <a href="javascript:;" class="collapse">
             </a>
         </div>
     </div>
-    <div class="portlet-body" style="display: flex;justify-content:space-around">
+    <div id="portlet-compare" class="portlet-body" style="display: flex;justify-content:space-around">
         <div>
             <div class="mb-3" style="display: flex; gap: 5px">
                 <i id="filter-compare" data-id="1" class="fa fa-filter filter-icon" data-toggle="modal" href="#basic-1"></i>
                 <select id="select2-version-1" class="select2-version-1" style="width: 300px; margin-top: auto; margin-bottom: auto">
-                    <option value="">Choose a version</option>
-                </select>
+                    <option value="">@Languages.Get("Choose a version")</option>
+   </select>
                 <input id="date-1" type="date" class="form-control" required />
             </div>
             <div id="result1" class="result-box">
-                No data
+                @Languages.Get("Pick a version and/or date")
             </div>
         </div>
         <div class="centered-box">
-            <button type="button" id="btn-compare" class="btn btn-info compare">Compare</button>
-            <div id="comparison-result"></div>
-            <div id="result-text"></div>
+            <button type="button" id="btn-compare" class="btn btn-info compare">@Languages.Get("Compare")</button>
+                        <div id="comparison-result"></div>
+                        <div id="result-text"></div>
         </div>
         <div>
             <div class="mb-3" style="display: flex; gap: 5px">
                 <input id="date-2" type="date" class="form-control" required />
                 <select id="select2-version-2" class="select2-version-2" style="width: 300px; margin-top: auto; margin-bottom: auto">
-                    <option value="">Choose a version</option>
+                    <option value="">@Languages.Get("Choose a version")</option>
                 </select>
                 <i id="filter-compare" data-id="2" class="fa fa-filter filter-icon" data-toggle="modal" href="#basic-2"></i>
             </div>
             <div id="result2" class="result-box">
-                No data
+                @Languages.Get("Pick a version and/or date")
             </div>
         </div>
     </div>
@@ -97,15 +107,15 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Test Results</h4>
+                    <h4 class="modal-title">@Languages.Get("Test Results")</h4>
                 </div>
                 <div class="modal-body">
-                    <div id="div-list-test-results-1" style="height: 500px; overflow: auto; border: 2px solid lightblue ">
-                        Empty List!
+                    <div id="div-list-test-results-1" style="height: 500px; overflow: auto; border: 2px solid lightblue;">
+                        <span class="center-text">@Languages.Get("Empty List!")</span>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn default" data-dismiss="modal">@Languages.Get("Close")</button>
                 </div>
             </div>
         </div>
@@ -116,15 +126,15 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Test Results</h4>
+                    <h4 class="modal-title">@Languages.Get("Test Results")</h4>
                 </div>
                 <div class="modal-body">
                     <div id="div-list-test-results-2" style="height: 500px; overflow: auto; border: 2px solid lightblue ">
-                        Empty List!
+                        <span class="center-text">@Languages.Get("Empty List!")</span>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn default" data-dismiss="modal">@Languages.Get("Close")</button>
                 </div>
             </div>
         </div>
@@ -135,32 +145,49 @@
 <div class="portlet box red mt-1">
     <div class="portlet-title">
         <div class="caption">
-            <i class="fa fa-cogs"></i>Database Results
+            <i class="fa fa-cogs"></i>@Languages.Get("Database Results")
         </div>
         <div class="tools">
             <a href="javascript:;" class="collapse">
             </a>
         </div>
     </div>
-    <div class="portlet-body" style="display: block;">
-        <div class="mb-3">
-            <select id="select2-request" class="select2-request" style="width: 35%;">
-                <option value="">All Versions</option>
-            </select>
+    <div id="portlet-results" class="portlet-body" style="display: block;">
+        <div style="display: flex; flex-direction: column; gap: 1em">
+            <div style="display: flex; justify-content: space-between">
+                <div class="mb-3" style="display: flex; flex-direction:column; width: 40%">
+                    <label style="font-weight: bold">@Languages.Get("Version)"</label>
+                    <select id="select2-request" class="select2-request" name="versions[]" multiple="multiple">
+                    </select>
+                </div>
+                <div style="display: flex; gap: 1em">
+                    <div style="display: flex; flex-direction: column">
+                        <label style="font-weight: bold">@Languages.Get("Start Date")</label>
+                        <input id="tr-start-date" type="date" class="form-control" />
+                    </div>
+                    <div style="display: flex; flex-direction: column">
+                        <label style="font-weight: bold">@Languages.Get("End Date")</label>
+                        <input id="tr-end-date" type="date" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <button id="tr-search-button" class="btn btn-info" style="width: 15%; margin-left: auto;">
+                <i class="fa fa-search"></i> @Languages.Get("Search)"
+            </button>
         </div>
         <div class="table-responsive">
             <table id="results" class="table  table-advance">
                 <thead>
                     <tr>
-                        <th data-field="Id" class="no-sort column-id">ID</th>
-                        <th data-filed="Identifier" class="no-sort">Identifier</th>
-                        <th data-filed="StartDate" class="no-sort">Start Date</th>
-                        <th data-filed="TimeEllapsed" class="no-sort">Time Ellapsed (ms)</th>
-                        <th data-filed="Version" class="no-sort">Version</th>
-                        <th data-filed="RequestsNumber" class="no-sort">Total Requests</th>
-                        <th data-filed="AvgRequestTime" class="no-sort">Average Request Time (s)</th>
-                        <th data-filed="RequestPercentage" class="no-sort">Ok Percentage</th>
-                        <th data-filed="MaxRequestTime" class="no-sort">Max Request (s)</th>
+                        <th data-field="Id" class="no-sort column-id">@Languages.Get("ID")</th>
+                        <th data-filed="Identifier" class="no-sort">@Languages.Get("Identifier")</th>
+                        <th data-filed="StartDate" class="no-sort">@Languages.Get("Start Date")</th>
+                        <th data-filed="TimeEllapsed" class="no-sort">@Languages.Get("Time Ellapsed") (ms)</th>
+                        <th data-filed="Version" class="no-sort">@Languages.Get("Version")</th>
+                        <th data-filed="RequestsNumber" class="no-sort">@Languages.Get("Total Requests")</th>
+                        <th data-filed="AvgRequestTime" class="no-sort">@Languages.Get("Average Request Time") (s)</th>
+                        <th data-filed="RequestPercentage" class="no-sort">@Languages.Get("Ok Percentage")</th>
+                        <th data-filed="MaxRequestTime" class="no-sort">@Languages.Get("Max Request") (s)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -174,23 +201,22 @@
 <div class="portlet box green">
     <div class="portlet-title">
         <div class="caption">
-            <i class="fa fa-cogs"></i>Data Analysis
+            <i class="fa fa-bar-chart-o"></i>@Languages.Get("Data Analysis")
         </div>
         <div class="tools">
             <a href="javascript:;" class="collapse">
             </a>
         </div>
     </div>
-    <div class="portlet-body flip-scroll">
+    <div id="portlet-charts" class="portlet-body flip-scroll">
         <div style="display: flex; justify-content: space-between">
-            <h3 class="panel-title" style="margin-top:auto; margin-bottom: auto">Selected Version</h3>
+            <h3 class="panel-title" style="margin-top:auto; margin-bottom: auto">@Languages.Get("Selected Version")</h3>
             <select id="select2-chart" class="select2-chart" style="width: 85%">
-                <option value="ANUBIS">ANUBIS</option>
             </select>
         </div>
         <div class="panel panel-default mt-4">
             <div class="panel-heading">
-                <h3 class="panel-title mt-3" style="font-weight: bold; text-align: center">Time Ellapsed Chart</h3>
+                <h3 class="panel-title mt-3" style="font-weight: bold; text-align: center">@Languages.Get("Time Ellapsed Chart")</h3>
             </div>
             <div class="panel-body">
                 <canvas id="myChartTime"></canvas>
@@ -198,7 +224,7 @@
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title" style="font-weight: bold; text-align: center">Accuracy Chart</h3>
+                <h3 class="panel-title" style="font-weight: bold; text-align: center">@Languages.Get("Accuracy Chart")</h3>
             </div>
             <div class="panel-body">
                 <canvas id="myChartAccuracy"></canvas>
@@ -211,6 +237,8 @@
     <script>
         //Current list of testExecutions being analised
         var currentResult = []
+
+        //Charts Initializers
         var chartTime = null
         var chartAccuracy = null
         var chartE1 = null
@@ -243,150 +271,19 @@
                 });
                 $.each(response.themes, function (index, item) {
                     selectChart.append('<option>' + item + '</option>');
+                    selectChart.val(response.themes[0]).trigger('change.select2');
                 });
+
+                //Generate Default Chart
+                getChartsByVersion(response.themes[0])
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert("Error on loading data...")
             }
         });
 
-        //Generate Default Chart
-        $.ajax({
-            url: '/Home/GetTestResultsByVersion',
-            data: { version: $('#select2-chart').val() },
-            type: 'POST',
-            success: function (response) {
-                const data = response.data;
-
-                const averageEllapsed = [];
-                const timeEllapsed = [];
-                const requestNumber = [];
-                const requestsOk = [];
-
-                for (let i = 0; i < data.length; i++) {
-                    var startDateStr = data[i].StartDate.toString();
-
-                    if (startDateStr.length > 0) {
-                        var startDate = new Date(parseInt(startDateStr.substr(6)));
-                        var formattedStartDate = startDate.toLocaleString().replace(',', '');
-                        const dateParts = formattedStartDate.split(' ');
-                        const date = dateParts[0];
-                        const time = dateParts[1];
-                        var formattedDate = date.split('/').slice(0, 2).join('/') + '\n' + time.split(':').slice(0, 2).join(':');
-                    }
-
-                    requestNumber.push({
-                        x: formattedDate,
-                        y: data[i].RequestsNumber
-                    })
-
-                    requestsOk.push({
-                        x: formattedDate,
-                        y: data[i].RequestsOK
-                    })
-
-                    averageEllapsed.push({
-                        x: formattedDate,
-                        y: data[i].AverageTimeEllapsed
-                    });
-
-                    timeEllapsed.push({
-                        x: formattedDate,
-                        y: data[i].TimeEllapsed
-                    });
-                }
-                var ctx = document.getElementById('myChartTime').getContext('2d');
-
-                chartTime = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        datasets: [{
-                            label: "Time Ellapsed (s)",
-                            data: timeEllapsed,
-                            borderColor: 'rgb(132, 99, 255)',
-                            fill: false
-                        },{
-                            label: "Average Time Ellapsed (s)",
-                            data: averageEllapsed,
-                            borderColor: 'rgb(48, 154, 255)',
-                            fill: false
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            xAxes: [{
-                                scaleLabel: {
-                                    display: true,
-                                }
-                            }],
-                            yAxes: [{
-                                scaleLabel: {
-                                    display: true,
-                                },
-                                ticks: {
-                                    beginAtZero: false
-                                }
-                            }]
-                        },
-                        zoom: {
-                            enabled: true,
-                            mode: 'x',
-                            sensitivity: 3,
-                            speed: 10
-                        }
-                    }
-                });
-
-                var ctx2 = document.getElementById('myChartAccuracy').getContext('2d');
-
-                chartAccuracy = new Chart(ctx2, {
-                    type: 'line',
-                    data: {
-                        datasets: [{
-                                label: "Requests OK (Count)",
-                                data: requestsOk,
-                                borderColor: 'rgb(46, 253, 45)',
-                                fill: false
-                            }
-                            ,{
-                                label: "Total Requests (Count)",
-                                data: requestNumber,
-                                borderColor: 'rgb(235, 75, 46)',
-                                fill: false
-                            }
-                        ]
-                    },
-                    options: {
-                        scales: {
-                            xAxes: [{
-                                scaleLabel: {
-                                    display: true,
-                                }
-                            }],
-                            yAxes: [{
-                                scaleLabel: {
-                                    display: true,
-                                },
-                                ticks: {
-                                    beginAtZero: false
-                                }
-                            }]
-                        }
-                    }
-                });
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert("Error on loading data...")
-            }
-        });
-
-        if (chartTime instanceof Chart) {
-            chartTime.destroy();
-        }
-
-        selectChart.on('change', function () {
-            var version = $('#select2-chart option:selected').val()
-
+        //Charts generator by Version
+        function getChartsByVersion(version) {
             if (chartTime instanceof Chart) {
                 chartTime.destroy();
             }
@@ -394,6 +291,14 @@
             if (chartAccuracy instanceof Chart) {
                 chartAccuracy.destroy();
             }
+
+            Metronic.blockUI({
+                target: '#portlet-charts',
+                overlayColor: '#000', overlayOpacity: '0.8',
+                centerY: true,
+                centerX: true,
+                animate: true
+            });
 
             $.ajax({
                 url: '/Home/GetTestResultsByVersion',
@@ -439,19 +344,18 @@
                             y: data[i].TimeEllapsed
                         });
                     }
-
                     var ctx = document.getElementById('myChartTime').getContext('2d');
 
                     chartTime = new Chart(ctx, {
                         type: 'line',
                         data: {
                             datasets: [{
-                                label: "Time Ellapsed (s)",
+                                label: "@Languages.Get("Time Ellapsed") (s)",
                                 data: timeEllapsed,
                                 borderColor: 'rgb(132, 99, 255)',
                                 fill: false
                             }, {
-                                label: "Average Time Ellapsed (s)",
+                                label: "@Languages.Get("Average Time Ellapsed") (s)",
                                 data: averageEllapsed,
                                 borderColor: 'rgb(48, 154, 255)',
                                 fill: false
@@ -488,13 +392,13 @@
                         type: 'line',
                         data: {
                             datasets: [{
-                                label: "Requests OK (Count)",
+                                label: "@Languages.Get("Requests OK")" + '(@Languages.Get("Count"))'",
                                 data: requestsOk,
                                 borderColor: 'rgb(46, 253, 45)',
                                 fill: false
                             }
                                 , {
-                                label: "Total Requests (Count)",
+                                label: "@Languages.Get("Total Requests")" + '(@Languages.Get("Count"))',
                                 data: requestNumber,
                                 borderColor: 'rgb(235, 75, 46)',
                                 fill: false
@@ -519,80 +423,103 @@
                             }
                         }
                     });
+
+                    Metronic.unblockUI('#portlet-charts')
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
+                    Metronic.unblockUI('#portlet-charts')
                     alert("Error on loading data...")
                 }
             });
+        }
+
+        //Change chart between versions
+        selectChart.on('change', function () {
+            getChartsByVersion($('#select2-chart option:selected').val())
         })
 
         //#endregion
 
         //#region TestResults Table
         //Initialize TestResults Table with paginate
-        TableInit('#results', {
-            "serverSide": true,
-            "ajax": function (data, callback, settings) {
-                var totalColLen = $("#results").DataTable().columns()[0].length;
-                data.countColumns = totalColLen;
+        function buildTable() {
+            TableInit('#results', {
+                "serverSide": true,
+                "ajax": function (data, callback, settings) {
+                    var totalColLen = $("#results").DataTable().columns()[0].length;
+                    data.countColumns = totalColLen;
 
-                performSearch(data, function (resp, listIds, headers) {
-                    respData = resp.data
-                    var responseData = WriteTableColumns(resp.data);
+                    performSearch(data, function (resp, listIds, headers) {
+                        respData = resp.data
+                        var responseData = WriteTableColumns(resp.data);
 
-                    resp.data = responseData;
-                    callback(resp);
-                });
-            },
-            "language": dataTableFR,
-            "aaSorting": [[0, 'desc']],
-            "fnCreatedRow": function (nRow, aData, iDataIndex) {
-                $(nRow).attr('id', "tablerow");
-                $(nRow).attr('data-id', aData[0])
+                        resp.data = responseData;
+                        callback(resp);
+                    });
+                },
+                "language": dataTableFR,
+                "searching": false,
+                "aaSorting": [[0, 'desc']],
+                "fnCreatedRow": function (nRow, aData, iDataIndex) {
+                    $(nRow).attr('id', "tablerow");
+                    $(nRow).attr('data-id', aData[0])
 
 
-                $(nRow).click(function (e) {
-                    var dataId = $(this).data('id');
-                    GetExecutions($(nRow), dataId);
-                })
-            },
-            "lengthMenu": [[20, 50, 100, -1], [20, 50, 100, "All"]],
-            "iDisplayLength": 20,
-            "bDeferRender": true,
-            "bautoWidth": false,
-            "columnDefs": [{
-                "targets": 'no-sort',
-                "orderable": false,
-            }]
-        });
+                    $(nRow).click(function (e) {
+                        var dataId = $(this).data('id');
+                        GetExecutions($(nRow), dataId);
+                    })
+                },
+                "lengthMenu": [[20, 50, 100, -1], [20, 50, 100, "All"]],
+                "iDisplayLength": 20,
+                "bDeferRender": true,
+                "bautoWidth": false,
+                "columnDefs": [{
+                    "targets": 'no-sort',
+                    "orderable": false,
+                }]
+            });
+        }
 
         //Get data to TestResults table
         function performSearch(originalData, callback) {
-            //var searchData = getDomainsSearchFilters();
+            var searchData = select.select2("val")
+            var startDate = $("#tr-start-date").val();
+            var endDate = $("#tr-end-date").val();
 
-            //Metronic.blockUI({
-            //    target: '#results',
-            //    overlayColor: '#000', overlayOpacity: '0.8',
-            //    centerY: true,
-            //    centerX: true,
-            //    animate: true
-            //});
+            if (!startDate)
+                startDate = '0001-01-01'
+            if (!endDate)
+                endDate = '0001-01-01'
+
+            Metronic.blockUI({
+                target: '#portlet-results',
+                overlayColor: '#000', overlayOpacity: '0.8',
+                centerY: true,
+                centerX: true,
+                animate: true
+            });
 
             $.ajax({
                 url: "/Home/GetResultsJson",
                 method: "POST",
                 data: {
-                    dtFilters: originalData
+                    dtFilters: originalData,
+                    searchFilters: searchData,
+                    startDate: startDate,
+                    endDate: endDate
                 },
-                error: function () {
-                    alert("error");
-                    /*Metronic.unblockUI('#results');*/
+                error: function (jqXHR) {
+                    alert("Error loading Test Results table");
+                    console.log(jqXHR.responseText)
+
+                    Metronic.unblockUI('#portlet-results');
                 },
                 success: function (data) {
                     var _rows = [];
-                    //Metronic.unblockUI('#results');
+                    Metronic.unblockUI('#portlet-results');
                     if (data.error) {
-                        showWarning("Error Validating", "Please check form inputs and try again...");
+                        showWarning("Error Validating", "@Languages.Get("Please check form inputs and try again")...");
                     }
                     else {
                         $.each(data.aaData, function (a, b) {
@@ -611,16 +538,6 @@
                     }
                 }
             });
-        }
-
-        //Search Filter for TestResults (TO DO)
-        function getDomainsSearchFilters() {
-            var data = {};
-            $("#domainsFiltersUL li").each(function () {
-                data[$(this).attr('data-label')] = $(this).attr('data-val');
-            });
-
-            return data;
         }
 
         //Fill TestResults table columns
@@ -697,7 +614,6 @@
         function GetExecutions(nRow, id) {
             if ($(`#executions-stats-${id}`).length) {
                 $(`#executions-stats-${id}`).remove()
-
             }
             else {
                 $.ajax({
@@ -728,11 +644,11 @@
                                         <table class="table border">
                                             <thead>
                                                 <tr>
-                                                    <th style="font-weight: bold;">Endpoint</th>
-                                                    <th style="font-weight: bold;">Total Requests</th>
-                                                    <th style="font-weight: bold;">OK Response Percentage</th>
-                                                    <th style="font-weight: bold;">Average Request Time(s)</th>
-                                                    <th style="font-weight: bold;">Max Request Time(s)</th>
+                                                    <th style="font-weight: bold;">@Languages.Get("Endpoint")</th>
+                                                    <th style="font-weight: bold;">@Languages.Get("Total Requests")</th>
+                                                    <th style="font-weight: bold;">@Languages.Get("OK Response Percentage")</th>
+                                                    <th style="font-weight: bold;">@Languages.Get("Average Request Time") (s)</th>
+                                                    <th style="font-weight: bold;">@Languages.Get("Max Request Time") (s)</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -740,7 +656,7 @@
                                         </table>
                                         <div class="panel panel-default mt-4">
                                             <div class="panel-heading">
-                                                <h3 class="panel-title mt-3" style="font-weight: bold; text-align: center">Analysis charts</h3>
+                                                <h3 class="panel-title mt-3" style="font-weight: bold; text-align: center">@Languages.Get("Analysis charts")</h3>
                                             </div>
                                             <div class="panel-body">
                                                 <canvas id="myChart1"></canvas>
@@ -767,14 +683,14 @@
                                 data: {
                                     labels: labels,
                                     datasets: [{
-                                        label: 'Average Request Time (s)',
+                                        label: '@Languages.Get("Average Request Time") (s)',
                                         data: maxAverageTimes,
                                         backgroundColor: 'rgba(54, 235, 65, 0.2)',
                                         borderColor: 'rgba(54, 235, 65, 1)',
                                         borderWidth: 1
                                     },
                                     {
-                                        label: 'Max Request Time (s)',
+                                        label: '@Languages.Get("Max Request Time") (s)',
                                         data: maxRequestTimes,
                                         backgroundColor: 'rgba(235, 45, 65, 0.2)',
                                         borderColor: 'rgba(235, 45, 65, 1)',
@@ -806,7 +722,7 @@
                                 data: {
                                     labels: labels,
                                     datasets: [{
-                                        label: 'Resquests OK (%)',
+                                        label: '@Languages.Get("Resquests OK") (%)',
                                         data: maxRequestPercentage,
                                         backgroundColor: 'rgba(54, 65, 235, 0.2)',
                                         borderColor: 'rgba(54, 65, 235, 1)',
@@ -834,7 +750,7 @@
                                     <td></td>
                                     <td colspan="5" >
                                         <div class="empty-results">
-                                            There are no executions made in this test!
+                                            @Languages.Get("There are no executions made in this test!")
                                         </div>
                                 </tr>`)
 
@@ -842,59 +758,21 @@
                         }
                     },
                     error: function (jqXHR) {
-                        console.log(jqXHR.responseText)
                         alert("Error retrieving test results.");
                     }
                 });
             }
         };
 
+        buildTable();
+
         //Update Table on select change
-        $('#select2-request').on('change', function () {
-            var selectedValue = $(this).val();
-
-            $.ajax({
-                url: '/Home/SearchResults?version=' + selectedValue,
-                type: 'GET',
-                data: { searchTerm: selectedValue },
-                success: function (response) {
-                    var tbody = $('#results tbody');
-                    tbody.empty();
-
-                    $.each(response.results, function (index, item) {
-                        var tr = $('<tr>').addClass('tablerow').attr('data-item-id', item.Id);
-                        tr.append($('<td>').text(item.Id));
-                        tr.append($('<td>').text(item.Identifier));
-
-                        var startDateStr = item.StartDate.toString();
-
-                        if (startDateStr.length > 0) {
-                            var startDate = new Date(parseInt(startDateStr.substr(6)));
-                            var formattedStartDate = startDate.toLocaleString().replace(',', '');
-                            tr.append($('<td>').text(formattedStartDate));
-                        }
-
-                        tr.append($('<td>').text(Math.round(item.TimeEllapsed, 4)));
-                        tr.append($('<td>').text(item.Version));
-                        tr.append($('<td>').text(item.RequestsNumber));
-                        tr.append($('<td>').text(item.AvgRequestTime));
-                        tr.append($('<td>').text(item.RequestPercentage));
-                        tr.append($('<td>').text(item.MaxRequestTime));
-                        tbody.append(tr);
-                    });
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    alert('Error on loading data...');
-                }
-            });
+        $('#tr-search-button').click(function () {
+            tables['#results'].DataTable().ajax.reload();
         });
         //#endregion
 
         //#region Compare
-        /*TO DO
-         * BUTTONS (SAVE AND CANCEL)
-         * CHECK ALL AND UNCHECK ALL
-        */
         //#region Filter update on Version and data selection
         $('#select2-version-1, #date-1').on('change', function () {
             var version1 = $('#select2-version-1 option:selected').val();
@@ -911,7 +789,7 @@
                     var listSection = $('#div-list-test-results-1')
                     listSection.empty()
 
-                    var selectAllDiv = '<div style="display: flex; margin-left: 0.5em; gap: 0.25em"><input type="checkbox" id="check-all-1" class="check-all-1" style="margin-top: auto;margin-bottom: auto;" checked><a id="check-all-text-1">Select All</a></div>'
+                    var selectAllDiv = '<div style="display: flex; margin-left: 0.5em; gap: 0.25em"><input type="checkbox" id="check-all-1" class="check-all-1" style="margin-top: auto;margin-bottom: auto;" checked><a id="check-all-text-1">@Languages.Get("Select All")</a></div>'
                     var list = '<ul id="list-filter-1" style="list-style: none;">'
 
                     if (response.testResults.length > 0) {
@@ -924,7 +802,7 @@
                             }
 
                             list = list + `<li style="display: flex; gap: 5px">
-                                    <input type="checkbox" class="filter-checkbox-1" id="filter-checkbox-1" data-id="${item.Id}" checked/>${item.Version} - ${item.startDate} (TestDefinitionId: ${item.TestDefinitionId})</li>`
+                                    <input type="checkbox" class="filter-checkbox-1" id="filter-checkbox-1" data-id="${item.Id}" checked/>${item.Version} - ${item.startDate} (@Languages.Get("TestDefinitionId"): ${item.TestDefinitionId})</li>`
                         });
                         list = list + '</ul>'
 
@@ -949,7 +827,7 @@
                     }
                     else {
                         listSection.empty()
-                        listSection.append(`No results found!`)
+                        listSection.append(`<span class="center-text">@Languages.Get("No results found!")</span>`)
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
@@ -974,7 +852,7 @@
                     var listSection = $('#div-list-test-results-2')
                     listSection.empty()
 
-                    var selectAllDiv = '<div style="display: flex; margin-left: 0.5em; gap: 0.25em"><input type="checkbox" id="check-all-2" class="check-all-2" style="margin-top: auto;margin-bottom: auto;" checked><a id="check-all-text-2">Select All</a></div>'
+                    var selectAllDiv = '<div style="display: flex; margin-left: 0.5em; gap: 0.25em"><input type="checkbox" id="check-all-2" class="check-all-2" style="margin-top: auto;margin-bottom: auto;" checked><a id="check-all-text-2">@Languages.Get("Select All")</a></div>'
                     var list = '<ul id="list-filter-2" style="list-style: none;">'
 
                     if (response.testResults.length > 0) {
@@ -987,7 +865,7 @@
                             }
 
                             list = list + `<li style="display: flex; gap: 5px">
-                                    <input type="checkbox" class="filter-checkbox-2" id="filter-checkbox-2" data-id="${item.Id}" checked/>${item.Version} - ${item.startDate} (TestDefinitionId: ${item.TestDefinitionId})</li>`
+                                    <input type="checkbox" class="filter-checkbox-2" id="filter-checkbox-2" data-id="${item.Id}" checked/>${item.Version} - ${item.startDate} (@Languages.Get("TestDefinitionId"): ${item.TestDefinitionId})</li>`
                         });
                         list = list + '</ul>'
 
@@ -1012,7 +890,7 @@
                     }
                     else {
                         listSection.empty()
-                        listSection.append(`No results found!`)
+                        listSection.append(`<span class="center-text">No results found!</span>`)
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
@@ -1025,6 +903,14 @@
 
         //Compare button
         $("#btn-compare").click(function () {
+            Metronic.blockUI({
+                target: '#portlet-compare',
+                overlayColor: '#000', overlayOpacity: '0.8',
+                centerY: true,
+                centerX: true,
+                animate: true
+            });
+
             var version1 = $('#select2-version-1 option:selected').val();
             var version2 = $('#select2-version-2 option:selected').val();
             var comparelist1 = [];
@@ -1059,34 +945,34 @@
                         if (comparison1.TestsCount != 0) {
                             const newHtml1 = `
                                         <div class="result-box-line">
-                                            <label>Request Average</label>
+                                            <label>@Languages.Get("Request Average")</label>
                                             <label id="c1-avg">${comparison1.AvgRequest.toFixed(2)}</label>
                                         </div>
                                         <div class="result-box-line">
-                                            <label>Total Requests</label>
+                                            <label>@Languages.Get("Total Requests")</label>
                                             <label id="c1-total">${comparison1.TotalRequest}</label>
                                         </div>
                                         <div class="result-box-line">
-                                            <label>Users Number</label>
+                                            <label>@Languages.Get("Users Number")</label>
                                             <label id="c1-users">${comparison1.UsersNumber}</label>
                                         </div>
                                         <div class="result-box-line">
-                                            <label>Requests OK (%)</label>
+                                            <label>@Languages.Get("Requests OK") (%)</label>
                                             <label id="c1-ok">${comparison1.PercentRequest.toFixed(2)}</label>
                                         </div>
                                         <div class="result-box-line">
-                                            <label>Max Request Time (s)</label>
+                                            <label>@Languages.Get("Max Request Time") (s)</label>
                                             <label id="c1-max">${comparison1.MaxRequest.toFixed(2)}</label>
                                         </div>
                                         <div class="result-box-line">
-                                            <label>Tests Number</label>
+                                            <label>@Languages.Get("Tests Number")</label>
                                             <label id="c1-tests">${comparison1.TestsCount}</label>
                                         </div>`;
 
                             result1.innerHTML = newHtml1;
                         }
                         else {
-                            const newHtml1 = `This version has no tests on this date `
+                            const newHtml1 = `@Languages.Get("This version has no tests on this date")`
                             document.querySelector('#result-text').innerHTML = ""
 
                             if (document.querySelector('#icon-result') != null)
@@ -1099,27 +985,27 @@
 
                             const newHtml2 = `
                                         <div class="result-box-line">
-                                            <label>Request Average Time (s)</label>
+                                            <label>@Languages.Get("Request Average Time") (s)</label>
                                             <label id="c2-avg">${comparison2.AvgRequest.toFixed(2)}</label>
                                         </div>
                                         <div class="result-box-line">
-                                            <label>Total Requests</label>
+                                            <label>@Languages.Get("Total Requests")</label>
                                             <label id="c2-total">${comparison2.TotalRequest}</label>
                                         </div>
                                         <div class="result-box-line">
-                                            <label>Users Number</label>
+                                            <label>@Languages.Get("Users Number")</label>
                                             <label id="c2-users">${comparison2.UsersNumber}</label>
                                         </div>
                                         <div class="result-box-line">
-                                            <label>Requests OK (%)</label>
+                                            <label>@Languages.Get("Requests OK") (%)</label>
                                             <label id="c2-ok">${comparison2.PercentRequest.toFixed(2)}</label>
                                         </div>
                                         <div class="result-box-line">
-                                            <label>Max Request Time (s)</label>
+                                            <label>@Languages.Get("Max Request Time") (s)</label>
                                             <label id="c2-max">${comparison2.MaxRequest.toFixed(2)}</label>
                                         </div>
                                         <div class="result-box-line">
-                                            <label>Tests Number</label>
+                                            <label>@Languages.Get("Tests Number")</label>
                                             <label id="c2-tests">${comparison2.TestsCount}</label>
                                         </div>
                                     `;
@@ -1127,7 +1013,7 @@
                             result2.innerHTML = newHtml2;
                         }
                         else {
-                            const newHtml2 = `This version has no tests on this date `
+                            const newHtml2 = `@Languages.Get("This version has no tests on this date")`
                             document.querySelector('#result-text').innerHTML = ""
                             document.querySelector('#icon-result').hidden = true
 
@@ -1196,14 +1082,14 @@
 
                             if (points1 > points2) {
                                 arrow = '<icon id="icon-result" class="fa fa-arrow-circle-o-left" style="color: lightskyblue; font-size: 5em;" ></icon >'
-                                document.querySelector('#result-text').innerHTML = 'seems to be the better version!'
+                                document.querySelector('#result-text').innerHTML = '@Languages.Get("seems to be the better version")!'
                             }
                             else if (points1 == points2) {
-                                document.querySelector('#result-text').innerHTML = 'both seem to have the similar results!'
+                                document.querySelector('#result-text').innerHTML = '@Languages.Get("both seem to have the similar results")!'
                             }
                             else {
                                 arrow = '<icon id="icon-result" class="fa fa-arrow-circle-o-right" style="color: lightskyblue; font-size: 5em;"></icon>'
-                                document.querySelector('#result-text').innerHTML = 'seems to be the better version!'
+                                document.querySelector('#result-text').innerHTML = '@Languages.Get("seems to be the better version")!'
                             }
 
                             document.querySelector('#comparison-result').innerHTML = arrow
@@ -1212,9 +1098,11 @@
                                 document.querySelector('#icon-result').hidden = false
                         }
 
+                        Metronic.unblockUI('#portlet-compare')
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         alert("Erro")
+                        Metronic.unblockUI('#portlet-compare')
                         console.log(jqXHR);
                     }
                 });
@@ -1223,13 +1111,6 @@
                 alert("Missing fields!")
         })
 
-        //#endregion
-
-        //#region Unused Code
-            //Initialize TableInit on executions table
-            //$(document).ready(function () {
-            //    TableInit('#results');
-            //});
         //#endregion
 
     </script>

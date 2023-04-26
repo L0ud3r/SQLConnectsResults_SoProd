@@ -26,44 +26,6 @@ namespace SoProd.Web.Controllers
             }
         }
 
-        //ADICIONAR PARAMETROS DE SEARCH (FILTERS)
-        public async Task<JsonResult> GetResultsJson(DataTableSearchFilters dtFilters)
-        {
-            using (var context = new SoProdTestingContext())
-            {
-                context.Configuration.LazyLoadingEnabled = false;
-                context.Database.CommandTimeout = 600;
-
-                if (dtFilters.length == -1) dtFilters.length = await context.TestResults.CountAsync();
-
-                List<TestResultViewModel> list = new List<TestResultViewModel>();
-
-                var resultList = await context.TestResults.OrderBy(x => x.Id).Skip(dtFilters.start).Take(dtFilters.length)
-                .Select(x => new TestResultViewModel
-                {
-                    Id = x.Id,
-                    Identifier = x.Identifier,
-                    StartDate = x.StartDate,
-                    TimeEllapsed = x.TimeEllapsed,
-                    Version = x.Version,
-                    RequestsNumber = x.TestResultExecutions.Count(),
-                    AvgRequestTime = x.TestResultExecutions.Where(te => te.StatusCode == 200).Average(te => te.TimeEllapsed),
-                    RequestPercentage = Math.Round(x.TestResultExecutions.Count(te => te.StatusCode == 200) > 0 && x.TestResultExecutions.Count() > 0 ?
-                        (x.TestResultExecutions.Count(te => te.StatusCode == 200) / (double)x.TestResultExecutions.Count()) * 100.0 :
-                        0.0, 2),
-                    MaxRequestTime = x.TestResultExecutions.Max(te => te.TimeEllapsed)
-                }).ToListAsync();
-
-                var resultsCount = await context.TestResults.CountAsync();
-
-
-                var jsonObject = Json(new { iTotal = resultsCount, iTotalDisplay = resultList.Count, aaData = resultList, draw = dtFilters.draw }, JsonRequestBehavior.AllowGet);
-                jsonObject.MaxJsonLength = Int32.MaxValue;
-
-                return jsonObject;
-            }
-        }
-
         public async Task<List<TestResultViewModel>> GetResults()
         {
             using (var context = new SoProdTestingContext())
@@ -113,58 +75,260 @@ namespace SoProd.Web.Controllers
             }
         }
 
-        public async Task<JsonResult> SearchResults(string version)
+        public async Task<JsonResult> GetResultsJson(DataTableSearchFilters dtFilters, List<string> searchFilters, DateTime startDate, DateTime endDate)
         {
             using (var context = new SoProdTestingContext())
             {
-                List<TestResultViewModel> list = new List<TestResultViewModel>();
-                var results = await context.TestResults.Take(10).ToListAsync(); ;
-
                 context.Configuration.LazyLoadingEnabled = false;
-                if (version != null && version != "")
+                context.Database.CommandTimeout = 600;
+
+                if (DateTime.Compare(startDate, new DateTime(1, 1, 1, 0, 0, 0)) == 0 &&
+                    DateTime.Compare(endDate, new DateTime(1, 1, 1, 0, 0, 0)) == 0)
                 {
-                    results = await context.TestResults.AsNoTracking().Where(x => x.Version == version).ToListAsync();
-                }
-
-                foreach (var result in results)
-                {
-                    TestResultViewModel resultViewModel = new TestResultViewModel();
-
-                    resultViewModel.Id = result.Id;
-                    resultViewModel.Identifier = result.Identifier;
-                    resultViewModel.TimeEllapsed = result.TimeEllapsed;
-                    resultViewModel.StartDate = result.StartDate;
-                    resultViewModel.Version = result.Version;
-                    resultViewModel.RequestsOK = result.RequestsOK;
-                    resultViewModel.RequestsError = result.RequestsError;
-                    resultViewModel.RequestsNumber = result.RequestsNumber;
-
-                    var executions = await context.TestResultExecutions.Where((x => x.TestResultId == result.Id)).ToListAsync();
-                    var okExecutions = executions.Where(x => x.StatusCode == 200).ToList();
-
-                    if (executions != null && executions.Any()) resultViewModel.TotalRequests = executions.Count;
-                    else resultViewModel.TotalRequests = 0;
-
-                    if (okExecutions.Any())
+                    if (searchFilters == null)
                     {
-                        resultViewModel.AvgRequestTime = okExecutions.Select(x => x.TimeEllapsed).Average();
+                        if (dtFilters.length == -1) dtFilters.length = await context.TestResults.CountAsync();
 
-                        double totalOKs = okExecutions.Count();
-                        resultViewModel.RequestPercentage = resultViewModel.TotalRequests > 0 ? (totalOKs / resultViewModel.TotalRequests) * 100 : 0;
+                        List<TestResultViewModel> list = new List<TestResultViewModel>();
 
-                        resultViewModel.MaxRequestTime = okExecutions.Select(x => x.TimeEllapsed).Max();
+                        var resultList = await context.TestResults.OrderBy(x => x.Id).Skip(dtFilters.start).Take(dtFilters.length)
+                        .Select(x => new TestResultViewModel
+                        {
+                            Id = x.Id,
+                            Identifier = x.Identifier,
+                            StartDate = x.StartDate,
+                            TimeEllapsed = x.TimeEllapsed,
+                            Version = x.Version,
+                            RequestsNumber = x.TestResultExecutions.Count(),
+                            AvgRequestTime = x.TestResultExecutions.Where(te => te.StatusCode == 200).Average(te => te.TimeEllapsed),
+                            RequestPercentage = Math.Round(x.TestResultExecutions.Count(te => te.StatusCode == 200) > 0 && x.TestResultExecutions.Count() > 0 ?
+                                (x.TestResultExecutions.Count(te => te.StatusCode == 200) / (double)x.TestResultExecutions.Count()) * 100.0 :
+                                0.0, 2),
+                            MaxRequestTime = x.TestResultExecutions.Max(te => te.TimeEllapsed)
+                        }).ToListAsync();
+
+                        var resultsCount = await context.TestResults.CountAsync();
+
+                        var jsonObject = Json(new { iTotal = resultsCount, iTotalDisplay = resultList.Count, aaData = resultList, draw = dtFilters.draw }, JsonRequestBehavior.AllowGet);
+                        jsonObject.MaxJsonLength = Int32.MaxValue;
+
+                        return jsonObject;
                     }
                     else
                     {
-                        resultViewModel.AvgRequestTime = -1;
-                        resultViewModel.RequestPercentage = -1;
-                        resultViewModel.MaxRequestTime = -1;
+                        if (dtFilters.length == -1) dtFilters.length = await context.TestResults.Where(x => searchFilters.Contains(x.Version)).CountAsync();
+
+                        List<TestResultViewModel> list = new List<TestResultViewModel>();
+
+                        var resultList = await context.TestResults.Where(x => searchFilters.Contains(x.Version)).OrderBy(x => x.Id).Skip(dtFilters.start).Take(dtFilters.length)
+                        .Select(x => new TestResultViewModel
+                        {
+                            Id = x.Id,
+                            Identifier = x.Identifier,
+                            StartDate = x.StartDate,
+                            TimeEllapsed = x.TimeEllapsed,
+                            Version = x.Version,
+                            RequestsNumber = x.TestResultExecutions.Count(),
+                            AvgRequestTime = x.TestResultExecutions.Where(te => te.StatusCode == 200).Average(te => te.TimeEllapsed),
+                            RequestPercentage = Math.Round(x.TestResultExecutions.Count(te => te.StatusCode == 200) > 0 && x.TestResultExecutions.Count() > 0 ?
+                                (x.TestResultExecutions.Count(te => te.StatusCode == 200) / (double)x.TestResultExecutions.Count()) * 100.0 :
+                                0.0, 2),
+                            MaxRequestTime = x.TestResultExecutions.Max(te => te.TimeEllapsed)
+                        }).ToListAsync();
+
+                        var resultsCount = await context.TestResults.Where(x => searchFilters.Contains(x.Version)).CountAsync();
+
+                        var jsonObject = Json(new { iTotal = resultsCount, iTotalDisplay = resultList.Count, aaData = resultList, draw = dtFilters.draw }, JsonRequestBehavior.AllowGet);
+                        jsonObject.MaxJsonLength = Int32.MaxValue;
+
+                        return jsonObject;
                     }
-
-                    list.Add(resultViewModel);
                 }
+                else if (DateTime.Compare(startDate, new DateTime(1, 1, 1, 0, 0, 0)) != 0 &&
+                    DateTime.Compare(endDate, new DateTime(1, 1, 1, 0, 0, 0)) == 0)
+                {
+                    if (searchFilters == null)
+                    {
+                        if (dtFilters.length == -1) dtFilters.length = await context.TestResults.Where(x => DbFunctions.TruncateTime(x.StartDate) > startDate.Date).CountAsync();
 
-                return Json(new { result = "OK", results = list }, JsonRequestBehavior.AllowGet);
+                        List<TestResultViewModel> list = new List<TestResultViewModel>();
+
+                        var resultList = await context.TestResults.Where(x => DbFunctions.TruncateTime(x.StartDate) > startDate.Date).OrderBy(x => x.Id).Skip(dtFilters.start).Take(dtFilters.length)
+                        .Select(x => new TestResultViewModel
+                        {
+                            Id = x.Id,
+                            Identifier = x.Identifier,
+                            StartDate = x.StartDate,
+                            TimeEllapsed = x.TimeEllapsed,
+                            Version = x.Version,
+                            RequestsNumber = x.TestResultExecutions.Count(),
+                            AvgRequestTime = x.TestResultExecutions.Where(te => te.StatusCode == 200).Average(te => te.TimeEllapsed),
+                            RequestPercentage = Math.Round(x.TestResultExecutions.Count(te => te.StatusCode == 200) > 0 && x.TestResultExecutions.Count() > 0 ?
+                                (x.TestResultExecutions.Count(te => te.StatusCode == 200) / (double)x.TestResultExecutions.Count()) * 100.0 :
+                                0.0, 2),
+                            MaxRequestTime = x.TestResultExecutions.Max(te => te.TimeEllapsed)
+                        }).ToListAsync();
+
+                        var resultsCount = await context.TestResults.Where(x => DbFunctions.TruncateTime(x.StartDate) > startDate.Date).CountAsync();
+
+                        var jsonObject = Json(new { iTotal = resultsCount, iTotalDisplay = resultList.Count, aaData = resultList, draw = dtFilters.draw }, JsonRequestBehavior.AllowGet);
+                        jsonObject.MaxJsonLength = Int32.MaxValue;
+
+                        return jsonObject;
+                    }
+                    else
+                    {
+                        if (dtFilters.length == -1) dtFilters.length = await context.TestResults.Where(x => searchFilters.Contains(x.Version) && DbFunctions.TruncateTime(x.StartDate) > startDate.Date).CountAsync();
+
+                        List<TestResultViewModel> list = new List<TestResultViewModel>();
+
+                        var resultList = await context.TestResults.Where(x => searchFilters.Contains(x.Version) && DbFunctions.TruncateTime(x.StartDate) > startDate.Date).OrderBy(x => x.Id).Skip(dtFilters.start).Take(dtFilters.length)
+                        .Select(x => new TestResultViewModel
+                        {
+                            Id = x.Id,
+                            Identifier = x.Identifier,
+                            StartDate = x.StartDate,
+                            TimeEllapsed = x.TimeEllapsed,
+                            Version = x.Version,
+                            RequestsNumber = x.TestResultExecutions.Count(),
+                            AvgRequestTime = x.TestResultExecutions.Where(te => te.StatusCode == 200).Average(te => te.TimeEllapsed),
+                            RequestPercentage = Math.Round(x.TestResultExecutions.Count(te => te.StatusCode == 200) > 0 && x.TestResultExecutions.Count() > 0 ?
+                                (x.TestResultExecutions.Count(te => te.StatusCode == 200) / (double)x.TestResultExecutions.Count()) * 100.0 :
+                                0.0, 2),
+                            MaxRequestTime = x.TestResultExecutions.Max(te => te.TimeEllapsed)
+                        }).ToListAsync();
+
+                        var resultsCount = await context.TestResults.Where(x => searchFilters.Contains(x.Version) && DbFunctions.TruncateTime(x.StartDate) > startDate.Date).CountAsync();
+
+                        var jsonObject = Json(new { iTotal = resultsCount, iTotalDisplay = resultList.Count, aaData = resultList, draw = dtFilters.draw }, JsonRequestBehavior.AllowGet);
+                        jsonObject.MaxJsonLength = Int32.MaxValue;
+
+                        return jsonObject;
+                    }
+                }
+                else if (DateTime.Compare(startDate, new DateTime(1, 1, 1, 0, 0, 0)) == 0 &&
+                    DateTime.Compare(endDate, new DateTime(1, 1, 1, 0, 0, 0)) != 0)
+                {
+                    if (searchFilters == null)
+                    {
+                        if (dtFilters.length == -1) dtFilters.length = await context.TestResults.Where(x => DbFunctions.TruncateTime(x.StartDate) < endDate.Date).CountAsync();
+
+                        List<TestResultViewModel> list = new List<TestResultViewModel>();
+
+                        var resultList = await context.TestResults.Where(x => DbFunctions.TruncateTime(x.StartDate) < endDate.Date).OrderBy(x => x.Id).Skip(dtFilters.start).Take(dtFilters.length)
+                        .Select(x => new TestResultViewModel
+                        {
+                            Id = x.Id,
+                            Identifier = x.Identifier,
+                            StartDate = x.StartDate,
+                            TimeEllapsed = x.TimeEllapsed,
+                            Version = x.Version,
+                            RequestsNumber = x.TestResultExecutions.Count(),
+                            AvgRequestTime = x.TestResultExecutions.Where(te => te.StatusCode == 200).Average(te => te.TimeEllapsed),
+                            RequestPercentage = Math.Round(x.TestResultExecutions.Count(te => te.StatusCode == 200) > 0 && x.TestResultExecutions.Count() > 0 ?
+                                (x.TestResultExecutions.Count(te => te.StatusCode == 200) / (double)x.TestResultExecutions.Count()) * 100.0 :
+                                0.0, 2),
+                            MaxRequestTime = x.TestResultExecutions.Max(te => te.TimeEllapsed)
+                        }).ToListAsync();
+
+                        var resultsCount = await context.TestResults.Where(x => DbFunctions.TruncateTime(x.StartDate) < endDate.Date).CountAsync();
+
+                        var jsonObject = Json(new { iTotal = resultsCount, iTotalDisplay = resultList.Count, aaData = resultList, draw = dtFilters.draw }, JsonRequestBehavior.AllowGet);
+                        jsonObject.MaxJsonLength = Int32.MaxValue;
+
+                        return jsonObject;
+                    }
+                    else
+                    {
+                        if (dtFilters.length == -1) dtFilters.length = await context.TestResults.Where(x => searchFilters.Contains(x.Version) && DbFunctions.TruncateTime(x.StartDate) < endDate.Date).CountAsync();
+
+                        List<TestResultViewModel> list = new List<TestResultViewModel>();
+
+                        var resultList = await context.TestResults.Where(x => searchFilters.Contains(x.Version) && DbFunctions.TruncateTime(x.StartDate) < endDate.Date).OrderBy(x => x.Id).Skip(dtFilters.start).Take(dtFilters.length)
+                        .Select(x => new TestResultViewModel
+                        {
+                            Id = x.Id,
+                            Identifier = x.Identifier,
+                            StartDate = x.StartDate,
+                            TimeEllapsed = x.TimeEllapsed,
+                            Version = x.Version,
+                            RequestsNumber = x.TestResultExecutions.Count(),
+                            AvgRequestTime = x.TestResultExecutions.Where(te => te.StatusCode == 200).Average(te => te.TimeEllapsed),
+                            RequestPercentage = Math.Round(x.TestResultExecutions.Count(te => te.StatusCode == 200) > 0 && x.TestResultExecutions.Count() > 0 ?
+                                (x.TestResultExecutions.Count(te => te.StatusCode == 200) / (double)x.TestResultExecutions.Count()) * 100.0 :
+                                0.0, 2),
+                            MaxRequestTime = x.TestResultExecutions.Max(te => te.TimeEllapsed)
+                        }).ToListAsync();
+
+                        var resultsCount = await context.TestResults.Where(x => searchFilters.Contains(x.Version) && DbFunctions.TruncateTime(x.StartDate) < endDate.Date).CountAsync();
+
+                        var jsonObject = Json(new { iTotal = resultsCount, iTotalDisplay = resultList.Count, aaData = resultList, draw = dtFilters.draw }, JsonRequestBehavior.AllowGet);
+                        jsonObject.MaxJsonLength = Int32.MaxValue;
+
+                        return jsonObject;
+                    }
+                }
+                else
+                {
+                    if (searchFilters == null)
+                    {
+                        if (dtFilters.length == -1) dtFilters.length = await context.TestResults.Where(x => DbFunctions.TruncateTime(x.StartDate) > startDate.Date && DbFunctions.TruncateTime(x.StartDate) < endDate.Date).CountAsync();
+
+                        List<TestResultViewModel> list = new List<TestResultViewModel>();
+
+                        var resultList = await context.TestResults.Where(x => DbFunctions.TruncateTime(x.StartDate) > startDate.Date && DbFunctions.TruncateTime(x.StartDate) < endDate.Date).OrderBy(x => x.Id).Skip(dtFilters.start).Take(dtFilters.length)
+                        .Select(x => new TestResultViewModel
+                        {
+                            Id = x.Id,
+                            Identifier = x.Identifier,
+                            StartDate = x.StartDate,
+                            TimeEllapsed = x.TimeEllapsed,
+                            Version = x.Version,
+                            RequestsNumber = x.TestResultExecutions.Count(),
+                            AvgRequestTime = x.TestResultExecutions.Where(te => te.StatusCode == 200).Average(te => te.TimeEllapsed),
+                            RequestPercentage = Math.Round(x.TestResultExecutions.Count(te => te.StatusCode == 200) > 0 && x.TestResultExecutions.Count() > 0 ?
+                                (x.TestResultExecutions.Count(te => te.StatusCode == 200) / (double)x.TestResultExecutions.Count()) * 100.0 :
+                                0.0, 2),
+                            MaxRequestTime = x.TestResultExecutions.Max(te => te.TimeEllapsed)
+                        }).ToListAsync();
+
+                        var resultsCount = await context.TestResults.Where(x => DbFunctions.TruncateTime(x.StartDate) > startDate.Date && DbFunctions.TruncateTime(x.StartDate) < endDate.Date).CountAsync();
+
+                        var jsonObject = Json(new { iTotal = resultsCount, iTotalDisplay = resultList.Count, aaData = resultList, draw = dtFilters.draw }, JsonRequestBehavior.AllowGet);
+                        jsonObject.MaxJsonLength = Int32.MaxValue;
+
+                        return jsonObject;
+                    }
+                    else
+                    {
+                        if (dtFilters.length == -1) dtFilters.length = await context.TestResults.Where(x => searchFilters.Contains(x.Version) && DbFunctions.TruncateTime(x.StartDate) > startDate.Date && DbFunctions.TruncateTime(x.StartDate) < endDate.Date).CountAsync();
+
+                        List<TestResultViewModel> list = new List<TestResultViewModel>();
+
+                        var resultList = await context.TestResults.Where(x => searchFilters.Contains(x.Version) && DbFunctions.TruncateTime(x.StartDate) > startDate.Date && DbFunctions.TruncateTime(x.StartDate) < endDate.Date).OrderBy(x => x.Id).Skip(dtFilters.start).Take(dtFilters.length)
+                        .Select(x => new TestResultViewModel
+                        {
+                            Id = x.Id,
+                            Identifier = x.Identifier,
+                            StartDate = x.StartDate,
+                            TimeEllapsed = x.TimeEllapsed,
+                            Version = x.Version,
+                            RequestsNumber = x.TestResultExecutions.Count(),
+                            AvgRequestTime = x.TestResultExecutions.Where(te => te.StatusCode == 200).Average(te => te.TimeEllapsed),
+                            RequestPercentage = Math.Round(x.TestResultExecutions.Count(te => te.StatusCode == 200) > 0 && x.TestResultExecutions.Count() > 0 ?
+                                (x.TestResultExecutions.Count(te => te.StatusCode == 200) / (double)x.TestResultExecutions.Count()) * 100.0 :
+                                0.0, 2),
+                            MaxRequestTime = x.TestResultExecutions.Max(te => te.TimeEllapsed)
+                        }).ToListAsync();
+
+                        var resultsCount = await context.TestResults.Where(x => searchFilters.Contains(x.Version) && DbFunctions.TruncateTime(x.StartDate) > startDate.Date && DbFunctions.TruncateTime(x.StartDate) < endDate.Date).CountAsync();
+
+                        var jsonObject = Json(new { iTotal = resultsCount, iTotalDisplay = resultList.Count, aaData = resultList, draw = dtFilters.draw }, JsonRequestBehavior.AllowGet);
+                        jsonObject.MaxJsonLength = Int32.MaxValue;
+
+                        return jsonObject;
+                    }
+                }
             }
         }
 
@@ -244,27 +408,6 @@ namespace SoProd.Web.Controllers
                                       MaxRequest = g.Count(x => x.te.StatusCode == 200) > 0 && g.Count() > 0 ? g.Where(x => x.te.StatusCode == 200).Max(x => x.te.TimeEllapsed) : 0.0
                                   }).ToListAsync();
                 return data;
-            }
-        }
-
-        public async Task<List<TestResult>> GetData2(string version, DateTime date)
-        {
-            using (var context = new SoProdTestingContext())
-            {
-                context.Configuration.LazyLoadingEnabled = false;
-
-                if (date != null && DateTime.Compare(date, new DateTime(1, 1, 1, 0, 0, 0)) == 0)
-                {
-                    var data = await context.TestResults.Where(x => x.Version.Contains(version)).ToListAsync();
-
-                    return data;
-                }
-                else
-                {
-                    var data = await context.TestResults.Where(x => x.Version.Contains(version) && DbFunctions.TruncateTime(x.StartDate) == date.Date).ToListAsync();
-
-                    return data;
-                }
             }
         }
 
@@ -456,6 +599,7 @@ namespace SoProd.Web.Controllers
                 return Json(new { result = "OK", resultComparison = result }, JsonRequestBehavior.AllowGet);
             }
         }
+       
         public ActionResult About()
         {
             ViewBag.Message = "Your application description page.";

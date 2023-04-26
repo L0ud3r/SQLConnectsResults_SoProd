@@ -11,7 +11,7 @@ var Metronic = function () {
 
     var resizeHandlers = [];
 
-    var globalImgPath = SoProdRootDir+'assets/metronic/global/img/';
+    var globalImgPath = SoProdRootDir+'img/global/';
 
     // theme layout color set
 
