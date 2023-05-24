@@ -63,7 +63,7 @@
 <div class="portlet box blue mt-4">
     <div class="portlet-title">
         <div class="caption">
-            <i class="fa fa-bug"></i>@Languages.Get("Results Comparation")
+            <i class="fa fa-bug"></i>Results Comparation
         </div>
         <div class="tools">
             <a href="javascript:;" class="collapse">
@@ -75,16 +75,16 @@
             <div class="mb-3" style="display: flex; gap: 5px">
                 <i id="filter-compare" data-id="1" class="fa fa-filter filter-icon" data-toggle="modal" href="#basic-1"></i>
                 <select id="select2-version-1" class="select2-version-1" style="width: 300px; margin-top: auto; margin-bottom: auto">
-                    <option value="">@Languages.Get("Choose a version")</option>
+                    <option value="">Choose a version</option>
    </select>
                 <input id="date-1" type="date" class="form-control" required />
             </div>
             <div id="result1" class="result-box">
-                @Languages.Get("Pick a version and/or date")
+                Pick a version and/or date
             </div>
         </div>
         <div class="centered-box">
-            <button type="button" id="btn-compare" class="btn btn-info compare">@Languages.Get("Compare")</button>
+            <button type="button" id="btn-compare" class="btn btn-info compare">"Compare"</button>
                         <div id="comparison-result"></div>
                         <div id="result-text"></div>
         </div>
@@ -92,12 +92,12 @@
             <div class="mb-3" style="display: flex; gap: 5px">
                 <input id="date-2" type="date" class="form-control" required />
                 <select id="select2-version-2" class="select2-version-2" style="width: 300px; margin-top: auto; margin-bottom: auto">
-                    <option value="">@Languages.Get("Choose a version")</option>
+                    <option value="">Choose a version</option>
                 </select>
                 <i id="filter-compare" data-id="2" class="fa fa-filter filter-icon" data-toggle="modal" href="#basic-2"></i>
             </div>
             <div id="result2" class="result-box">
-                @Languages.Get("Pick a version and/or date")
+                Pick a version and/or date
             </div>
         </div>
     </div>
@@ -107,15 +107,15 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">@Languages.Get("Test Results")</h4>
+                    <h4 class="modal-title">Test Results</h4>
                 </div>
                 <div class="modal-body">
                     <div id="div-list-test-results-1" style="height: 500px; overflow: auto; border: 2px solid lightblue;">
-                        <span class="center-text">@Languages.Get("Empty List!")</span>
+                        <span class="center-text">Empty List!</span>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn default" data-dismiss="modal">@Languages.Get("Close")</button>
+                    <button type="button" class="btn default" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -126,15 +126,15 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">@Languages.Get("Test Results")</h4>
+                    <h4 class="modal-title">Test Results</h4>
                 </div>
                 <div class="modal-body">
                     <div id="div-list-test-results-2" style="height: 500px; overflow: auto; border: 2px solid lightblue ">
-                        <span class="center-text">@Languages.Get("Empty List!")</span>
+                        <span class="center-text">Empty List!</span>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn default" data-dismiss="modal">@Languages.Get("Close")</button>
+                    <button type="button" class="btn default" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -145,7 +145,7 @@
 <div class="portlet box red mt-1">
     <div class="portlet-title">
         <div class="caption">
-            <i class="fa fa-cogs"></i>@Languages.Get("Database Results")
+            <i class="fa fa-cogs"></i>Database Results
         </div>
         <div class="tools">
             <a href="javascript:;" class="collapse">
@@ -156,38 +156,38 @@
         <div style="display: flex; flex-direction: column; gap: 1em">
             <div style="display: flex; justify-content: space-between">
                 <div class="mb-3" style="display: flex; flex-direction:column; width: 40%">
-                    <label style="font-weight: bold">@Languages.Get("Version)"</label>
+                    <label style="font-weight: bold">Version</label>
                     <select id="select2-request" class="select2-request" name="versions[]" multiple="multiple">
                     </select>
                 </div>
                 <div style="display: flex; gap: 1em">
                     <div style="display: flex; flex-direction: column">
-                        <label style="font-weight: bold">@Languages.Get("Start Date")</label>
+                        <label style="font-weight: bold">Start Date</label>
                         <input id="tr-start-date" type="date" class="form-control" />
                     </div>
                     <div style="display: flex; flex-direction: column">
-                        <label style="font-weight: bold">@Languages.Get("End Date")</label>
+                        <label style="font-weight: bold">End Date</label>
                         <input id="tr-end-date" type="date" class="form-control" />
                     </div>
                 </div>
             </div>
             <button id="tr-search-button" class="btn btn-info" style="width: 15%; margin-left: auto;">
-                <i class="fa fa-search"></i> @Languages.Get("Search)"
+                <i class="fa fa-search"></i> Search
             </button>
         </div>
         <div class="table-responsive">
             <table id="results" class="table  table-advance">
                 <thead>
                     <tr>
-                        <th data-field="Id" class="no-sort column-id">@Languages.Get("ID")</th>
-                        <th data-filed="Identifier" class="no-sort">@Languages.Get("Identifier")</th>
-                        <th data-filed="StartDate" class="no-sort">@Languages.Get("Start Date")</th>
-                        <th data-filed="TimeEllapsed" class="no-sort">@Languages.Get("Time Ellapsed") (ms)</th>
-                        <th data-filed="Version" class="no-sort">@Languages.Get("Version")</th>
-                        <th data-filed="RequestsNumber" class="no-sort">@Languages.Get("Total Requests")</th>
-                        <th data-filed="AvgRequestTime" class="no-sort">@Languages.Get("Average Request Time") (s)</th>
-                        <th data-filed="RequestPercentage" class="no-sort">@Languages.Get("Ok Percentage")</th>
-                        <th data-filed="MaxRequestTime" class="no-sort">@Languages.Get("Max Request") (s)</th>
+                        <th data-field="Id" class="no-sort column-id">ID</th>
+                        <th data-filed="Identifier" class="no-sort">Identifier</th>
+                        <th data-filed="StartDate" class="no-sort">Start Date</th>
+                        <th data-filed="TimeEllapsed" class="no-sort">Time Ellapsed (ms)</th>
+                        <th data-filed="Version" class="no-sort">Version</th>
+                        <th data-filed="RequestsNumber" class="no-sort">Total Requests</th>
+                        <th data-filed="AvgRequestTime" class="no-sort">Average Request Time (s)</th>
+                        <th data-filed="RequestPercentage" class="no-sort">Ok Percentage</th>
+                        <th data-filed="MaxRequestTime" class="no-sort">Max Request (s)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -201,7 +201,7 @@
 <div class="portlet box green">
     <div class="portlet-title">
         <div class="caption">
-            <i class="fa fa-bar-chart-o"></i>@Languages.Get("Data Analysis")
+            <i class="fa fa-bar-chart-o"></i>Data Analysis
         </div>
         <div class="tools">
             <a href="javascript:;" class="collapse">
@@ -210,13 +210,13 @@
     </div>
     <div id="portlet-charts" class="portlet-body flip-scroll">
         <div style="display: flex; justify-content: space-between">
-            <h3 class="panel-title" style="margin-top:auto; margin-bottom: auto">@Languages.Get("Selected Version")</h3>
+            <h3 class="panel-title" style="margin-top:auto; margin-bottom: auto">Selected Version</h3>
             <select id="select2-chart" class="select2-chart" style="width: 85%">
             </select>
         </div>
         <div class="panel panel-default mt-4">
             <div class="panel-heading">
-                <h3 class="panel-title mt-3" style="font-weight: bold; text-align: center">@Languages.Get("Time Ellapsed Chart")</h3>
+                <h3 class="panel-title mt-3" style="font-weight: bold; text-align: center">Time Ellapsed Chart</h3>
             </div>
             <div class="panel-body">
                 <canvas id="myChartTime"></canvas>
@@ -224,7 +224,7 @@
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title" style="font-weight: bold; text-align: center">@Languages.Get("Accuracy Chart")</h3>
+                <h3 class="panel-title" style="font-weight: bold; text-align: center">Accuracy Chart</h3>
             </div>
             <div class="panel-body">
                 <canvas id="myChartAccuracy"></canvas>
@@ -350,12 +350,12 @@
                         type: 'line',
                         data: {
                             datasets: [{
-                                label: "@Languages.Get("Time Ellapsed") (s)",
+                                label: "Time Ellapsed (s)",
                                 data: timeEllapsed,
                                 borderColor: 'rgb(132, 99, 255)',
                                 fill: false
                             }, {
-                                label: "@Languages.Get("Average Time Ellapsed") (s)",
+                                label: "Average Time Ellapsed (s)",
                                 data: averageEllapsed,
                                 borderColor: 'rgb(48, 154, 255)',
                                 fill: false
@@ -392,13 +392,13 @@
                         type: 'line',
                         data: {
                             datasets: [{
-                                label: "@Languages.Get("Requests OK")" + '(@Languages.Get("Count"))'",
+                                label: "Requests OK Count",
                                 data: requestsOk,
                                 borderColor: 'rgb(46, 253, 45)',
                                 fill: false
                             }
                                 , {
-                                label: "@Languages.Get("Total Requests")" + '(@Languages.Get("Count"))',
+                                label: "Total Requests Count",
                                 data: requestNumber,
                                 borderColor: 'rgb(235, 75, 46)',
                                 fill: false
@@ -519,7 +519,7 @@
                     var _rows = [];
                     Metronic.unblockUI('#portlet-results');
                     if (data.error) {
-                        showWarning("Error Validating", "@Languages.Get("Please check form inputs and try again")...");
+                        showWarning("Error Validating", "Please check form inputs and try again");
                     }
                     else {
                         $.each(data.aaData, function (a, b) {
@@ -637,18 +637,15 @@
 
                             $(nRow).after(`
                                 <tr id="executions-stats-${id}" style="align-self: center">
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td colspan="5">
+                                    <td colspan="9">
                                         <table class="table border">
                                             <thead>
                                                 <tr>
-                                                    <th style="font-weight: bold;">@Languages.Get("Endpoint")</th>
-                                                    <th style="font-weight: bold;">@Languages.Get("Total Requests")</th>
-                                                    <th style="font-weight: bold;">@Languages.Get("OK Response Percentage")</th>
-                                                    <th style="font-weight: bold;">@Languages.Get("Average Request Time") (s)</th>
-                                                    <th style="font-weight: bold;">@Languages.Get("Max Request Time") (s)</th>
+                                                    <th style="font-weight: bold;">Endpoint</th>
+                                                    <th style="font-weight: bold;">Total Requests</th>
+                                                    <th style="font-weight: bold;">OK Response Percentage</th>
+                                                    <th style="font-weight: bold;">Average Request Time (s)</th>
+                                                    <th style="font-weight: bold;">Max Request Time (s)</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -656,7 +653,7 @@
                                         </table>
                                         <div class="panel panel-default mt-4">
                                             <div class="panel-heading">
-                                                <h3 class="panel-title mt-3" style="font-weight: bold; text-align: center">@Languages.Get("Analysis charts")</h3>
+                                                <h3 class="panel-title mt-3" style="font-weight: bold; text-align: center">Analysis charts</h3>
                                             </div>
                                             <div class="panel-body">
                                                 <canvas id="myChart1"></canvas>
@@ -683,14 +680,14 @@
                                 data: {
                                     labels: labels,
                                     datasets: [{
-                                        label: '@Languages.Get("Average Request Time") (s)',
+                                        label: 'Average Request Time (s)',
                                         data: maxAverageTimes,
                                         backgroundColor: 'rgba(54, 235, 65, 0.2)',
                                         borderColor: 'rgba(54, 235, 65, 1)',
                                         borderWidth: 1
                                     },
                                     {
-                                        label: '@Languages.Get("Max Request Time") (s)',
+                                        label: 'Max Request Time (s)',
                                         data: maxRequestTimes,
                                         backgroundColor: 'rgba(235, 45, 65, 0.2)',
                                         borderColor: 'rgba(235, 45, 65, 1)',
@@ -722,7 +719,7 @@
                                 data: {
                                     labels: labels,
                                     datasets: [{
-                                        label: '@Languages.Get("Resquests OK") (%)',
+                                        label: 'Resquests OK (%)',
                                         data: maxRequestPercentage,
                                         backgroundColor: 'rgba(54, 65, 235, 0.2)',
                                         borderColor: 'rgba(54, 65, 235, 1)',
@@ -750,7 +747,7 @@
                                     <td></td>
                                     <td colspan="5" >
                                         <div class="empty-results">
-                                            @Languages.Get("There are no executions made in this test!")
+                                           There are no executions made in this test!
                                         </div>
                                 </tr>`)
 
@@ -789,7 +786,7 @@
                     var listSection = $('#div-list-test-results-1')
                     listSection.empty()
 
-                    var selectAllDiv = '<div style="display: flex; margin-left: 0.5em; gap: 0.25em"><input type="checkbox" id="check-all-1" class="check-all-1" style="margin-top: auto;margin-bottom: auto;" checked><a id="check-all-text-1">@Languages.Get("Select All")</a></div>'
+                    var selectAllDiv = '<div style="display: flex; margin-left: 0.5em; gap: 0.25em"><input type="checkbox" id="check-all-1" class="check-all-1" style="margin-top: auto;margin-bottom: auto;" checked><a id="check-all-text-1">Select All</a></div>'
                     var list = '<ul id="list-filter-1" style="list-style: none;">'
 
                     if (response.testResults.length > 0) {
@@ -802,7 +799,7 @@
                             }
 
                             list = list + `<li style="display: flex; gap: 5px">
-                                    <input type="checkbox" class="filter-checkbox-1" id="filter-checkbox-1" data-id="${item.Id}" checked/>${item.Version} - ${item.startDate} (@Languages.Get("TestDefinitionId"): ${item.TestDefinitionId})</li>`
+                                    <input type="checkbox" class="filter-checkbox-1" id="filter-checkbox-1" data-id="${item.Id}" checked/>${item.Version} - ${item.startDate} (TestDefinitionId): ${item.TestDefinitionId})</li>`
                         });
                         list = list + '</ul>'
 
@@ -827,7 +824,7 @@
                     }
                     else {
                         listSection.empty()
-                        listSection.append(`<span class="center-text">@Languages.Get("No results found!")</span>`)
+                        listSection.append(`<span class="center-text">No results found!</span>`)
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
@@ -852,7 +849,7 @@
                     var listSection = $('#div-list-test-results-2')
                     listSection.empty()
 
-                    var selectAllDiv = '<div style="display: flex; margin-left: 0.5em; gap: 0.25em"><input type="checkbox" id="check-all-2" class="check-all-2" style="margin-top: auto;margin-bottom: auto;" checked><a id="check-all-text-2">@Languages.Get("Select All")</a></div>'
+                    var selectAllDiv = '<div style="display: flex; margin-left: 0.5em; gap: 0.25em"><input type="checkbox" id="check-all-2" class="check-all-2" style="margin-top: auto;margin-bottom: auto;" checked><a id="check-all-text-2">Select All</a></div>'
                     var list = '<ul id="list-filter-2" style="list-style: none;">'
 
                     if (response.testResults.length > 0) {
@@ -865,7 +862,7 @@
                             }
 
                             list = list + `<li style="display: flex; gap: 5px">
-                                    <input type="checkbox" class="filter-checkbox-2" id="filter-checkbox-2" data-id="${item.Id}" checked/>${item.Version} - ${item.startDate} (@Languages.Get("TestDefinitionId"): ${item.TestDefinitionId})</li>`
+                                    <input type="checkbox" class="filter-checkbox-2" id="filter-checkbox-2" data-id="${item.Id}" checked/>${item.Version} - ${item.startDate} (TestDefinitionId: ${item.TestDefinitionId})</li>`
                         });
                         list = list + '</ul>'
 
@@ -945,34 +942,34 @@
                         if (comparison1.TestsCount != 0) {
                             const newHtml1 = `
                                         <div class="result-box-line">
-                                            <label>@Languages.Get("Request Average")</label>
+                                            <label>Request Average</label>
                                             <label id="c1-avg">${comparison1.AvgRequest.toFixed(2)}</label>
                                         </div>
                                         <div class="result-box-line">
-                                            <label>@Languages.Get("Total Requests")</label>
+                                            <label>Total Requests</label>
                                             <label id="c1-total">${comparison1.TotalRequest}</label>
                                         </div>
                                         <div class="result-box-line">
-                                            <label>@Languages.Get("Users Number")</label>
+                                            <label>Users Number</label>
                                             <label id="c1-users">${comparison1.UsersNumber}</label>
                                         </div>
                                         <div class="result-box-line">
-                                            <label>@Languages.Get("Requests OK") (%)</label>
+                                            <label>Requests OK (%)</label>
                                             <label id="c1-ok">${comparison1.PercentRequest.toFixed(2)}</label>
                                         </div>
                                         <div class="result-box-line">
-                                            <label>@Languages.Get("Max Request Time") (s)</label>
+                                            <label>Max Request Time (s)</label>
                                             <label id="c1-max">${comparison1.MaxRequest.toFixed(2)}</label>
                                         </div>
                                         <div class="result-box-line">
-                                            <label>@Languages.Get("Tests Number")</label>
+                                            <label>Tests Number</label>
                                             <label id="c1-tests">${comparison1.TestsCount}</label>
                                         </div>`;
 
                             result1.innerHTML = newHtml1;
                         }
                         else {
-                            const newHtml1 = `@Languages.Get("This version has no tests on this date")`
+                            const newHtml1 = `This version has no tests on this date`
                             document.querySelector('#result-text').innerHTML = ""
 
                             if (document.querySelector('#icon-result') != null)
@@ -985,27 +982,27 @@
 
                             const newHtml2 = `
                                         <div class="result-box-line">
-                                            <label>@Languages.Get("Request Average Time") (s)</label>
+                                            <label>Request Average Time (s)</label>
                                             <label id="c2-avg">${comparison2.AvgRequest.toFixed(2)}</label>
                                         </div>
                                         <div class="result-box-line">
-                                            <label>@Languages.Get("Total Requests")</label>
+                                            <label>Total Requests</label>
                                             <label id="c2-total">${comparison2.TotalRequest}</label>
                                         </div>
                                         <div class="result-box-line">
-                                            <label>@Languages.Get("Users Number")</label>
+                                            <label>Users Number</label>
                                             <label id="c2-users">${comparison2.UsersNumber}</label>
                                         </div>
                                         <div class="result-box-line">
-                                            <label>@Languages.Get("Requests OK") (%)</label>
+                                            <label>Requests OK (%)</label>
                                             <label id="c2-ok">${comparison2.PercentRequest.toFixed(2)}</label>
                                         </div>
                                         <div class="result-box-line">
-                                            <label>@Languages.Get("Max Request Time") (s)</label>
+                                            <label>Max Request Time (s)</label>
                                             <label id="c2-max">${comparison2.MaxRequest.toFixed(2)}</label>
                                         </div>
                                         <div class="result-box-line">
-                                            <label>@Languages.Get("Tests Number")</label>
+                                            <label>Tests Number</label>
                                             <label id="c2-tests">${comparison2.TestsCount}</label>
                                         </div>
                                     `;
@@ -1013,7 +1010,7 @@
                             result2.innerHTML = newHtml2;
                         }
                         else {
-                            const newHtml2 = `@Languages.Get("This version has no tests on this date")`
+                            const newHtml2 = `This version has no tests on this date`
                             document.querySelector('#result-text').innerHTML = ""
                             document.querySelector('#icon-result').hidden = true
 
@@ -1082,14 +1079,14 @@
 
                             if (points1 > points2) {
                                 arrow = '<icon id="icon-result" class="fa fa-arrow-circle-o-left" style="color: lightskyblue; font-size: 5em;" ></icon >'
-                                document.querySelector('#result-text').innerHTML = '@Languages.Get("seems to be the better version")!'
+                                document.querySelector('#result-text').innerHTML = 'seems to be the better version!'
                             }
                             else if (points1 == points2) {
-                                document.querySelector('#result-text').innerHTML = '@Languages.Get("both seem to have the similar results")!'
+                                document.querySelector('#result-text').innerHTML = 'both seem to have the similar results!'
                             }
                             else {
                                 arrow = '<icon id="icon-result" class="fa fa-arrow-circle-o-right" style="color: lightskyblue; font-size: 5em;"></icon>'
-                                document.querySelector('#result-text').innerHTML = '@Languages.Get("seems to be the better version")!'
+                                document.querySelector('#result-text').innerHTML = 'seems to be the better version!'
                             }
 
                             document.querySelector('#comparison-result').innerHTML = arrow
